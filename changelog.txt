@@ -1,0 +1,10 @@
+-add setCamera() function to Viewport class
+-add OverheadCamera class to Engine
+-add CameraOrbit3D class to Engine
+-add setTime, getTime, and addTime functions to GameObject class
+-add setRadialPosition and get RadialPosition functions to GameObject class
+-add OrbitController class to nodeControllers package
+-add FloatController class to nodeControllers package
+-add getTargetCount function to NodeController class
+-add clearTargets function to NodeController class
+-add removeTarget function to NodeController class
