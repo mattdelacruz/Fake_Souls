@@ -1,12 +1,13 @@
-package a3;
+package a3.PlayerInputControls;
 
-import tage.CameraOrbit3D;
+import a3.MyGame;
+import tage.TargetCamera;
 
 public class CameraControls implements PlayerControlFunctions {
-    private CameraOrbit3D cam;
+    private TargetCamera cam;
 
-    CameraControls() {
-        cam = MyGame.getGameInstance().getOrbitCamera();
+    public CameraControls() {
+        cam = MyGame.getGameInstance().getTargetCamera();
     }
 
     @Override
@@ -40,7 +41,18 @@ public class CameraControls implements PlayerControlFunctions {
     }
 
     @Override
-    public boolean isControlDolphin() {
+    public void target() {
+        // Enemy target = MyGame.getGameInstance().findTarget();
+        // if (target != null) {
+        // cam.targetTo(target);
+        // } else {
+        // System.out.println("no target found");
+        // }
+        System.out.println("hello");
+    }
+
+    @Override
+    public boolean isControlPlayer() {
         return false;
     }
 

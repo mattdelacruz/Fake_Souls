@@ -54,11 +54,11 @@ public class InputManager implements IInputManager {
 	private ArrayList<Controller> controllers;
 
 	// this hashtable holds the state of each component in each controller
-//	private HashMap<Component.Identifier, ComponentStateInfo> componentStates;
-	
-	private HashMap<Controller, HashMap<Component.Identifier,ComponentStateInfo>> controllerStates;
-	
-	private HashMap<Controller, HashMap<Component.Identifier,IAction>> controllerActions;
+	// private HashMap<Component.Identifier, ComponentStateInfo> componentStates;
+
+	private HashMap<Controller, HashMap<Component.Identifier, ComponentStateInfo>> controllerStates;
+
+	private HashMap<Controller, HashMap<Component.Identifier, IAction>> controllerActions;
 
 	// this hashtable holds Component:AbstractInputAction pairs; when a given
 	// component is
@@ -69,7 +69,7 @@ public class InputManager implements IInputManager {
 	// Component:AbstractInputAction pairs into the actions table, by calling
 	// method
 	// associateAction().
-//	private HashMap<Component.Identifier, IAction> actions;
+	// private HashMap<Component.Identifier, IAction> actions;
 
 	private int verbosity;
 
@@ -103,35 +103,37 @@ public class InputManager implements IInputManager {
 		controllers = new ArrayList<Controller>();
 
 		// table to hold the state of each component
-		controllerStates = new HashMap<Controller, HashMap<Component.Identifier,ComponentStateInfo>>();
+		controllerStates = new HashMap<Controller, HashMap<Component.Identifier, ComponentStateInfo>>();
 
 		// table of component:action pairs
-		controllerActions = new HashMap<Controller, HashMap<Component.Identifier,IAction>> ();
+		controllerActions = new HashMap<Controller, HashMap<Component.Identifier, IAction>>();
 
 		// get an array of the currently available controllers from JInput
 		Controller[] jinput_controllers = ControllerEnvironment
 				.getDefaultEnvironment().getControllers();
-		
+
 		/*
-		// copy the controllers from the fixed-size array to an ArrayList
-		// for processing by the update() loop
-		for (Controller c : jinput_controllers) {
-			c.setEventQueueSize(128);
-			controllers.add(c);
-		}
-		*/
+		 * // copy the controllers from the fixed-size array to an ArrayList
+		 * // for processing by the update() loop
+		 * for (Controller c : jinput_controllers) {
+		 * c.setEventQueueSize(128);
+		 * controllers.add(c);
+		 * }
+		 */
 		parseControllersList();
-		
-		//create a hashtable entry for each controller to hold the controller's component's states
+
+		// create a hashtable entry for each controller to hold the controller's
+		// component's states
 		for (Controller c : controllers) {
-			controllerStates.put(c, new HashMap<Component.Identifier,ComponentStateInfo>());
+			controllerStates.put(c, new HashMap<Component.Identifier, ComponentStateInfo>());
 		}
-		
-		//create a hashtable entry for each controller to hold actions associated with the controller's components
+
+		// create a hashtable entry for each controller to hold actions associated with
+		// the controller's components
 		for (Controller c : controllers) {
-			controllerActions.put(c, new HashMap<Component.Identifier,IAction>());
+			controllerActions.put(c, new HashMap<Component.Identifier, IAction>());
 		}
-		
+
 		if (verbosity > 0) {
 			System.out.println(this.getClass().getName()
 					+ ": using JInput version " + Version.getVersion());
@@ -156,13 +158,13 @@ public class InputManager implements IInputManager {
 										+ " name= '" + components[j].getName()
 										+ "'" + " identifier= '"
 										+ components[j].getIdentifier() + "'");
-							}// end for each component of this controller
+							} // end for each component of this controller
 						} else {
 							System.out
 									.println("   No components found for the above controller");
 						}
 					}
-				}// end for each controller
+				} // end for each controller
 			} else {
 				System.out.println(this.getClass().getName()
 						+ ": no controllers found during initialization");
@@ -179,10 +181,12 @@ public class InputManager implements IInputManager {
 	 * should be called by the application (game) code, typically once per
 	 * iteration of the "game loop".
 	 * 
-	 * @param time - the elapsed time since the last time this method was called, normally
-	 * 					given in milliseconds; this time is passed to the 
-	 * 					{@link IAction#performAction(float, Event)} method for any {@link IAction} 
-	 * 					objects invoked as a result of this call to <code>update()</code>
+	 * @param time - the elapsed time since the last time this method was called,
+	 *             normally
+	 *             given in milliseconds; this time is passed to the
+	 *             {@link IAction#performAction(float, Event)} method for any
+	 *             {@link IAction}
+	 *             objects invoked as a result of this call to <code>update()</code>
 	 */
 	public void update(float time) {
 		if (verbosity > 3) {
@@ -202,7 +206,8 @@ public class InputManager implements IInputManager {
 			Event event = new Event();
 
 			/*
-			 * As long as there's more Events in the queue, copy the next Event into "event" and
+			 * As long as there's more Events in the queue, copy the next Event into "event"
+			 * and
 			 * then process it
 			 */
 			while (queue.getNextEvent(event)) { // get an event
@@ -225,7 +230,8 @@ public class InputManager implements IInputManager {
 				// component which generated the current event
 				ComponentStateInfo componentState = controllerStates.get(c).get(componentID);
 
-				// make sure there IS a ComponentStateInfo for the component (only components for
+				// make sure there IS a ComponentStateInfo for the component (only components
+				// for
 				// which actions have been registered will have ComponentStateInfo objects
 				if (componentState != null) {
 
@@ -315,9 +321,9 @@ public class InputManager implements IInputManager {
 					// component which generated this event
 				}
 
-			}// end while(there are events in the controller's EventQueue)
+			} // end while(there are events in the controller's EventQueue)
 
-		}// end for(each controller)
+		} // end for(each controller)
 
 		// invoke actions for all button/key components which are currently pressed and
 		// which are marked as to be invoked "repeatedly while down", and also for
@@ -329,7 +335,8 @@ public class InputManager implements IInputManager {
 				// get the state of the next component
 				ComponentStateInfo componentState = controllerStates.get(c).get(component);
 
-				// check if the event in the componentState is "new". It will be new if it was just
+				// check if the event in the componentState is "new". It will be new if it was
+				// just
 				// added by the event loop (above).
 				if (componentState.isNewEvent()) {
 					// the event is new and therefore was processed above; don't process it again
@@ -356,7 +363,7 @@ public class InputManager implements IInputManager {
 										+ ": InputManager: invoking repeatable pressed action "
 								// + action + "with elapsed time " + time
 								// + "and event " + componentState.getEvent()
-										);
+								);
 							}
 							// yes it has an Action; invoke the Action
 							action.performAction(time, componentState.getEvent());
@@ -397,15 +404,15 @@ public class InputManager implements IInputManager {
 									// yes it has an Action; invoke the Action
 									action.performAction(time, componentState.getEvent());
 								}
-							}// end it's an axis which is not at zero
-						}// end event is not null
+							} // end it's an axis which is not at zero
+						} // end event is not null
 						else {
 							// this component has never generated an event; do nothing
 						}
-					}// end else check for for repeatable axis actions
-				}// end else consider component for repeat processing
+					} // end else check for for repeatable axis actions
+				} // end else consider component for repeat processing
 
-			}// end for each component
+			} // end for each component
 			if (verbosity > 3) {
 				System.out.println("...end InputManager.update() event processing...");
 			}
@@ -414,36 +421,40 @@ public class InputManager implements IInputManager {
 	}// end update()
 
 	@Override
-	/**<code>associateAction()</code> causes the {@link InputManager}
+	/**
+	 * <code>associateAction()</code> causes the {@link InputManager}
 	 * to associate an {@link IAction} (for example,
-	 * "walk forward", "fire weapon", etc) 
-	 * with the activation of a specific component 
+	 * "walk forward", "fire weapon", etc)
+	 * with the activation of a specific component
 	 * (for example, key 'A', etc).
 	 * Associating an {@link IAction} with a component
-	 * causes {@link InputManager#update(float)} to automatically 
+	 * causes {@link InputManager#update(float)} to automatically
 	 * invoke that {@link IAction}
-	 * by calling its {@link tage.input.action.IAction#performAction(float, net.java.games.input.Event)} method
+	 * by calling its
+	 * {@link tage.input.action.IAction#performAction(float, net.java.games.input.Event)}
+	 * method
 	 * based on the associated {@link IInputManager.INPUT_ACTION_TYPE}.
 	 * <P>
-	 * NOTE: this method is <I>deprecated</i> and is provided for backward 
+	 * NOTE: this method is <I>deprecated</i> and is provided for backward
 	 * compatibility with older versions of Sage;
 	 * use {@link IInputManager#associateAction(String, Component.Identifier,
-	 * IAction, INPUT_ACTION_TYPE) instead.  If this method is called it 
-	 * defaults to associating the specified IAction with the keyboard returned 
+	 * IAction, INPUT_ACTION_TYPE) instead. If this method is called it
+	 * defaults to associating the specified IAction with the keyboard returned
 	 * by {@link tage.input.IInputManager#getKeyboardName()}; if the specified
-	 * component is not an instance of {@link net.java.games.input.Component.Identifier.Key}
+	 * component is not an instance of
+	 * {@link net.java.games.input.Component.Identifier.Key}
 	 * a warning is printed and the request is ignored.
 	 *
-	 * @param component - identifier of the component with which the action 
-	 * 						is to be associated
-	 * @param action - the action which is to be associated with the
-	 * 						specified component
+	 * @param component  - identifier of the component with which the action
+	 *                   is to be associated
+	 * @param action     - the action which is to be associated with the
+	 *                   specified component
 	 * @param actionType -- indicates when the action is to be invoked in
-	 * 						relation to the occurrence of component events
+	 *                   relation to the occurrence of component events
 	 * 
 	 * @return the action which was previously associated with the specified
-	 * 				component, or null if there was no previously associated
-	 * 				action.
+	 *         component, or null if there was no previously associated
+	 *         action.
 	 */
 	@Deprecated
 	public IAction associateAction(Component.Identifier component, IAction action, INPUT_ACTION_TYPE actionType) {
@@ -452,12 +463,13 @@ public class InputManager implements IInputManager {
 					+ "deprecated method called with a component which is not a Key; ignored");
 			return null;
 		}
-		//default to first keyboard
-//		Controller c = controllers.get(0);
+		// default to first keyboard
+		// Controller c = controllers.get(0);
 		String kbName = getKeyboardName();
 		IAction returnAction = associateAction(kbName, component, action, actionType);
-//		controllerStates.get(c).put(component, new ComponentStateInfo(false, actionType));
-//		return controllerActions.get(c).put(component, action);
+		// controllerStates.get(c).put(component, new ComponentStateInfo(false,
+		// actionType));
+		// return controllerActions.get(c).put(component, action);
 		return returnAction;
 	}
 
@@ -467,94 +479,100 @@ public class InputManager implements IInputManager {
 	 * object to associate an {@link IAction} (for example, "walk forward",
 	 * "fire weapon", etc) with the activation of a specific
 	 * component <I>of a specific controller</i>
-	 * (for example, Button1 of controller 0; key 'A' of controller 1, etc). Associating an
-	 * {@link IAction} with a controller and component causes
-	 * {@link IInputManager#update(float)} to automatically invoke that
-	 * {@link IAction}, by calling its
-	 * {@link IAction#performAction(float,Event)} method, based on the
-	 * associated {@link IInputManager.INPUT_ACTION_TYPE} (for example, each time the
-	 * specified component on the specified controller changes state).
-	 * 
-	 * @param controller
-	 * 				- identifier of the controller with which the action is to be associated
-	 * @param component
-	 *            - identifier of the component with which the action is to be
-	 *            associated
-	 * @param action
-	 *            - the action which is to be associated with the specified
-	 *            component
-	 * @param actionType
-	 *            -- indicates when the action is to be invoked in relation to
-	 *            the occurrence of component events
-	 * 
-	 * @return the action which was previously associated with the specified controller and
-	 *         component, or null if there was no previously associated action.
-	 */
-	public IAction associateAction(String controllerName, Component.Identifier component,
-			IAction action, INPUT_ACTION_TYPE actionType) {
-		//find the controller with the specified ID
-		for (Controller c : controllers ) {
-			if (c.getName().equalsIgnoreCase(controllerName)) {
-				//put a new ComponentState record in the component entry for the controller
-				controllerStates.get(c).put(component, new ComponentStateInfo(false, actionType));
-				//put a new Action in the component entry for the controller
-				return controllerActions.get(c).put(component, action);
-			}
-		}
-		throw new RuntimeException("InputManager.associateAction(): controller '"
-							+ controllerName + "' not found");
-	}
-	
-	/**
-	 * <code>associateAction()</code> causes the <code>IInputManager</code>
-	 * object to associate an {@link IAction} (for example, "walk forward",
-	 * "fire weapon", etc) with the activation of a specific
-	 * component <I>of a specific controller</i>. 
+	 * (for example, Button1 of controller 0; key 'A' of controller 1, etc).
 	 * Associating an
 	 * {@link IAction} with a controller and component causes
 	 * {@link IInputManager#update(float)} to automatically invoke that
 	 * {@link IAction}, by calling its
 	 * {@link IAction#performAction(float,Event)} method, based on the
-	 * associated {@link IInputManager.INPUT_ACTION_TYPE} (for example, each time the
+	 * associated {@link IInputManager.INPUT_ACTION_TYPE} (for example, each time
+	 * the
 	 * specified component on the specified controller changes state).
 	 * 
 	 * @param controller
-	 * 				- the controller with which the action is to be associated
+	 *                   - identifier of the controller with which the action is to
+	 *                   be associated
 	 * @param component
-	 *            - identifier of the component with which the action is to be
-	 *            associated
+	 *                   - identifier of the component with which the action is to
+	 *                   be
+	 *                   associated
 	 * @param action
-	 *            - the action which is to be associated with the specified
-	 *            component
+	 *                   - the action which is to be associated with the specified
+	 *                   component
 	 * @param actionType
-	 *            -- indicates when the action is to be invoked in relation to
-	 *            the occurrence of component events
+	 *                   -- indicates when the action is to be invoked in relation
+	 *                   to
+	 *                   the occurrence of component events
+	 * 
+	 * @return the action which was previously associated with the specified
+	 *         controller and
+	 *         component, or null if there was no previously associated action.
+	 */
+	public IAction associateAction(String controllerName, Component.Identifier component,
+			IAction action, INPUT_ACTION_TYPE actionType) {
+		// find the controller with the specified ID
+		for (Controller c : controllers) {
+			if (c.getName().equalsIgnoreCase(controllerName)) {
+				// put a new ComponentState record in the component entry for the controller
+				controllerStates.get(c).put(component, new ComponentStateInfo(false, actionType));
+				// put a new Action in the component entry for the controller
+				return controllerActions.get(c).put(component, action);
+			}
+		}
+		throw new RuntimeException("InputManager.associateAction(): controller '"
+				+ controllerName + "' not found");
+	}
+
+	/**
+	 * <code>associateAction()</code> causes the <code>IInputManager</code>
+	 * object to associate an {@link IAction} (for example, "walk forward",
+	 * "fire weapon", etc) with the activation of a specific
+	 * component <I>of a specific controller</i>.
+	 * Associating an
+	 * {@link IAction} with a controller and component causes
+	 * {@link IInputManager#update(float)} to automatically invoke that
+	 * {@link IAction}, by calling its
+	 * {@link IAction#performAction(float,Event)} method, based on the
+	 * associated {@link IInputManager.INPUT_ACTION_TYPE} (for example, each time
+	 * the
+	 * specified component on the specified controller changes state).
+	 * 
+	 * @param controller
+	 *                   - the controller with which the action is to be associated
+	 * @param component
+	 *                   - identifier of the component with which the action is to
+	 *                   be
+	 *                   associated
+	 * @param action
+	 *                   - the action which is to be associated with the specified
+	 *                   component
+	 * @param actionType
+	 *                   -- indicates when the action is to be invoked in relation
+	 *                   to
+	 *                   the occurrence of component events
 	 * 
 	 * @return the action which was previously associated with the specified
 	 *         component, or null if there was no previously associated action.
 	 */
 	public IAction associateAction(Controller controller, Component.Identifier component,
-			IAction action, INPUT_ACTION_TYPE actionType)
-	{
-		if(controller == null)
+			IAction action, INPUT_ACTION_TYPE actionType) {
+		if (controller == null)
 			throw new RuntimeException("InputManager.associateAction: controller is NULL!");
-		
-		//find the controller with the specified ID
-		for (Controller c : controllers ) 
-		{
-			if (c == controller) 
-			{
-				//put a new ComponentState record in the component entry for the controller
+
+		// find the controller with the specified ID
+		for (Controller c : controllers) {
+			if (c == controller) {
+				// put a new ComponentState record in the component entry for the controller
 				controllerStates.get(c).put(component, new ComponentStateInfo(false, actionType));
-				
-				//put a new Action in the component entry for the controller
+
+				// put a new Action in the component entry for the controller
 				return controllerActions.get(c).put(component, action);
 			}
 		}
-		
-		throw new RuntimeException("InputManager.associateAction(): controller '" + controller.getName() + "' not found");		
-	}
 
+		throw new RuntimeException(
+				"InputManager.associateAction(): controller '" + controller.getName() + "' not found");
+	}
 
 	private boolean prettyCloseTo(float actualValue, float referenceValue) {
 		double delta = Math.abs(Math.abs(actualValue) - Math.abs(referenceValue));
@@ -576,8 +594,10 @@ public class InputManager implements IInputManager {
 	}
 
 	/**
-	 * Returns the name string for the Keyboard controller (if more than one keyboard is present,
-	 * the first one is returned).  If no keyboard controller is found, null is returned.
+	 * Returns the name string for the Keyboard controller (if more than one
+	 * keyboard is present,
+	 * the first one is returned). If no keyboard controller is found, null is
+	 * returned.
 	 */
 	public String getKeyboardName() {
 		for (Controller c : controllers) {
@@ -585,12 +605,14 @@ public class InputManager implements IInputManager {
 				return c.getName();
 			}
 		}
-		return null ;
+		return null;
 	}
-	
+
 	/**
-	 * Returns the name string for the Mouse controller (if more than one mouse is present,
-	 * the first one is returned).  If no mouse controller is found, null is returned.
+	 * Returns the name string for the Mouse controller (if more than one mouse is
+	 * present,
+	 * the first one is returned). If no mouse controller is found, null is
+	 * returned.
 	 */
 	public String getMouseName() {
 		for (Controller c : controllers) {
@@ -598,292 +620,299 @@ public class InputManager implements IInputManager {
 				return c.getName();
 			}
 		}
-		return null ;
+		return null;
 	}
-	
+
 	/**
-	 * Returns the name string for the first gamepad controller.  If no gamepad controller is found, 
+	 * Returns the name string for the first gamepad controller. If no gamepad
+	 * controller is found,
 	 * null is returned.
 	 */
 	public String getFirstGamepadName() {
 		for (Controller c : controllers) {
-			if ((c.getType().equals(Controller.Type.GAMEPAD))||(c.getType().equals(Controller.Type.STICK))) {
+			if ((c.getType().equals(Controller.Type.GAMEPAD)) || (c.getType().equals(Controller.Type.STICK))) {
 				return c.getName();
 			}
 		}
-		return null ;		
+		return null;
 	}
-	
+
 	/**
-	 * Returns the name string for the second gamepad controller (if less than two gamepad controllers
+	 * Returns the name string for the second gamepad controller (if less than two
+	 * gamepad controllers
 	 * are present, null is returned).
 	 */
 	public String getSecondGamepadName() {
 		boolean foundFirst = false;
 		for (Controller c : controllers) {
-			if (((c.getType().equals(Controller.Type.GAMEPAD))||(c.getType().equals(Controller.Type.STICK))) && !foundFirst) {
+			if (((c.getType().equals(Controller.Type.GAMEPAD)) || (c.getType().equals(Controller.Type.STICK)))
+					&& !foundFirst) {
 				foundFirst = true;
 				continue;
 			}
-			if (((c.getType().equals(Controller.Type.GAMEPAD))||(c.getType().equals(Controller.Type.STICK))) && foundFirst) {
+			if (((c.getType().equals(Controller.Type.GAMEPAD)) || (c.getType().equals(Controller.Type.STICK)))
+					&& foundFirst) {
 				return c.getName();
 			}
 		}
-		return null ;		
-		
+		return null;
+
 	}
-	
+
 	/**
-	 * Returns the {@link net.java.games.input.Controller} with the specified name, or null if
+	 * Returns the {@link net.java.games.input.Controller} with the specified name,
+	 * or null if
 	 * no controller of the specified name is installed.
 	 */
 	public Controller getControllerByName(String name) {
 		for (Controller c : controllers) {
 			if (c.getName().equalsIgnoreCase(name)) {
-				return c ;
+				return c;
 			}
 		}
-		//no controller by the specified name found
-		return null ;
+		// no controller by the specified name found
+		return null;
 	}
-	
-	
+
 	/* NEW CODE */
-	
+
 	/**
 	 * Returns the Keyboard controller (if more than one keyboard is present,
-	 * the first one is returned).  If no keyboard controller is found, null is returned.
+	 * the first one is returned). If no keyboard controller is found, null is
+	 * returned.
 	 */
-	public Controller getKeyboardController()
-	{
+	public Controller getKeyboardController() {
 		return getNthOccurrenceController(1, Controller.Type.KEYBOARD);
 	}
-	
+
 	/**
-	 * Returns the <code>nth</code> occurrence of a keyboard {@link net.java.games.input.Controller}.
+	 * Returns the <code>nth</code> occurrence of a keyboard
+	 * {@link net.java.games.input.Controller}.
 	 * If no keyboard controller is found, null is returned.
 	 * 
-	 * @param n Occurrence number, such as 1 for first occurrence of a keyboard, or 2 for second occurrence of a keyboard.
+	 * @param n Occurrence number, such as 1 for first occurrence of a keyboard, or
+	 *          2 for second occurrence of a keyboard.
 	 */
-	public Controller getKeyboardController(int n)
-	{
+	public Controller getKeyboardController(int n) {
 		return getNthOccurrenceController(n, Controller.Type.KEYBOARD);
 	}
-	
+
 	/**
-	 * Returns the first keyboard controller with <code>n</code> or more components. 
+	 * Returns the first keyboard controller with <code>n</code> or more components.
 	 * If no such keyboard controller is found, null is returned.
 	 * 
 	 * @param n The minimum number of components the keyboard should have.
 	 */
-	public Controller getKeyboardControllerWithNComponents(int n)
-	{
-		for (Controller c : controllers)
-		{
+	public Controller getKeyboardControllerWithNComponents(int n) {
+		for (Controller c : controllers) {
 			if (c.getType().equals(Controller.Type.KEYBOARD) &&
-				c.getComponents().length >= n)
-			{
+					c.getComponents().length >= n) {
 				return c;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Returns the Mouse controller (if more than one mouse is present,
-	 * the first one is returned).  If no mouse controller is found, null is returned.
+	 * the first one is returned). If no mouse controller is found, null is
+	 * returned.
 	 */
-	public Controller getMouseController()
-	{
+	public Controller getMouseController() {
 		return getNthOccurrenceController(1, Controller.Type.MOUSE);
 	}
-	
+
 	/**
-	 * Returns the <code>nth</code> occurrence of a Mouse {@link net.java.games.input.Controller}.
+	 * Returns the <code>nth</code> occurrence of a Mouse
+	 * {@link net.java.games.input.Controller}.
 	 * If no mouse controller is found, null is returned.
 	 * 
-	 * @param n Occurrence number, such as 1 for first occurrence of a mouse, or 2 for second occurrence of a mouse.
+	 * @param n Occurrence number, such as 1 for first occurrence of a mouse, or 2
+	 *          for second occurrence of a mouse.
 	 */
-	public Controller getMouseController(int n)
-	{
+	public Controller getMouseController(int n) {
 		return getNthOccurrenceController(n, Controller.Type.MOUSE);
 	}
-	
+
 	/**
-	 * Returns the <code>nth</code> occurrence of a Gamepad {@link net.java.games.input.Controller}. 
+	 * Returns the <code>nth</code> occurrence of a Gamepad
+	 * {@link net.java.games.input.Controller}.
 	 * 
-	 * @param n Occurrence number, such as 1 for first occurrence of a gamepad, or 2 for second occurrence of a gamepad. 
+	 * @param n Occurrence number, such as 1 for first occurrence of a gamepad, or 2
+	 *          for second occurrence of a gamepad.
 	 */
-	public Controller getGamepadController(int n)
-	{
+	public Controller getGamepadController(int n) {
 		return getNthOccurrenceController(n, Controller.Type.GAMEPAD);
 	}
-	
+
 	/**
-	 * Returns the <code>nth</code> occurrence of a Joystick {@link net.java.games.input.Controller}. 
+	 * Returns the <code>nth</code> occurrence of a Joystick
+	 * {@link net.java.games.input.Controller}.
 	 * 
-	 * @param n Occurrence number, such as 1 for first occurrence of a joystick, or 2 for second occurrence of a joystick. 
+	 * @param n Occurrence number, such as 1 for first occurrence of a joystick, or
+	 *          2 for second occurrence of a joystick.
 	 */
-	public Controller getJoystickController(int n)
-	{
+	public Controller getJoystickController(int n) {
 		return getNthOccurrenceController(n, Controller.Type.STICK);
 	}
-	
+
 	/**
-	 * Returns the <code>nth</code> occurrence of a Fingerstick {@link net.java.games.input.Controller}. 
+	 * Returns the <code>nth</code> occurrence of a Fingerstick
+	 * {@link net.java.games.input.Controller}.
 	 * 
-	 * @param n Occurrence number, such as 1 for first occurrence of a Fingerstick, or 2 for second occurrence of a Fingerstick. 
+	 * @param n Occurrence number, such as 1 for first occurrence of a Fingerstick,
+	 *          or 2 for second occurrence of a Fingerstick.
 	 */
-	public Controller getFingerstickController(int n)
-	{
+	public Controller getFingerstickController(int n) {
 		return getNthOccurrenceController(n, Controller.Type.FINGERSTICK);
 	}
-	
+
 	/**
-	 * Returns the <code>nth</code> occurrence of a Headtracker {@link net.java.games.input.Controller}. 
+	 * Returns the <code>nth</code> occurrence of a Headtracker
+	 * {@link net.java.games.input.Controller}.
 	 * 
-	 * @param n Occurrence number, such as 1 for first occurrence of a Headtracker, or 2 for second occurrence of a Headtracker. 
+	 * @param n Occurrence number, such as 1 for first occurrence of a Headtracker,
+	 *          or 2 for second occurrence of a Headtracker.
 	 */
-	public Controller getHeadtrackerController(int n)
-	{
+	public Controller getHeadtrackerController(int n) {
 		return getNthOccurrenceController(n, Controller.Type.HEADTRACKER);
 	}
-	
+
 	/**
-	 * Returns the <code>nth</code> occurrence of a Rudder {@link net.java.games.input.Controller}. 
+	 * Returns the <code>nth</code> occurrence of a Rudder
+	 * {@link net.java.games.input.Controller}.
 	 * 
-	 * @param n Occurrence number, such as 1 for first occurrence of a Rudder, or 2 for second occurrence of a Rudder. 
+	 * @param n Occurrence number, such as 1 for first occurrence of a Rudder, or 2
+	 *          for second occurrence of a Rudder.
 	 */
-	public Controller getRudderController(int n)
-	{
+	public Controller getRudderController(int n) {
 		return getNthOccurrenceController(n, Controller.Type.RUDDER);
 	}
-	
+
 	/**
-	 * Returns the <code>nth</code> occurrence of a Trackball {@link net.java.games.input.Controller}. 
+	 * Returns the <code>nth</code> occurrence of a Trackball
+	 * {@link net.java.games.input.Controller}.
 	 * 
-	 * @param n Occurrence number, such as 1 for first occurrence of a Trackball, or 2 for second occurrence of a Trackball. 
+	 * @param n Occurrence number, such as 1 for first occurrence of a Trackball, or
+	 *          2 for second occurrence of a Trackball.
 	 */
-	public Controller getTrackballController(int n)
-	{
+	public Controller getTrackballController(int n) {
 		return getNthOccurrenceController(n, Controller.Type.TRACKBALL);
 	}
-	
+
 	/**
-	 * Returns the <code>nth</code> occurrence of a Trackpad {@link net.java.games.input.Controller}. 
+	 * Returns the <code>nth</code> occurrence of a Trackpad
+	 * {@link net.java.games.input.Controller}.
 	 * 
-	 * @param n Occurrence number, such as 1 for first occurrence of a Trackpad, or 2 for second occurrence of a Trackpad. 
+	 * @param n Occurrence number, such as 1 for first occurrence of a Trackpad, or
+	 *          2 for second occurrence of a Trackpad.
 	 */
-	public Controller getTrackpadController(int n)
-	{
+	public Controller getTrackpadController(int n) {
 		return getNthOccurrenceController(n, Controller.Type.TRACKPAD);
 	}
-	
+
 	/**
-	 * Returns the <code>nth</code> occurrence of a Wheel {@link net.java.games.input.Controller}. 
+	 * Returns the <code>nth</code> occurrence of a Wheel
+	 * {@link net.java.games.input.Controller}.
 	 * 
-	 * @param n Occurrence number, such as 1 for first occurrence of a Wheel, or 2 for second occurrence of a Wheel. 
+	 * @param n Occurrence number, such as 1 for first occurrence of a Wheel, or 2
+	 *          for second occurrence of a Wheel.
 	 */
-	public Controller getWheelController(int n)
-	{
+	public Controller getWheelController(int n) {
 		return getNthOccurrenceController(n, Controller.Type.WHEEL);
 	}
-	
+
 	/**
-	 * Returns the <code>nth</code> occurrence of a {@link net.java.games.input.Controller} with the 
-	 * specified <code>type</code>. 
+	 * Returns the <code>nth</code> occurrence of a
+	 * {@link net.java.games.input.Controller} with the
+	 * specified <code>type</code>.
 	 * 
-	 * @param n Occurrence number, such as 1 for first occurrence of a gamepad, or 2 for second occurrence of a gamepad. 
+	 * @param n Occurrence number, such as 1 for first occurrence of a gamepad, or 2
+	 *          for second occurrence of a gamepad.
 	 */
-	private Controller getNthOccurrenceController(int x, Controller.Type type)
-	{
+	private Controller getNthOccurrenceController(int x, Controller.Type type) {
 		int occurrence = 1;
-		
-		for (Controller c : controllers)
-		{
-			if (c.getType().equals(type) && occurrence != x)
-			{
+
+		for (Controller c : controllers) {
+			if (c.getType().equals(type) && occurrence != x) {
 				occurrence++;
 				continue;
 			}
-			
-			if (c.getType().equals(type) && occurrence == x)
-			{
+
+			if (c.getType().equals(type) && occurrence == x) {
 				return c;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
-	 * Parses the list of Controllers returned by JInput to only include Controllers that have a known
-	 * controller Type and have a least 1 Component. 
+	 * Parses the list of Controllers returned by JInput to only include Controllers
+	 * that have a known
+	 * controller Type and have a least 1 Component.
 	 */
-	private void parseControllersList()
-	{
+	private void parseControllersList() {
 		// get an array of the currently available controllers from JInput
 		Controller[] jinput_controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
-				
+
 		// copy the controllers from the fixed-size array to an ArrayList
 		// for processing by the update() loop
-		for (Controller c : jinput_controllers) 
-		{
-			// Only add the controller if it is of a known controller type and it has at least 1 component
-			if(!c.getType().equals(Controller.Type.UNKNOWN) && c.getComponents().length > 0)
-			{
+		for (Controller c : jinput_controllers) {
+			// Only add the controller if it is of a known controller type and it has at
+			// least 1 component
+			if (!c.getType().equals(Controller.Type.UNKNOWN) && c.getComponents().length > 0) {
 				c.setEventQueueSize(128);
 				controllers.add(c);
 			}
 		}
 	}
-	
+
 	/**
 	 * Prints a list of all connected controllers to the console.
-	 * @param printComponents <code>TRUE</code> if all the components of the controller should also be printed. 
-	 * <code>FALSE</code> if not. 
+	 * 
+	 * @param printComponents <code>TRUE</code> if all the components of the
+	 *                        controller should also be printed.
+	 *                        <code>FALSE</code> if not.
 	 */
-	public void printControllers(boolean printComponents)
-	{
-		for (Controller c : controllers)
-		{
+	public void printControllers(boolean printComponents) {
+		for (Controller c : controllers) {
 			listComponents(c, printComponents);
 		}
 	}
-	
+
 	/**
 	 * Prints a specific controllers information to the console.
-	 * @param c The controller whose information is to be printed. 
-	 * @param printComponents <code>TRUE</code> if all the components of the controller should also be printed. 
-	 * <code>FALSE</code> if not.
+	 * 
+	 * @param c               The controller whose information is to be printed.
+	 * @param printComponents <code>TRUE</code> if all the components of the
+	 *                        controller should also be printed.
+	 *                        <code>FALSE</code> if not.
 	 */
-	public void printController(Controller c, boolean printComponents)
-	{
+	public void printController(Controller c, boolean printComponents) {
 		listComponents(c, printComponents);
 	}
-	
+
 	/**
-	 * Lists the individual components of a controller. 
-	 * @param c The controller whose information is to be printed.
-	 * @param printComponents <code>TRUE</code> if all the components of the controller should also be printed. 
-	 * <code>FALSE</code> if not.
+	 * Lists the individual components of a controller.
+	 * 
+	 * @param c               The controller whose information is to be printed.
+	 * @param printComponents <code>TRUE</code> if all the components of the
+	 *                        controller should also be printed.
+	 *                        <code>FALSE</code> if not.
 	 */
-	private void listComponents(Controller c, boolean printComponents)
-	{
+	private void listComponents(Controller c, boolean printComponents) {
 		System.out.println("Name: " + c.getName() + ". Type: " + c.getType());
-		
-		if(printComponents)
-		{
-			for (Component comp : c.getComponents())
-			{
+
+		if (printComponents) {
+			for (Component comp : c.getComponents()) {
 				System.out.println("\tName: " + comp.getName() + ". ID: " + comp.getIdentifier());
 			}
 		}
-		
-		int i = 1; 
-		for (Controller subC : c.getControllers())
-		{
+
+		int i = 1;
+		for (Controller subC : c.getControllers()) {
 			System.out.println(" " + c.getName() + " subcontroller #" + i);
 			listComponents(subC, printComponents);
 		}
@@ -891,19 +920,30 @@ public class InputManager implements IInputManager {
 
 	// additions below are by Scott Gordon
 
-	/** Specialized version of associateAction, that associates an action with a key on all keyboards */
-	public void associateActionWithAllKeyboards(Component.Identifier key, IAction action, INPUT_ACTION_TYPE actionType)
-	{	ArrayList<Controller> controllers = getControllers();
-		for (Controller c : controllers)
-		{	if (c.getType() == Controller.Type.KEYBOARD)
-			{	associateAction(c, key, action, actionType);
-	}	}	}
+	/**
+	 * Specialized version of associateAction, that associates an action with a key
+	 * on all keyboards
+	 */
+	public void associateActionWithAllKeyboards(Component.Identifier key, IAction action,
+			INPUT_ACTION_TYPE actionType) {
+		ArrayList<Controller> controllers = getControllers();
+		for (Controller c : controllers) {
+			if (c.getType() == Controller.Type.KEYBOARD) {
+				associateAction(c, key, action, actionType);
+			}
+		}
+	}
 
-	/** Specialized version of associateAction, that associates an action with a component on all gamepads */
-	public void associateActionWithAllGamepads(Component.Identifier key, IAction action, INPUT_ACTION_TYPE actionType)
-	{	ArrayList<Controller> controllers = getControllers();
-		for (Controller c : controllers)
-		{	if (c.getType() == Controller.Type.GAMEPAD || c.getType() == Controller.Type.STICK)
-			{	associateAction(c, key, action, actionType);
-	}	}	}
+	/**
+	 * Specialized version of associateAction, that associates an action with a
+	 * component on all gamepads
+	 */
+	public void associateActionWithAllGamepads(Component.Identifier key, IAction action, INPUT_ACTION_TYPE actionType) {
+		ArrayList<Controller> controllers = getControllers();
+		for (Controller c : controllers) {
+			if (c.getType() == Controller.Type.GAMEPAD || c.getType() == Controller.Type.STICK) {
+				associateAction(c, key, action, actionType);
+			}
+		}
+	}
 }

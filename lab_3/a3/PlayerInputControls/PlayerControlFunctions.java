@@ -1,4 +1,4 @@
-package a3;
+package a3.PlayerInputControls;
 
 public interface PlayerControlFunctions {
 	void turnLeft(float frameTime);
@@ -13,6 +13,8 @@ public interface PlayerControlFunctions {
 
 	void rotateDown(float frameTime);
 
-	boolean isControlDolphin();
+	void target();
+
+	boolean isControlPlayer();
 
 }

@@ -1,5 +1,8 @@
 package a3;
 
+import a3.PlayerInputControls.PlayerControlFunctions;
+import a3.PlayerInputControls.PlayerControlMap;
+import a3.PlayerInputControls.PlayerControls;
 import tage.*;
 import tage.input.InputManager;
 import tage.nodeControllers.FloatController;
@@ -31,13 +34,14 @@ public class MyGame extends VariableFrameRateGame {
 	private static final Vector3f INITIAL_DOLPHIN_POS = new Vector3f(0f, 1f, 0f);
 	private static final Vector3f INITIAL_ORBIT_CAMERA_POS = new Vector3f(0f, 0f, 5f);
 	private static final Vector3f INITIAL_OVERHEAD_CAMERA_POS = new Vector3f(0f, 10.0f, 0f);
-	private static final String SKYBOX_NAME = "redNebula";
+	private static final String SKYBOX_NAME = "fluffyClouds";
 
 	private static Engine engine;
 	private static MyGame game;
 
 	private InputManager inputManager;
 	private CameraOrbit3D orbitCamera;
+	private TargetCamera targetCamera;
 	private OverheadCamera overheadCamera;
 	private PlayerControlMap playerControlMaps;
 	private PlayerControlFunctions state;
@@ -55,10 +59,14 @@ public class MyGame extends VariableFrameRateGame {
 	private Viewport overheadViewport;
 	private int overheadViewportX, overheadViewportY;
 
-	private GameObject dol, planeMap, collisionObject, x, y, z, nX, nY, nZ;
-	private ObjShape dolS, prizeS;
+	private GameObject planeMap, collisionObject, x, y, z, nX, nY, nZ;
+
+	private Enemy enemy;
+	private Player player;
+
+	private ObjShape playerS, enemyS, prizeS;
 	private ManualObject burgerM;
-	private TextureImage doltx, prizeTx, prizeMyTx, burgerTx, moonTx;
+	private TextureImage playerTx, enemyTx, prizeTx, prizeMyTx, burgerTx, moonTx;
 	private Light light1;
 	private Line worldXAxis, worldYAxis, worldZAxis, worldNXAxis, worldNYAxis,
 			worldNZAxis;
@@ -67,6 +75,7 @@ public class MyGame extends VariableFrameRateGame {
 	private ArrayList<GameObject> burgerList = new ArrayList<GameObject>();
 	private ArrayList<GameObject> eatenBurgerList = new ArrayList<GameObject>();
 	private ArrayList<GameObject> worldAxisList = new ArrayList<GameObject>();
+	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 
 	public MyGame() {
 		super();
@@ -80,7 +89,8 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void loadShapes() {
-		dolS = new ImportedModel("dolphinHighPoly.obj");
+		playerS = new Torus();
+		enemyS = new Cube();
 		prizeS = new Sphere();
 		burgerM = new ManualBurger();
 		moonCrater = new Plane();
@@ -89,7 +99,8 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void loadTextures() {
-		doltx = new TextureImage("Dolphin_HighPolyUV.png");
+		playerTx = new TextureImage("burger.png");
+		enemyTx = new TextureImage("mars.png");
 		prizeTx = new TextureImage("mars.png");
 		prizeMyTx = new TextureImage("my_texture.png");
 		burgerTx = new TextureImage("burger.png");
@@ -104,7 +115,8 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void buildObjects() {
-		buildDolphin();
+		buildPlayer();
+		buildEnemy();
 		buildPrizes();
 		buildBurgers();
 		buildWorldAxes();
@@ -132,12 +144,12 @@ public class MyGame extends VariableFrameRateGame {
 		initializeCameras();
 		initializeBurgerRespawn();
 
-		state = new DolphinControls();
+		state = new PlayerControls();
 		hunger = HUNGER_AMT;
 	}
 
 	private void initializeCameras() {
-		buildOrbitCamera();
+		buildTargetCamera();
 		buildOverheadCamera();
 	}
 
@@ -149,8 +161,8 @@ public class MyGame extends VariableFrameRateGame {
 	@Override
 	public void update() {
 		updateHUD();
-		orbitCamera.update();
-
+		// orbitCamera.update();
+		targetCamera.update();
 		if (hasMoved) {
 			if (!floatController.isEnabled()) {
 				floatController.enable();
@@ -172,7 +184,6 @@ public class MyGame extends VariableFrameRateGame {
 		} else {
 			hasMoved();
 		}
-
 		inputManager.update((float) elapsTime);
 	}
 
@@ -205,8 +216,9 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private boolean hasMoved() {
-		if (dol.getWorldLocation().x > 0 || dol.getWorldLocation().z > 0 || dol.getWorldLocation().x < 0
-				|| dol.getWorldLocation().z < 0) {
+		if (getPlayer().getWorldLocation().x > 0 || getPlayer().getWorldLocation().z > 0
+				|| getPlayer().getWorldLocation().x < 0
+				|| getPlayer().getWorldLocation().z < 0) {
 			hasMoved = true;
 		}
 		return hasMoved;
@@ -226,8 +238,8 @@ public class MyGame extends VariableFrameRateGame {
 		hunger = HUNGER_AMT;
 		score = 0;
 		dolphinSize = INITIAL_DOLPHIN_SCALE;
-		dol.setLocalScale(new Matrix4f().scale(dolphinSize));
-		dol.setLocalLocation(INITIAL_DOLPHIN_POS);
+		getPlayer().setLocalScale(new Matrix4f().scale(dolphinSize));
+		getPlayer().setLocalLocation(INITIAL_DOLPHIN_POS);
 		rotateController.clearTargets();
 		floatController.clearTargets();
 		orbitController.clearTargets();
@@ -247,17 +259,21 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void handleOutOfBounds() {
-		if (dol.getWorldLocation().x >= PLAY_AREA_SIZE) {
-			dol.setLocalLocation(new Vector3f(PLAY_AREA_SIZE, dol.getWorldLocation().y, dol.getWorldLocation().z));
+		if (getPlayer().getWorldLocation().x >= PLAY_AREA_SIZE) {
+			getPlayer().setLocalLocation(
+					new Vector3f(PLAY_AREA_SIZE, getPlayer().getWorldLocation().y, getPlayer().getWorldLocation().z));
 		}
-		if (dol.getWorldLocation().x <= -PLAY_AREA_SIZE) {
-			dol.setLocalLocation(new Vector3f(-PLAY_AREA_SIZE, dol.getWorldLocation().y, dol.getWorldLocation().z));
+		if (getPlayer().getWorldLocation().x <= -PLAY_AREA_SIZE) {
+			getPlayer().setLocalLocation(
+					new Vector3f(-PLAY_AREA_SIZE, getPlayer().getWorldLocation().y, getPlayer().getWorldLocation().z));
 		}
-		if (dol.getWorldLocation().z >= PLAY_AREA_SIZE) {
-			dol.setLocalLocation(new Vector3f(dol.getWorldLocation().x, dol.getWorldLocation().y, PLAY_AREA_SIZE));
+		if (getPlayer().getWorldLocation().z >= PLAY_AREA_SIZE) {
+			getPlayer().setLocalLocation(
+					new Vector3f(getPlayer().getWorldLocation().x, getPlayer().getWorldLocation().y, PLAY_AREA_SIZE));
 		}
-		if (dol.getWorldLocation().z <= -PLAY_AREA_SIZE) {
-			dol.setLocalLocation(new Vector3f(dol.getWorldLocation().x, dol.getWorldLocation().y, -PLAY_AREA_SIZE));
+		if (getPlayer().getWorldLocation().z <= -PLAY_AREA_SIZE) {
+			getPlayer().setLocalLocation(
+					new Vector3f(getPlayer().getWorldLocation().x, getPlayer().getWorldLocation().y, -PLAY_AREA_SIZE));
 		}
 	}
 
@@ -271,7 +287,7 @@ public class MyGame extends VariableFrameRateGame {
 		String dispStr2 = "Hunger = " + (int) hunger;
 		String dispStr3 = "Position = " + String.format(
 				"x: %.2f, y: %.2f, z: %.2f",
-				dol.getWorldLocation().x, dol.getWorldLocation().y, dol.getWorldLocation().z);
+				getPlayer().getWorldLocation().x, getPlayer().getWorldLocation().y, getPlayer().getWorldLocation().z);
 
 		overheadViewportX = (int) ((overheadViewport.getRelativeLeft()
 				* getEngineInstance().getRenderSystem().getWidth()) + overheadViewport.getBorderWidth() * 1.3);
@@ -328,25 +344,24 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void buildOrbitController() {
-		orbitController = new OrbitController(dol);
+		orbitController = new OrbitController(getPlayer());
 		getEngineInstance().getSceneGraph().addNodeController(orbitController);
 		orbitController.enable();
 	}
 
-	private void buildDolphin() {
-		Matrix4f initialTranslation, initialScale;
-
-		dol = new GameObject(GameObject.root(), dolS, doltx);
-		initialTranslation = (new Matrix4f()).translation(INITIAL_DOLPHIN_POS);
-		initialScale = (new Matrix4f()).scaling(INITIAL_DOLPHIN_SCALE);
-		dol.setLocalTranslation(initialTranslation);
-		dol.setLocalScale(initialScale);
+	private void buildPlayer() {
+		player = new Player(GameObject.root(), playerS, playerTx);
 	}
 
-	private void buildOrbitCamera() {
-		orbitCamera = new CameraOrbit3D(dol);
-		orbitCamera.setLocation(INITIAL_ORBIT_CAMERA_POS);
-		engine.getRenderSystem().getViewport("MAIN").setCamera(orbitCamera);
+	private void buildEnemy() {
+		enemy = new Enemy(GameObject.root(), enemyS, enemyTx);
+		enemyList.add(enemy);
+	}
+
+	private void buildTargetCamera() {
+		targetCamera = new TargetCamera(getPlayer());
+		targetCamera.setLocation(INITIAL_ORBIT_CAMERA_POS);
+		engine.getRenderSystem().getViewport("MAIN").setCamera(targetCamera);
 	}
 
 	private void buildOverheadCamera() {
@@ -431,7 +446,7 @@ public class MyGame extends VariableFrameRateGame {
 	private GameObject getCollidedObject(Iterator<GameObject> list) {
 		while (list.hasNext()) {
 			GameObject p = list.next();
-			if (Math.floor(dol.getLocalLocation()
+			if (Math.floor(getPlayer().getLocalLocation()
 					.distance(p.getWorldLocation())) <= p.getLocalScale().get(0, 0)) {
 				p.getRenderStates().disableRendering();
 				list.remove();
@@ -462,19 +477,34 @@ public class MyGame extends VariableFrameRateGame {
 		return state;
 	}
 
-	public CameraOrbit3D getOrbitCamera() {
-		return orbitCamera;
+	public TargetCamera getTargetCamera() {
+		return targetCamera;
 	}
 
 	public Camera getOverheadCamera() {
 		return overheadCamera;
 	}
 
-	public GameObject getDolphin() {
-		return dol;
-	}
-
 	public void setState(PlayerControlFunctions s) {
 		state = s;
+	}
+
+	public GameObject getPlayer() {
+		return player;
+	}
+
+	public GameObject getEnemy() {
+		return enemy;
+	}
+
+	public Enemy findTarget() {
+
+		for (Enemy e : enemyList) {
+			if (e.getLocalLocation().distance(player.getLocalLocation()) < 4) {
+				return e;
+			}
+		}
+		return null;
+
 	}
 }
