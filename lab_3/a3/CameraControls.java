@@ -1,6 +1,5 @@
-package a3.PlayerInputControls;
+package a3;
 
-import a3.MyGame;
 import tage.TargetCamera;
 
 public class CameraControls implements PlayerControlFunctions {
@@ -41,19 +40,17 @@ public class CameraControls implements PlayerControlFunctions {
     }
 
     @Override
-    public void target() {
-        // Enemy target = MyGame.getGameInstance().findTarget();
-        // if (target != null) {
-        // cam.targetTo(target);
-        // } else {
-        // System.out.println("no target found");
-        // }
-        System.out.println("hello");
+    public boolean isControlPlayer() {
+        return false;
     }
 
     @Override
-    public boolean isControlPlayer() {
-        return false;
+    public void target() {
+        Enemy target = MyGame.getGameInstance().findTarget();
+        if (target != null) {
+            cam.setTarget(target);
+        } else {
+        }
     }
 
 }

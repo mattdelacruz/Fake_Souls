@@ -1,81 +1,51 @@
 package a3;
 
-import a3.PlayerInputControls.PlayerControlFunctions;
-import a3.PlayerInputControls.PlayerControlMap;
-import a3.PlayerInputControls.PlayerControls;
+import a3.quadtree.*;
 import tage.*;
 import tage.input.InputManager;
-import tage.nodeControllers.FloatController;
-import tage.nodeControllers.OrbitController;
-import tage.nodeControllers.RotationController;
 import tage.shapes.*;
-import java.lang.Math;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ThreadLocalRandom;
+
 import org.joml.*;
 
 public class MyGame extends VariableFrameRateGame {
 	private static final int WINDOW_WIDTH = 1900;
 	private static final int WINDOW_HEIGHT = 1000;
 	private static final int AXIS_LENGTH = 10000;
-	private static final int PRIZE_AMOUNT = 4;
-	private static final int BURGER_AMOUNT = 10;
-	private static final int HUNGER_AMT = 100;
-	private static final long BURGER_RESPAWN_PERIOD = 10000;
-	private static final long BURGER_RESPAWN_DELAY = 10000;
-	private static final double HUNGER_DECAY = 0.5;
-	private static final double HUNGER_REPLENISH = 5;
-	private static final float BURGER_SCALE = .5f;
-	private static final float INITIAL_DOLPHIN_SCALE = 3.0f;
 	private static final float PLAY_AREA_SIZE = 555f;
-	private static final Vector3f INITIAL_DOLPHIN_POS = new Vector3f(0f, 1f, 0f);
+
 	private static final Vector3f INITIAL_ORBIT_CAMERA_POS = new Vector3f(0f, 0f, 5f);
-	private static final Vector3f INITIAL_OVERHEAD_CAMERA_POS = new Vector3f(0f, 10.0f, 0f);
+
 	private static final String SKYBOX_NAME = "fluffyClouds";
 
 	private static Engine engine;
 	private static MyGame game;
 
+	private PlayerControlMap playerControlMaps; // do not delete!!!
 	private InputManager inputManager;
-	private CameraOrbit3D orbitCamera;
 	private TargetCamera targetCamera;
 	private OverheadCamera overheadCamera;
-	private PlayerControlMap playerControlMaps;
 	private PlayerControlFunctions state;
-	private RotationController rotateController;
-	private FloatController floatController;
-	private OrbitController orbitController;
-	private Timer timer;
 
 	private double lastFrameTime, currFrameTime, elapsTime;
-	private int score = 0;
-	private double hunger = 0;
-	private float frameTime = 0;
-	private boolean hasMoved = false;
-	private float dolphinSize = INITIAL_DOLPHIN_SCALE;
-	private Viewport overheadViewport;
-	private int overheadViewportX, overheadViewportY;
 
-	private GameObject planeMap, collisionObject, x, y, z, nX, nY, nZ;
+	private float frameTime = 0;
+
+	private GameObject planeMap, x, y, z, nX, nY, nZ;
 
 	private Enemy enemy;
 	private Player player;
 
-	private ObjShape playerS, enemyS, prizeS;
-	private ManualObject burgerM;
-	private TextureImage playerTx, enemyTx, prizeTx, prizeMyTx, burgerTx, moonTx;
+	private ObjShape playerS, enemyS;
+	private TextureImage playerTx, enemyTx, moonTx;
 	private Light light1;
 	private Line worldXAxis, worldYAxis, worldZAxis, worldNXAxis, worldNYAxis,
 			worldNZAxis;
 	private Plane moonCrater;
-	private ArrayList<GameObject> prizeList = new ArrayList<GameObject>();
-	private ArrayList<GameObject> burgerList = new ArrayList<GameObject>();
-	private ArrayList<GameObject> eatenBurgerList = new ArrayList<GameObject>();
 	private ArrayList<GameObject> worldAxisList = new ArrayList<GameObject>();
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
+
+	private QuadTree quadtree = new QuadTree();
 
 	public MyGame() {
 		super();
@@ -89,21 +59,16 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void loadShapes() {
-		playerS = new Torus();
+		playerS = new ImportedModel("dolphinHighPoly.obj");
 		enemyS = new Cube();
-		prizeS = new Sphere();
-		burgerM = new ManualBurger();
 		moonCrater = new Plane();
 		loadWorldAxes();
 	}
 
 	@Override
 	public void loadTextures() {
-		playerTx = new TextureImage("burger.png");
+		playerTx = new TextureImage("Dolphin_HighPolyUV.png");
 		enemyTx = new TextureImage("mars.png");
-		prizeTx = new TextureImage("mars.png");
-		prizeMyTx = new TextureImage("my_texture.png");
-		burgerTx = new TextureImage("burger.png");
 		moonTx = new TextureImage("moon-craters.jpg");
 	}
 
@@ -117,11 +82,8 @@ public class MyGame extends VariableFrameRateGame {
 	public void buildObjects() {
 		buildPlayer();
 		buildEnemy();
-		buildPrizes();
-		buildBurgers();
 		buildWorldAxes();
 		buildPlaneMap();
-		buildControllers();
 	}
 
 	@Override
@@ -142,15 +104,12 @@ public class MyGame extends VariableFrameRateGame {
 
 		initializeControls();
 		initializeCameras();
-		initializeBurgerRespawn();
 
 		state = new PlayerControls();
-		hunger = HUNGER_AMT;
 	}
 
 	private void initializeCameras() {
 		buildTargetCamera();
-		buildOverheadCamera();
 	}
 
 	private void initializeControls() {
@@ -160,149 +119,20 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void update() {
-		updateHUD();
-		// orbitCamera.update();
+		updateFrameTime(); // do not delete!!!
 		targetCamera.update();
-		if (hasMoved) {
-			if (!floatController.isEnabled()) {
-				floatController.enable();
-			}
-			collisionObject = getCollidedObject(prizeList.iterator());
-			if (collisionObject != null) {
-				score++;
-				orbitController.addTarget(new GameObject(GameObject.root(), prizeS, collisionObject.getTextureImage()));
-			}
-			collisionObject = getCollidedObject(burgerList.iterator());
-			if (collisionObject != null) {
-				eatenBurgerList.add(collisionObject);
-				floatController.removeTarget(collisionObject);
-				rotateController.removeTarget(collisionObject);
-			}
-			handleOutOfBounds();
-			handleHungerDecay();
-			handleGoal();
-		} else {
-			hasMoved();
+		if (player.isLocked) {
+			targetCamera.targetTo();
 		}
+
 		inputManager.update((float) elapsTime);
 	}
 
-	private void initializeBurgerRespawn() {
-		timer = new Timer();
-		timer.scheduleAtFixedRate(new TimerTask() {
-			float xPos, zPos;
-			GameObject respawn;
-			Iterator<GameObject> it;
-
-			@Override
-			public void run() {
-				it = eatenBurgerList.iterator();
-				if (it.hasNext()) {
-					xPos = (float) ThreadLocalRandom.current().nextDouble(-PLAY_AREA_SIZE, PLAY_AREA_SIZE);
-					zPos = (float) ThreadLocalRandom.current().nextDouble(-PLAY_AREA_SIZE, PLAY_AREA_SIZE);
-					respawn = it.next();
-					it.remove();
-					respawn.setLocalTranslation(new Matrix4f().translation(xPos, BURGER_SCALE * 3, zPos));
-					rotateController.addTarget(respawn);
-					floatController.addTarget(respawn);
-					burgerList.add(respawn);
-				}
-			}
-		}, BURGER_RESPAWN_DELAY, BURGER_RESPAWN_PERIOD);
-	}
-
-	private void handleHungerDecay() {
-		hunger -= HUNGER_DECAY * frameTime;
-	}
-
-	private boolean hasMoved() {
-		if (getPlayer().getWorldLocation().x > 0 || getPlayer().getWorldLocation().z > 0
-				|| getPlayer().getWorldLocation().x < 0
-				|| getPlayer().getWorldLocation().z < 0) {
-			hasMoved = true;
-		}
-		return hasMoved;
-	}
-
-	private void handleGoal() {
-		if (hunger <= 0) {
-			handleReset();
-		}
-
-		if (score == PRIZE_AMOUNT) {
-			handleReset();
-		}
-	}
-
-	private void handleReset() {
-		hunger = HUNGER_AMT;
-		score = 0;
-		dolphinSize = INITIAL_DOLPHIN_SCALE;
-		getPlayer().setLocalScale(new Matrix4f().scale(dolphinSize));
-		getPlayer().setLocalLocation(INITIAL_DOLPHIN_POS);
-		rotateController.clearTargets();
-		floatController.clearTargets();
-		orbitController.clearTargets();
-		clearList(prizeList.iterator());
-		clearList(burgerList.iterator());
-		buildPrizes();
-		buildBurgers();
-		buildControllers();
-	}
-
-	private void clearList(Iterator<?> iterator) {
-		while (iterator.hasNext()) {
-			GameObject go = (GameObject) iterator.next();
-			go.getRenderStates().disableRendering();
-			iterator.remove();
-		}
-	}
-
-	private void handleOutOfBounds() {
-		if (getPlayer().getWorldLocation().x >= PLAY_AREA_SIZE) {
-			getPlayer().setLocalLocation(
-					new Vector3f(PLAY_AREA_SIZE, getPlayer().getWorldLocation().y, getPlayer().getWorldLocation().z));
-		}
-		if (getPlayer().getWorldLocation().x <= -PLAY_AREA_SIZE) {
-			getPlayer().setLocalLocation(
-					new Vector3f(-PLAY_AREA_SIZE, getPlayer().getWorldLocation().y, getPlayer().getWorldLocation().z));
-		}
-		if (getPlayer().getWorldLocation().z >= PLAY_AREA_SIZE) {
-			getPlayer().setLocalLocation(
-					new Vector3f(getPlayer().getWorldLocation().x, getPlayer().getWorldLocation().y, PLAY_AREA_SIZE));
-		}
-		if (getPlayer().getWorldLocation().z <= -PLAY_AREA_SIZE) {
-			getPlayer().setLocalLocation(
-					new Vector3f(getPlayer().getWorldLocation().x, getPlayer().getWorldLocation().y, -PLAY_AREA_SIZE));
-		}
-	}
-
-	private void updateHUD() {
+	private void updateFrameTime() {
 		lastFrameTime = currFrameTime;
 		currFrameTime = System.currentTimeMillis();
 		frameTime = (float) (currFrameTime - lastFrameTime) / 1000.0f;
 		elapsTime += frameTime;
-
-		String dispStr1 = "Score = " + score;
-		String dispStr2 = "Hunger = " + (int) hunger;
-		String dispStr3 = "Position = " + String.format(
-				"x: %.2f, y: %.2f, z: %.2f",
-				getPlayer().getWorldLocation().x, getPlayer().getWorldLocation().y, getPlayer().getWorldLocation().z);
-
-		overheadViewportX = (int) ((overheadViewport.getRelativeLeft()
-				* getEngineInstance().getRenderSystem().getWidth()) + overheadViewport.getBorderWidth() * 1.3);
-		overheadViewportY = (int) ((overheadViewport.getRelativeBottom()
-				* getEngineInstance().getRenderSystem().getHeight()) + overheadViewport.getBorderWidth() * 2);
-		Vector3f hud1Color = new Vector3f(1, 0, 0);
-		Vector3f hud2Color = new Vector3f(0, 1, 0);
-		Vector3f hud3Color = new Vector3f(255, 223, 0);
-		(engine.getHUDmanager()).setHUD1(dispStr1, hud1Color,
-				(int) (getEngineInstance().getRenderSystem().getWidth() * .01f),
-				(int) (getEngineInstance().getRenderSystem().getHeight() * .01f));
-		(engine.getHUDmanager()).setHUD2(dispStr2, hud2Color,
-				(int) (getEngineInstance().getRenderSystem().getWidth() * .2f),
-				(int) (getEngineInstance().getRenderSystem().getHeight() * .01f));
-		(engine.getHUDmanager()).setHUD3(dispStr3, hud3Color, overheadViewportX, overheadViewportY);
 	}
 
 	private void loadWorldAxes() {
@@ -320,35 +150,6 @@ public class MyGame extends VariableFrameRateGame {
 		planeMap.setLocalScale((new Matrix4f().scaling(PLAY_AREA_SIZE)));
 	}
 
-	private void buildControllers() {
-		buildRotationController(burgerList);
-		buildFloatController(burgerList);
-		buildOrbitController();
-	}
-
-	private void buildRotationController(ArrayList<GameObject> list) {
-		rotateController = new RotationController(new Vector3f(0, 1f, 0), 0.001f);
-		for (GameObject o : list) {
-			rotateController.addTarget(o);
-		}
-		getEngineInstance().getSceneGraph().addNodeController(rotateController);
-		rotateController.enable();
-	}
-
-	private void buildFloatController(ArrayList<GameObject> list) {
-		floatController = new FloatController(0.001f);
-		for (GameObject o : list) {
-			floatController.addTarget(o);
-		}
-		getEngineInstance().getSceneGraph().addNodeController(floatController);
-	}
-
-	private void buildOrbitController() {
-		orbitController = new OrbitController(getPlayer());
-		getEngineInstance().getSceneGraph().addNodeController(orbitController);
-		orbitController.enable();
-	}
-
 	private void buildPlayer() {
 		player = new Player(GameObject.root(), playerS, playerTx);
 	}
@@ -358,54 +159,17 @@ public class MyGame extends VariableFrameRateGame {
 		enemyList.add(enemy);
 	}
 
+	private void buildEnemyQuadTree() {
+		for (Enemy e : enemyList) {
+			quadtree.insert(new Node())
+		}
+	}
+
 	private void buildTargetCamera() {
 		targetCamera = new TargetCamera(getPlayer());
+		getPlayer().setCamera(targetCamera);
 		targetCamera.setLocation(INITIAL_ORBIT_CAMERA_POS);
 		engine.getRenderSystem().getViewport("MAIN").setCamera(targetCamera);
-	}
-
-	private void buildOverheadCamera() {
-		overheadCamera = new OverheadCamera(getEngineInstance());
-		overheadCamera.setLocation(INITIAL_OVERHEAD_CAMERA_POS);
-		overheadViewport = getEngineInstance().getRenderSystem().getViewport("OVERHEAD");
-		overheadViewport.setBorderColor(255, 255, 255);
-
-	}
-
-	private void buildPrizes() {
-		float xPos = (float) ThreadLocalRandom.current().nextDouble(0, PLAY_AREA_SIZE);
-		float zPos = (float) ThreadLocalRandom.current().nextDouble(0, PLAY_AREA_SIZE);
-		float scale = (float) ThreadLocalRandom.current().nextDouble(0.3, 2);
-		GameObject obj = new GameObject(GameObject.root(), prizeS, prizeMyTx);
-
-		prizeList.add(obj);
-
-		for (int i = 0; i < PRIZE_AMOUNT - 1; i++) {
-			xPos = (float) ThreadLocalRandom.current().nextDouble(-PLAY_AREA_SIZE, PLAY_AREA_SIZE);
-			zPos = (float) ThreadLocalRandom.current().nextDouble(-PLAY_AREA_SIZE, PLAY_AREA_SIZE);
-			scale = (float) ThreadLocalRandom.current().nextDouble(0.3, 5);
-
-			obj = new GameObject(GameObject.root(), prizeS, prizeTx);
-			obj.setLocalScale(new Matrix4f().scaling(scale));
-			obj.setLocalTranslation(
-					new Matrix4f().translation(xPos, scale, zPos));
-
-			prizeList.add(obj);
-		}
-	}
-
-	private void buildBurgers() {
-		float xPos, zPos;
-		GameObject obj;
-		for (int i = 0; i < BURGER_AMOUNT; i++) {
-			obj = new GameObject(GameObject.root(), burgerM, burgerTx);
-			xPos = (float) ThreadLocalRandom.current().nextDouble(-PLAY_AREA_SIZE, PLAY_AREA_SIZE);
-			zPos = (float) ThreadLocalRandom.current().nextDouble(-PLAY_AREA_SIZE, PLAY_AREA_SIZE);
-
-			obj.setLocalScale(new Matrix4f().scaling(BURGER_SCALE));
-			obj.setLocalTranslation(new Matrix4f().translation(xPos, BURGER_SCALE * 3, zPos));
-			burgerList.add(obj);
-		}
 	}
 
 	private void buildWorldAxes() {
@@ -443,20 +207,6 @@ public class MyGame extends VariableFrameRateGame {
 		return engine;
 	}
 
-	private GameObject getCollidedObject(Iterator<GameObject> list) {
-		while (list.hasNext()) {
-			GameObject p = list.next();
-			if (Math.floor(getPlayer().getLocalLocation()
-					.distance(p.getWorldLocation())) <= p.getLocalScale().get(0, 0)) {
-				p.getRenderStates().disableRendering();
-				list.remove();
-				System.gc();
-				return p;
-			}
-		}
-		return null;
-	}
-
 	public void renderGameAxis() {
 		if (worldAxisList.get(0).getRenderStates().renderingEnabled()) {
 			for (GameObject go : worldAxisList) {
@@ -489,22 +239,23 @@ public class MyGame extends VariableFrameRateGame {
 		state = s;
 	}
 
-	public GameObject getPlayer() {
+	public Player getPlayer() {
 		return player;
 	}
 
-	public GameObject getEnemy() {
+	public Enemy getEnemy() {
 		return enemy;
 	}
 
 	public Enemy findTarget() {
-
+		// calculate the enemy with the shortest angle to the origin
+		// enemy should always calculate their own angle to the origin, the player
+		// create quadtree with enemyList
 		for (Enemy e : enemyList) {
 			if (e.getLocalLocation().distance(player.getLocalLocation()) < 4) {
 				return e;
 			}
 		}
 		return null;
-
 	}
 }

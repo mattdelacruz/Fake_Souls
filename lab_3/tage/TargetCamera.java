@@ -1,20 +1,31 @@
 package tage;
 
+import org.joml.Vector3f;
+
 import a3.Enemy;
+import a3.Player;
 
 public class TargetCamera extends CameraOrbit3D {
 
-    GameObject origin;
+    private Player origin;
+    private Enemy enemy;
 
-    public TargetCamera(GameObject o) {
+    public TargetCamera(Player o) {
         super(o);
         origin = o;
     }
 
-    public void targetTo(Enemy enemy) {
-        if (enemy.getLocalLocation().distance(origin.getLocalLocation()) < 4) {
+    public void targetTo() {
+
+        if (enemy.getLocalLocation().distance(origin.getLocalLocation()) < 10) {
             origin.lookAt(enemy);
+        } else {
+            origin.setLock(false);
         }
+    }
+
+    public void setTarget(Enemy e) {
+        enemy = e;
     }
 
 }

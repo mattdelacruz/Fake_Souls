@@ -1,10 +1,7 @@
-package a3.PlayerInputControls;
-
-import a3.MyGame;
-import tage.GameObject;
+package a3;
 
 public class PlayerControls implements PlayerControlFunctions {
-	private GameObject player;
+	private Player player;
 
 	public PlayerControls() {
 		player = MyGame.getGameInstance().getPlayer();
@@ -12,22 +9,23 @@ public class PlayerControls implements PlayerControlFunctions {
 
 	@Override
 	public void turnLeft(float frameTime) {
-		player.yaw(frameTime);
+		player.move(player.getLocalRightVector(), -frameTime);
 	}
 
 	@Override
 	public void turnRight(float frameTime) {
-		player.yaw(-frameTime);
+		player.move(player.getLocalRightVector(), frameTime);
+
 	}
 
 	@Override
 	public void moveForward(float frameTime) {
-		player.move(frameTime);
+		player.move(player.getLocalForwardVector(), frameTime);
 	}
 
 	@Override
 	public void moveBackward(float frameTime) {
-		player.move(-frameTime);
+		player.move(player.getLocalForwardVector(), -frameTime);
 	}
 
 	@Override
@@ -42,7 +40,13 @@ public class PlayerControls implements PlayerControlFunctions {
 
 	@Override
 	public void target() {
-		System.out.println("hello");
+		Enemy target = MyGame.getGameInstance().findTarget();
+		if (target != null) {
+			player.getCamera().setTarget(target);
+			player.setLock(true);
+		} else {
+			System.out.println("no target found");
+		}
 		return;
 	}
 

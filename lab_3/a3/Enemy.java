@@ -13,7 +13,7 @@ public class Enemy extends GameObject {
     public Enemy(GameObject p, ObjShape s, TextureImage t) {
         super(p, s, t);
 
-        initialScale = (new Matrix4f()).scaling(10);
+        initialScale = (new Matrix4f()).scaling(1);
         initialTranslation = (new Matrix4f()).translation(new Vector3f(30, getLocalScale().get(0, 0), 0));
 
         setLocalTranslation(initialTranslation);

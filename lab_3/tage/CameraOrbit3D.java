@@ -3,41 +3,47 @@ package tage;
 import org.joml.Vector3f;
 
 /**
- * A CameraOrbit3D is a special type of Camera that it orbits around a specified target.
- * A CameraOrbit3D instance calculates the position of the Camera by using spherical coordinates to determine the location of the Camera about a spherical system. 
+ * A CameraOrbit3D is a special type of Camera that it orbits around a specified
+ * target.
+ * A CameraOrbit3D instance calculates the position of the Camera by using
+ * spherical coordinates to determine the location of the Camera about a
+ * spherical system.
  * <p>
- * Methods include adjustment of the altitude of the Camera, adjusting the distance of the Camera, and adjusting the azimuth of the Camera all about the specified target
+ * Methods include adjustment of the altitude of the Camera, adjusting the
+ * distance of the Camera, and adjusting the azimuth of the Camera all about the
+ * specified target
  * 
  * @author Matthew Dela Cruz
  */
 
 public class CameraOrbit3D extends Camera {
-    private static final float MAX_CAMERA_DIST = 10;
+    private static final float MAX_CAMERA_DIST = 5.0f;
     private static final float LOCKED_DISTANCE = 5.0f;
     private static final float MAX_ZOOM_DIST = 20.0f;
-    private static final float INITIAL_ALTITUDE_ANGLE = 75;
+    private static final float INITIAL_ALTITUDE_ANGLE = 50;
     private static final float PITCH_SPEED = 2.0f;
 
-    private GameObject avatar;
+    private GameObject origin;
     private float phi, theta, deltaPitch, pitchAngle, x_dist, y_dist, z_dist, current_dist, xy_dist, newX, newY, newZ;
 
     public CameraOrbit3D(GameObject target) {
         deltaPitch = 0;
-        avatar = target;
+        origin = target;
         pitchAngle = (float) Math.toRadians(INITIAL_ALTITUDE_ANGLE);
     }
 
     public void update() {
-        x_dist = getLocation().z - avatar.getLocalLocation().z;
-        y_dist = getLocation().x - avatar.getLocalLocation().x;
-        z_dist = getLocation().y - avatar.getLocalLocation().y;
-        current_dist = (float) getLocation().distance(avatar.getWorldLocation());
+        x_dist = getLocation().z - origin.getLocalLocation().z;
+        y_dist = getLocation().x - origin.getLocalLocation().x;
+        z_dist = getLocation().y - origin.getLocalLocation().y;
+        current_dist = (float) getLocation().distance(origin.getWorldLocation());
         xy_dist = (float) (Math.sqrt(Math.pow(x_dist, 2) + Math.pow(y_dist, 2)));
 
         adjustTheta();
         adjustPhi();
         adjustPitchAngle();
         findNewCameraLocation();
+
     }
 
     public void changeAltitude(float frameTime) {
@@ -103,12 +109,11 @@ public class CameraOrbit3D extends Camera {
                 Math.min(Math.max(current_dist, locked_dist), MAX_CAMERA_DIST));
         newY = (float) (Math.cos(pitchAngle) *
                 locked_dist);
-        setLocation(new Vector3f(newX, newY, newZ).add(avatar.getWorldLocation()));
-
+        setLocation(new Vector3f(newX, newY, newZ).add(origin.getLocalLocation()));
         current_dist = Math.max(locked_dist, MAX_CAMERA_DIST);
 
         current_dist = Math.min(current_dist, max_zoom_dist);
-        lookAt(avatar);
+        lookAt(origin);
         deltaPitch = 0;
     }
 }

@@ -546,12 +546,18 @@ public class GameObject {
 		time = t;
 	}
 
-	/** returns the current position of the GameObject within a NodeController target list */
+	/**
+	 * returns the current position of the GameObject within a NodeController target
+	 * list
+	 */
 	public float getPosition() {
 		return position;
 	}
 
-	/** sets the current position of the GameObject within a NodeController target list */
+	/**
+	 * sets the current position of the GameObject within a NodeController target
+	 * list
+	 */
 	public void setPosition(float pos) {
 		position = pos;
 	}
@@ -563,9 +569,9 @@ public class GameObject {
 				getWorldUpVector().z));
 	}
 
-	/** moves the GameObject along its WorldForwardVector */
-	public void move(float frameTime) {
-		setLocalLocation(getLocalLocation().add(getWorldForwardVector().mul(distancePerSecond * frameTime)));
+	/** moves the GameObject along a specified vector */
+	public void move(Vector3f vec, float frameTime) {
+		setLocalLocation(getLocalLocation().add(vec.mul(distancePerSecond * frameTime)));
 	}
 	// -------------- accessor for height of terrain map at specified position
 	// ------------

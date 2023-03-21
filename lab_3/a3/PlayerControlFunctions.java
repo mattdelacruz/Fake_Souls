@@ -1,4 +1,4 @@
-package a3.PlayerInputControls;
+package a3;
 
 public interface PlayerControlFunctions {
 	void turnLeft(float frameTime);

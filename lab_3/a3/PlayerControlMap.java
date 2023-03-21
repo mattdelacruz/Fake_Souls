@@ -1,6 +1,5 @@
-package a3.PlayerInputControls;
+package a3;
 
-import a3.PlayerInputControls.PlayerActions.*;
 import tage.input.*;
 import tage.input.IInputManager.INPUT_ACTION_TYPE;
 

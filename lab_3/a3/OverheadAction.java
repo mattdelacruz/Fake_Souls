@@ -1,8 +1,7 @@
-package a3.PlayerInputControls.PlayerActions;
+package a3;
 
 import org.joml.Vector3f;
 
-import a3.MyGame;
 import net.java.games.input.Event;
 import tage.input.action.AbstractInputAction;
 
