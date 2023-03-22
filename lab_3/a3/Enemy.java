@@ -1,5 +1,7 @@
 package a3;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -14,9 +16,9 @@ public class Enemy extends GameObject {
         super(p, s, t);
 
         initialScale = (new Matrix4f()).scaling(1);
-        initialTranslation = (new Matrix4f()).translation(new Vector3f(30, getLocalScale().get(0, 0), 0));
 
-        setLocalTranslation(initialTranslation);
+        setLocalLocation(new Vector3f(ThreadLocalRandom.current().nextInt(-50, 50), getLocalScale().get(0, 0),
+                ThreadLocalRandom.current().nextInt(-50, 50)));
         setLocalScale(initialScale);
     }
 

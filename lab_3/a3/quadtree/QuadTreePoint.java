@@ -1,16 +1,16 @@
 package a3.quadtree;
 
-public class Point {
+public class QuadTreePoint {
 
     // about an zx-plane
-    public float z, x;
+    private float z, x;
 
-    public Point(float _z, float _x) {
+    public QuadTreePoint(float _z, float _x) {
         z = _z;
         x = _x;
     }
 
-    public Point() {
+    public QuadTreePoint() {
         z = 0;
         x = 0;
     }

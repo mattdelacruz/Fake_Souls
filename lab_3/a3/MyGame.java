@@ -45,7 +45,8 @@ public class MyGame extends VariableFrameRateGame {
 	private ArrayList<GameObject> worldAxisList = new ArrayList<GameObject>();
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 
-	private QuadTree quadtree = new QuadTree();
+	private QuadTree quadTree = new QuadTree(new QuadTreePoint(-PLAY_AREA_SIZE, PLAY_AREA_SIZE),
+			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE));
 
 	public MyGame() {
 		super();
@@ -84,6 +85,7 @@ public class MyGame extends VariableFrameRateGame {
 		buildEnemy();
 		buildWorldAxes();
 		buildPlaneMap();
+		buildEnemyQuadTree();
 	}
 
 	@Override
@@ -155,13 +157,15 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void buildEnemy() {
-		enemy = new Enemy(GameObject.root(), enemyS, enemyTx);
-		enemyList.add(enemy);
+		for (int i = 0; i < 10; i++) {
+			enemy = new Enemy(GameObject.root(), enemyS, enemyTx);
+			enemyList.add(enemy);
+		}
 	}
 
 	private void buildEnemyQuadTree() {
 		for (Enemy e : enemyList) {
-			quadtree.insert(new Node())
+			quadTree.insert(new QuadTreeNode(new QuadTreePoint(e.getLocalLocation().z, e.getLocalLocation().x), e));
 		}
 	}
 
@@ -250,12 +254,18 @@ public class MyGame extends VariableFrameRateGame {
 	public Enemy findTarget() {
 		// calculate the enemy with the shortest angle to the origin
 		// enemy should always calculate their own angle to the origin, the player
-		// create quadtree with enemyList
-		for (Enemy e : enemyList) {
-			if (e.getLocalLocation().distance(player.getLocalLocation()) < 4) {
-				return e;
-			}
+		// create quadTree with enemyList
+		// QuadTreeNode target = quadTree
+		// .search(new QuadTreePoint(player.getLocalLocation().z,
+		// player.getLocalLocation().x));
+
+		QuadTreeNode target = quadTree
+				.search(new QuadTreePoint(player.getLocalLocation().z, player.getLocalLocation().x));
+		if (target != null) {
+			return target.getEnemy();
+		} else {
+			System.out.println("no target found!");
+			return null;
 		}
-		return null;
 	}
 }

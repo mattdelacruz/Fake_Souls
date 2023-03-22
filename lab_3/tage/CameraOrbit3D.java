@@ -18,9 +18,9 @@ import org.joml.Vector3f;
 
 public class CameraOrbit3D extends Camera {
     private static final float MAX_CAMERA_DIST = 5.0f;
-    private static final float LOCKED_DISTANCE = 5.0f;
+    private static final float LOCKED_DISTANCE = 20.0f;
     private static final float MAX_ZOOM_DIST = 20.0f;
-    private static final float INITIAL_ALTITUDE_ANGLE = 50;
+    private static final float INITIAL_ALTITUDE_ANGLE = 80;
     private static final float PITCH_SPEED = 2.0f;
 
     private GameObject origin;
