@@ -6,7 +6,8 @@ import tage.input.InputManager;
 import tage.shapes.*;
 import java.util.ArrayList;
 
-import org.joml.*;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 public class MyGame extends VariableFrameRateGame {
 	private static final int WINDOW_WIDTH = 1900;
@@ -46,7 +47,7 @@ public class MyGame extends VariableFrameRateGame {
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 
 	private QuadTree quadTree = new QuadTree(new QuadTreePoint(-PLAY_AREA_SIZE, PLAY_AREA_SIZE),
-			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE));
+			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE), 0);
 
 	public MyGame() {
 		super();
@@ -160,12 +161,18 @@ public class MyGame extends VariableFrameRateGame {
 		for (int i = 0; i < 10; i++) {
 			enemy = new Enemy(GameObject.root(), enemyS, enemyTx);
 			enemyList.add(enemy);
+
 		}
 	}
 
 	private void buildEnemyQuadTree() {
+		QuadTreeNode enemyNode;
+		int i = 0;
 		for (Enemy e : enemyList) {
-			quadTree.insert(new QuadTreeNode(new QuadTreePoint(e.getLocalLocation().z, e.getLocalLocation().x), e));
+			enemyNode = new QuadTreeNode(new QuadTreePoint(e.getLocalLocation().z, e.getLocalLocation().x), e);
+			System.out.println("enemy node " + i + " " + enemyNode.toString());
+			quadTree.insert(enemyNode);
+			i++;
 		}
 	}
 
@@ -251,21 +258,18 @@ public class MyGame extends VariableFrameRateGame {
 		return enemy;
 	}
 
-	public Enemy findTarget() {
+	public GameObject findTarget() {
 		// calculate the enemy with the shortest angle to the origin
 		// enemy should always calculate their own angle to the origin, the player
-		// create quadTree with enemyList
-		// QuadTreeNode target = quadTree
-		// .search(new QuadTreePoint(player.getLocalLocation().z,
-		// player.getLocalLocation().x));
+		QuadTreePoint playerPos = new QuadTreePoint(player.getLocalLocation().z,
+				player.getLocalLocation().x());
+		QuadTreeNode target;
+		target = null;
+		target = quadTree.findNearby(playerPos, -1, null);
 
-		QuadTreeNode target = quadTree
-				.search(new QuadTreePoint(player.getLocalLocation().z, player.getLocalLocation().x));
 		if (target != null) {
 			return target.getEnemy();
-		} else {
-			System.out.println("no target found!");
-			return null;
 		}
+		return null;
 	}
 }

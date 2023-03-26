@@ -23,4 +23,9 @@ public class QuadTreePoint {
         return z;
     }
 
+    @Override
+    public String toString() {
+        return "Point(" + z + ", " + x + ")";
+    }
+
 }

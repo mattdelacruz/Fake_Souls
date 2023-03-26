@@ -40,12 +40,10 @@ public class PlayerControls implements PlayerControlFunctions {
 
 	@Override
 	public void target() {
-		Enemy target = MyGame.getGameInstance().findTarget();
+		Enemy target = (Enemy) MyGame.getGameInstance().findTarget();
 		if (target != null) {
 			player.getCamera().setTarget(target);
 			player.setLock(true);
-		} else {
-			System.out.println("no target found");
 		}
 		return;
 	}

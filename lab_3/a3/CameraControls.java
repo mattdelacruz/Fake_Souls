@@ -46,7 +46,7 @@ public class CameraControls implements PlayerControlFunctions {
 
     @Override
     public void target() {
-        Enemy target = MyGame.getGameInstance().findTarget();
+        Enemy target = (Enemy) MyGame.getGameInstance().findTarget();
         if (target != null) {
             cam.setTarget(target);
         } else {

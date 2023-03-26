@@ -48,22 +48,10 @@ public class PlayerControlMap {
 		inputManager.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.SPACE,
 				button_2Action, INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 		// overhead camera controls
-		inputManager.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.I, overheadAction,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		inputManager.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.O,
 				leftStickPressAction,
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-		inputManager.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.J, overheadAction,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 
-		inputManager.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.K, overheadAction,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		inputManager.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.L, overheadAction,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		inputManager.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.N, overheadAction,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		inputManager.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.M, overheadAction,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 	}
 
 	private void initializeKeyboardMovementControls() {

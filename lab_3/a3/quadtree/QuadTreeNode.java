@@ -1,12 +1,12 @@
 package a3.quadtree;
 
-import a3.Enemy;
+import tage.GameObject;
 
 public class QuadTreeNode {
     private QuadTreePoint pos;
-    private Enemy data;
+    private GameObject data;
 
-    public QuadTreeNode(QuadTreePoint _pos, Enemy _data) {
+    public QuadTreeNode(QuadTreePoint _pos, GameObject _data) {
         pos = _pos;
         data = _data;
     }
@@ -19,7 +19,13 @@ public class QuadTreeNode {
         return pos;
     }
 
-    public Enemy getEnemy() {
+    public GameObject getEnemy() {
         return data;
     }
+
+    @Override
+    public String toString() {
+        return pos.toString();
+    }
+
 }
