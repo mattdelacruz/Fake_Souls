@@ -264,7 +264,6 @@ public class MyGame extends VariableFrameRateGame {
 		QuadTreePoint playerPos = new QuadTreePoint(player.getLocalLocation().z,
 				player.getLocalLocation().x());
 		QuadTreeNode target;
-		target = null;
 		target = quadTree.findNearby(playerPos, -1, null);
 
 		if (target != null) {

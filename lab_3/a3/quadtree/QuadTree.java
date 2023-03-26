@@ -1,26 +1,21 @@
 package a3.quadtree;
 
-import java.util.ArrayList;
-
 public class QuadTree {
     QuadTreePoint topLeft, botRight;
     QuadTreeNode node;
-    QuadTree topLeftTree, topRightTree, botLeftTree, botRightTree, parent;
+    QuadTree topLeftTree, topRightTree, botLeftTree, botRightTree;
     int level;
-    ArrayList<QuadTree> neighbors;
 
     public QuadTree() {
         topLeft = new QuadTreePoint(0, 0);
         botRight = new QuadTreePoint(0, 0);
         level = 0;
-        neighbors = new ArrayList<QuadTree>();
     }
 
     public QuadTree(QuadTreePoint topL, QuadTreePoint botR, int lvl) {
         level = lvl;
         topLeft = topL;
         botRight = botR;
-        neighbors = new ArrayList<QuadTree>();
     }
 
     public void insert(QuadTreeNode n) {
@@ -49,10 +44,6 @@ public class QuadTree {
                             new QuadTreePoint(topLeft.z(), topLeft.x()),
                             new QuadTreePoint((topLeft.z() + botRight.z()) / 2, (topLeft.x() + botRight.x()) / 2),
                             level + 1);
-                    topLeftTree.setParent(this);
-                    topLeftTree.setNeighbor(botLeftTree);
-                    topLeftTree.setNeighbor(topRightTree);
-                    topLeftTree.setNeighbor(botRightTree);
                 }
                 topLeftTree.insert(n);
                 // bottom left position
@@ -61,10 +52,6 @@ public class QuadTree {
                     botLeftTree = new QuadTree(
                             new QuadTreePoint(topLeft.z(), (topLeft.x() + botRight.x()) / 2),
                             new QuadTreePoint((topLeft.z() + botRight.z()) / 2, botRight.x()), level + 1);
-                    botLeftTree.setParent(this);
-                    botLeftTree.setNeighbor(topLeftTree);
-                    botLeftTree.setNeighbor(topRightTree);
-                    botLeftTree.setNeighbor(botRightTree);
                 }
                 botLeftTree.insert(n);
             }
@@ -76,11 +63,6 @@ public class QuadTree {
 
                     topRightTree = new QuadTree(new QuadTreePoint((topLeft.z() + botRight.z()) / 2, topLeft.x()),
                             new QuadTreePoint(botRight.z(), (topLeft.x() + botRight.x()) / 2), level + 1);
-                    topRightTree.setParent(this);
-                    topRightTree.setNeighbor(topLeftTree);
-                    topRightTree.setNeighbor(botLeftTree);
-                    topRightTree.setNeighbor(botRightTree);
-
                 }
                 topRightTree.insert(n);
                 // bottom right position
@@ -90,11 +72,6 @@ public class QuadTree {
                     botRightTree = new QuadTree(
                             new QuadTreePoint((topLeft.z() + botRight.z()) / 2, (topLeft.x() + botRight.x()) / 2),
                             new QuadTreePoint(botRight.z(), botRight.x()), level + 1);
-                    botRightTree.setParent(this);
-                    botRightTree.setNeighbor(topLeftTree);
-                    botRightTree.setNeighbor(botLeftTree);
-                    botRightTree.setNeighbor(topRightTree);
-
                 }
                 botRightTree.insert(n);
             }
@@ -167,21 +144,6 @@ public class QuadTree {
             nearestNode = node;
         }
 
-        for (int i = 0; i < getNeighborCount(); i++) {
-            if (getNeighbor(i) != null) {
-                if (getNeighbor(i).getNode() != null) {
-                    QuadTreeNode neighborNode = getNeighbor(i).getNode();
-                    if (neighborNode != null) {
-                        float neighborDistance = findDistance(targetPos, neighborNode.getPosition());
-                        if (neighborDistance <= nearestDistance || nearestDistance == -1) {
-                            nearestDistance = neighborDistance;
-                            nearestNode = neighborNode;
-                        }
-                    }
-                }
-            }
-        }
-
         QuadTree childNode = getChildNode(targetPos);
         if (childNode != null) {
             return childNode.findNearby(targetPos, nearestDistance, nearestNode);
@@ -194,39 +156,18 @@ public class QuadTree {
         if ((topLeft.z() + botRight.z()) / 2 >= pos.z()) {
             // top left position
             if ((topLeft.x() + botRight.x()) / 2 <= pos.x()) {
-                if (topLeftTree == null) {
-                    topLeftTree = new QuadTree(
-                            new QuadTreePoint(topLeft.z(), topLeft.x()),
-                            new QuadTreePoint((topLeft.z() + botRight.z()) / 2, (topLeft.x() + botRight.x()) / 2),
-                            level + 1);
-                }
                 return topLeftTree;
                 // bottom left position
             } else {
-                if (botLeftTree == null) {
-                    botLeftTree = new QuadTree(
-                            new QuadTreePoint(topLeft.z(), (topLeft.x() + botRight.x()) / 2),
-                            new QuadTreePoint((topLeft.z() + botRight.z()) / 2, botRight.x()), level + 1);
-                }
                 return botLeftTree;
             }
             // position is on the right side
         } else {
             // top right position
             if ((topLeft.x() + botRight.x()) / 2 <= pos.x()) {
-
-                if (topRightTree == null) {
-                    topRightTree = new QuadTree(new QuadTreePoint((topLeft.z() + botRight.z()) / 2, topLeft.x()),
-                            new QuadTreePoint(botRight.z(), (topLeft.x() + botRight.x()) / 2), level + 1);
-                }
                 return topRightTree;
                 // bottom right position
             } else {
-                if (botRightTree == null) {
-                    botRightTree = new QuadTree(
-                            new QuadTreePoint((topLeft.z() + botRight.z()) / 2, (topLeft.x() + botRight.x()) / 2),
-                            new QuadTreePoint(botRight.z(), botRight.x()), level + 1);
-                }
                 return botRightTree;
             }
         }
@@ -253,31 +194,7 @@ public class QuadTree {
         return botLeftTree == null && botRightTree == null && topLeftTree == null && topRightTree == null;
     }
 
-    public QuadTree getParent() {
-        return parent;
-    }
-
-    public void setParent(QuadTree p) {
-        parent = p;
-    }
-
     public int getLevel() {
         return level;
-    }
-
-    public void setNeighbor(QuadTree n) {
-        neighbors.add(n);
-    }
-
-    public QuadTree getNeighbor(int i) {
-        return neighbors.get(i);
-    }
-
-    public void clearNeighbors() {
-        neighbors.clear();
-    }
-
-    public int getNeighborCount() {
-        return neighbors.size();
     }
 }

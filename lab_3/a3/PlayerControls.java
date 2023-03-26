@@ -15,7 +15,6 @@ public class PlayerControls implements PlayerControlFunctions {
 	@Override
 	public void turnRight(float frameTime) {
 		player.move(player.getLocalRightVector(), frameTime);
-
 	}
 
 	@Override
