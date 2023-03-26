@@ -7,6 +7,7 @@ import a3.Player;
 
 public class TargetCamera extends CameraOrbit3D {
 
+    private static final int MAX_RADIUS = 10;
     private Player origin;
     private Enemy enemy;
 
@@ -16,8 +17,7 @@ public class TargetCamera extends CameraOrbit3D {
     }
 
     public void targetTo() {
-
-        if (enemy.getLocalLocation().distance(origin.getLocalLocation()) < 10) {
+        if (enemy.getLocalLocation().distance(origin.getLocalLocation()) < MAX_RADIUS) {
             origin.lookAt(enemy);
         } else {
             origin.setLock(false);

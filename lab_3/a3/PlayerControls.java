@@ -1,5 +1,7 @@
 package a3;
 
+import tage.GameObject;
+
 public class PlayerControls implements PlayerControlFunctions {
 	private Player player;
 
@@ -39,9 +41,9 @@ public class PlayerControls implements PlayerControlFunctions {
 
 	@Override
 	public void target() {
-		Enemy target = (Enemy) MyGame.getGameInstance().findTarget();
-		if (target != null) {
-			player.getCamera().setTarget(target);
+		GameObject target = MyGame.getGameInstance().findTarget();
+		if (target != null && target instanceof Enemy) {
+			player.getCamera().setTarget((Enemy) target);
 			player.setLock(true);
 		}
 		return;
@@ -51,5 +53,4 @@ public class PlayerControls implements PlayerControlFunctions {
 	public boolean isControlPlayer() {
 		return true;
 	}
-
 }

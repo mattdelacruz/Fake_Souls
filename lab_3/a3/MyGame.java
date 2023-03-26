@@ -267,7 +267,7 @@ public class MyGame extends VariableFrameRateGame {
 		target = quadTree.findNearby(playerPos, -1, null);
 
 		if (target != null) {
-			return target.getEnemy();
+			return target.getData();
 		}
 		return null;
 	}

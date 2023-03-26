@@ -19,7 +19,7 @@ public class QuadTreeNode {
         return pos;
     }
 
-    public GameObject getEnemy() {
+    public GameObject getData() {
         return data;
     }
 
