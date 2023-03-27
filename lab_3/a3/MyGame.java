@@ -49,7 +49,7 @@ public class MyGame extends VariableFrameRateGame {
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 
 	private QuadTree quadTree = new QuadTree(new QuadTreePoint(-PLAY_AREA_SIZE, PLAY_AREA_SIZE),
-			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE), 0);
+			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE));
 
 	public MyGame() {
 		super();
