@@ -182,19 +182,11 @@ public class QuadTree {
                 p.x() <= topLeft.x() && p.x() >= botRight.x());
     }
 
-    public QuadTreeNode getNode() {
-        return node;
-    }
-
-    public void setNode(QuadTreeNode n) {
-        node = n;
-    }
-
-    public boolean isLeafNode() {
+    private boolean isLeafNode() {
         return botLeftTree == null && botRightTree == null && topLeftTree == null && topRightTree == null;
     }
 
-    public int getLevel() {
+    private int getLevel() {
         return level;
     }
 }
