@@ -12,6 +12,7 @@ import org.joml.Vector3f;
  * Methods include adjustment of the altitude of the Camera, adjusting the
  * distance of the Camera, and adjusting the azimuth of the Camera all about the
  * specified target
+ * </p>
  * 
  * @author Matthew Dela Cruz
  */
@@ -43,7 +44,6 @@ public class CameraOrbit3D extends Camera {
         adjustPhi();
         adjustPitchAngle();
         findNewCameraLocation();
-
     }
 
     public void changeAltitude(float frameTime) {

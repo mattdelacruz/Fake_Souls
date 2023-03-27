@@ -4,16 +4,13 @@ public class QuadTree {
     QuadTreePoint topLeft, botRight;
     QuadTreeNode node;
     QuadTree topLeftTree, topRightTree, botLeftTree, botRightTree;
-    int level;
 
     public QuadTree() {
         topLeft = new QuadTreePoint(0, 0);
         botRight = new QuadTreePoint(0, 0);
-        level = 0;
     }
 
-    public QuadTree(QuadTreePoint topL, QuadTreePoint botR, int lvl) {
-        level = lvl;
+    public QuadTree(QuadTreePoint topL, QuadTreePoint botR) {
         topLeft = topL;
         botRight = botR;
     }
@@ -42,8 +39,7 @@ public class QuadTree {
                 if (topLeftTree == null) {
                     topLeftTree = new QuadTree(
                             new QuadTreePoint(topLeft.z(), topLeft.x()),
-                            new QuadTreePoint((topLeft.z() + botRight.z()) / 2, (topLeft.x() + botRight.x()) / 2),
-                            level + 1);
+                            new QuadTreePoint((topLeft.z() + botRight.z()) / 2, (topLeft.x() + botRight.x()) / 2));
                 }
                 topLeftTree.insert(n);
                 // bottom left position
@@ -51,7 +47,7 @@ public class QuadTree {
                 if (botLeftTree == null) {
                     botLeftTree = new QuadTree(
                             new QuadTreePoint(topLeft.z(), (topLeft.x() + botRight.x()) / 2),
-                            new QuadTreePoint((topLeft.z() + botRight.z()) / 2, botRight.x()), level + 1);
+                            new QuadTreePoint((topLeft.z() + botRight.z()) / 2, botRight.x()));
                 }
                 botLeftTree.insert(n);
             }
@@ -62,7 +58,7 @@ public class QuadTree {
                 if (topRightTree == null) {
 
                     topRightTree = new QuadTree(new QuadTreePoint((topLeft.z() + botRight.z()) / 2, topLeft.x()),
-                            new QuadTreePoint(botRight.z(), (topLeft.x() + botRight.x()) / 2), level + 1);
+                            new QuadTreePoint(botRight.z(), (topLeft.x() + botRight.x()) / 2));
                 }
                 topRightTree.insert(n);
                 // bottom right position
@@ -71,7 +67,7 @@ public class QuadTree {
 
                     botRightTree = new QuadTree(
                             new QuadTreePoint((topLeft.z() + botRight.z()) / 2, (topLeft.x() + botRight.x()) / 2),
-                            new QuadTreePoint(botRight.z(), botRight.x()), level + 1);
+                            new QuadTreePoint(botRight.z(), botRight.x()));
                 }
                 botRightTree.insert(n);
             }
@@ -182,19 +178,7 @@ public class QuadTree {
                 p.x() <= topLeft.x() && p.x() >= botRight.x());
     }
 
-    public QuadTreeNode getNode() {
-        return node;
-    }
-
-    public void setNode(QuadTreeNode n) {
-        node = n;
-    }
-
-    public boolean isLeafNode() {
+    private boolean isLeafNode() {
         return botLeftTree == null && botRightTree == null && topLeftTree == null && topRightTree == null;
-    }
-
-    public int getLevel() {
-        return level;
     }
 }

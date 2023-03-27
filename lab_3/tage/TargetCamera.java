@@ -1,7 +1,5 @@
 package tage;
 
-import org.joml.Vector3f;
-
 import a3.Enemy;
 import a3.Player;
 

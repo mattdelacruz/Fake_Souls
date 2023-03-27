@@ -7,12 +7,14 @@ import tage.shapes.*;
 import java.util.ArrayList;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class MyGame extends VariableFrameRateGame {
 	private static final int WINDOW_WIDTH = 1900;
 	private static final int WINDOW_HEIGHT = 1000;
 	private static final int AXIS_LENGTH = 10000;
+	private static final int ENEMY_AMOUNT = 10;
 	private static final float PLAY_AREA_SIZE = 555f;
 
 	private static final Vector3f INITIAL_ORBIT_CAMERA_POS = new Vector3f(0f, 0f, 5f);
@@ -47,7 +49,7 @@ public class MyGame extends VariableFrameRateGame {
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 
 	private QuadTree quadTree = new QuadTree(new QuadTreePoint(-PLAY_AREA_SIZE, PLAY_AREA_SIZE),
-			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE), 0);
+			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE));
 
 	public MyGame() {
 		super();
@@ -122,7 +124,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void update() {
-		updateFrameTime(); // do not delete!!!
+		updateFrameTime();
 		targetCamera.update();
 		if (player.isLocked) {
 			targetCamera.targetTo();
@@ -158,21 +160,15 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void buildEnemy() {
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < ENEMY_AMOUNT; i++) {
 			enemy = new Enemy(GameObject.root(), enemyS, enemyTx);
 			enemyList.add(enemy);
-
 		}
 	}
 
 	private void buildEnemyQuadTree() {
-		QuadTreeNode enemyNode;
-		int i = 0;
 		for (Enemy e : enemyList) {
-			enemyNode = new QuadTreeNode(new QuadTreePoint(e.getLocalLocation().z, e.getLocalLocation().x), e);
-			System.out.println("enemy node " + i + " " + enemyNode.toString());
-			quadTree.insert(enemyNode);
-			i++;
+			quadTree.insert(new QuadTreeNode(new QuadTreePoint(e.getLocalLocation().z, e.getLocalLocation().x), e));
 		}
 	}
 
@@ -230,6 +226,18 @@ public class MyGame extends VariableFrameRateGame {
 		}
 	}
 
+	public GameObject findTarget() {
+		QuadTreePoint playerPos = new QuadTreePoint(player.getLocalLocation().z,
+				player.getLocalLocation().x());
+		QuadTreeNode target;
+		target = quadTree.findNearby(playerPos, -1, null);
+
+		if (target != null) {
+			return target.getData();
+		}
+		return null;
+	}
+
 	public float getFrameTime() {
 		return frameTime;
 	}
@@ -258,17 +266,4 @@ public class MyGame extends VariableFrameRateGame {
 		return enemy;
 	}
 
-	public GameObject findTarget() {
-		// calculate the enemy with the shortest angle to the origin
-		// enemy should always calculate their own angle to the origin, the player
-		QuadTreePoint playerPos = new QuadTreePoint(player.getLocalLocation().z,
-				player.getLocalLocation().x());
-		QuadTreeNode target;
-		target = quadTree.findNearby(playerPos, -1, null);
-
-		if (target != null) {
-			return target.getData();
-		}
-		return null;
-	}
 }

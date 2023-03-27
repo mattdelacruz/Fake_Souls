@@ -96,6 +96,7 @@ public class HUDmanager {
 		HUD2x = x;
 		HUD2y = y;
 	}
+
 	/** sets HUD #3 to the specified text string, color, and location */
 	public void setHUD3(String string, Vector3f color, int x, int y) {
 		HUD3string = string;
@@ -115,7 +116,7 @@ public class HUDmanager {
 	public void setHUD2font(int font) {
 		HUD2font = font;
 	}
-	
+
 	/** sets HUD #3 font - available fonts are listed above. */
 	public void setHUD3font(int font) {
 		HUD3font = font;
