@@ -25,7 +25,11 @@ public class QuadTreeNode {
 
     @Override
     public String toString() {
-        return pos.toString();
+        if (pos != null) {
+            return pos.toString();
+        } else {
+            return "Position is null";
+        }
     }
 
 }

@@ -1,18 +1,18 @@
 package a3.quadtree;
 
 public class QuadTree {
-    QuadTreePoint topLeft, botRight;
+    QuadTreePoint northWestCorner, southEastCorner;
     QuadTreeNode node;
-    QuadTree topLeftTree, topRightTree, botLeftTree, botRightTree;
+    QuadTree northWestTree, northEastTree, southWestTree, southEastTree;
 
     public QuadTree() {
-        topLeft = new QuadTreePoint(0, 0);
-        botRight = new QuadTreePoint(0, 0);
+        northWestCorner = new QuadTreePoint(0, 0);
+        southEastCorner = new QuadTreePoint(0, 0);
     }
 
-    public QuadTree(QuadTreePoint topL, QuadTreePoint botR) {
-        topLeft = topL;
-        botRight = botR;
+    public QuadTree(QuadTreePoint northW, QuadTreePoint southE) {
+        northWestCorner = northW;
+        southEastCorner = southE;
     }
 
     public void insert(QuadTreeNode n) {
@@ -26,49 +26,54 @@ public class QuadTree {
         }
 
         // unit area check, cannot divide any further
-        if (Math.abs(topLeft.z() - botRight.z()) <= 1 && Math.abs(topLeft.x() - botRight.x()) <= 1) {
+        if (Math.abs(northWestCorner.z() - southEastCorner.z()) <= 1
+                && Math.abs(northWestCorner.x() - southEastCorner.x()) <= 1) {
             if (node == null) {
                 node = n;
             }
             return;
         }
         // position is on the left side
-        if ((topLeft.z() + botRight.z()) / 2 >= n.getPosition().z()) {
+        if ((northWestCorner.z() + southEastCorner.z()) / 2 >= n.getPosition().z()) {
             // top left position
-            if ((topLeft.x() + botRight.x()) / 2 <= n.getPosition().x()) {
-                if (topLeftTree == null) {
-                    topLeftTree = new QuadTree(
-                            new QuadTreePoint(topLeft.z(), topLeft.x()),
-                            new QuadTreePoint((topLeft.z() + botRight.z()) / 2, (topLeft.x() + botRight.x()) / 2));
+            if ((northWestCorner.x() + southEastCorner.x()) / 2 <= n.getPosition().x()) {
+                if (northWestTree == null) {
+                    northWestTree = new QuadTree(
+                            new QuadTreePoint(northWestCorner.z(), northWestCorner.x()),
+                            new QuadTreePoint((northWestCorner.z() + southEastCorner.z()) / 2,
+                                    (northWestCorner.x() + southEastCorner.x()) / 2));
                 }
-                topLeftTree.insert(n);
+                northWestTree.insert(n);
                 // bottom left position
             } else {
-                if (botLeftTree == null) {
-                    botLeftTree = new QuadTree(
-                            new QuadTreePoint(topLeft.z(), (topLeft.x() + botRight.x()) / 2),
-                            new QuadTreePoint((topLeft.z() + botRight.z()) / 2, botRight.x()));
+                if (southWestTree == null) {
+                    southWestTree = new QuadTree(
+                            new QuadTreePoint(northWestCorner.z(), (northWestCorner.x() + southEastCorner.x()) / 2),
+                            new QuadTreePoint((northWestCorner.z() + southEastCorner.z()) / 2, southEastCorner.x()));
                 }
-                botLeftTree.insert(n);
+                southWestTree.insert(n);
             }
             // position is on the right side
         } else {
             // top right position
-            if ((topLeft.x() + botRight.x()) / 2 <= n.getPosition().x()) {
-                if (topRightTree == null) {
+            if ((northWestCorner.x() + southEastCorner.x()) / 2 <= n.getPosition().x()) {
+                if (northEastTree == null) {
 
-                    topRightTree = new QuadTree(new QuadTreePoint((topLeft.z() + botRight.z()) / 2, topLeft.x()),
-                            new QuadTreePoint(botRight.z(), (topLeft.x() + botRight.x()) / 2));
+                    northEastTree = new QuadTree(
+                            new QuadTreePoint((northWestCorner.z() + southEastCorner.z()) / 2, northWestCorner.x()),
+                            new QuadTreePoint(southEastCorner.z(), (northWestCorner.x() + southEastCorner.x()) / 2));
                 }
-                topRightTree.insert(n);
+                northEastTree.insert(n);
                 // bottom right position
             } else {
-                if (botRightTree == null) {
-                    botRightTree = new QuadTree(
-                            new QuadTreePoint((topLeft.z() + botRight.z()) / 2, (topLeft.x() + botRight.x()) / 2),
-                            new QuadTreePoint(botRight.z(), botRight.x()));
+                if (southEastTree == null) {
+
+                    southEastTree = new QuadTree(
+                            new QuadTreePoint((northWestCorner.z() + southEastCorner.z()) / 2,
+                                    (northWestCorner.x() + southEastCorner.x()) / 2),
+                            new QuadTreePoint(southEastCorner.z(), southEastCorner.x()));
                 }
-                botRightTree.insert(n);
+                southEastTree.insert(n);
             }
         }
     }
@@ -82,35 +87,35 @@ public class QuadTree {
             return this;
         }
         // position is on the left side
-        if ((topLeft.z() + botRight.z()) / 2 >= pos.z()) {
+        if ((northWestCorner.z() + southEastCorner.z()) / 2 >= pos.z()) {
             // top left position
-            if ((topLeft.x() + botRight.x()) / 2 <= pos.x()) {
-                if (topLeftTree == null) {
+            if ((northWestCorner.x() + southEastCorner.x()) / 2 <= pos.x()) {
+                if (northWestTree == null) {
                     return null;
                 }
-                return topLeftTree.search(pos);
+                return northWestTree.search(pos);
                 // bottom left position
             } else {
-                if (botLeftTree == null) {
+                if (southWestTree == null) {
                     return null;
                 }
-                return botLeftTree.search(pos);
+                return southWestTree.search(pos);
             }
             // position is on the right side
         } else {
             // top right position
-            if ((topLeft.x() + botRight.x()) / 2 <= pos.x()) {
+            if ((northWestCorner.x() + southEastCorner.x()) / 2 <= pos.x()) {
 
-                if (topRightTree == null) {
+                if (northEastTree == null) {
                     return null;
                 }
-                return topRightTree.search(pos);
+                return northEastTree.search(pos);
                 // bottom right position
             } else {
-                if (botRightTree == null) {
+                if (southEastTree == null) {
                     return null;
                 }
-                return botRightTree.search(pos);
+                return southEastTree.search(pos);
             }
         }
     }
@@ -148,22 +153,22 @@ public class QuadTree {
     }
 
     public QuadTree getChildNode(QuadTreePoint pos) {
-        if ((topLeft.z() + botRight.z()) / 2 >= pos.z()) {
+        if ((northWestCorner.z() + southEastCorner.z()) / 2 >= pos.z()) {
             // top left position
-            if ((topLeft.x() + botRight.x()) / 2 <= pos.x()) {
-                return topLeftTree;
+            if ((northWestCorner.x() + southEastCorner.x()) / 2 <= pos.x()) {
+                return northWestTree;
                 // bottom left position
             } else {
-                return botLeftTree;
+                return southWestTree;
             }
             // position is on the right side
         } else {
             // top right position
-            if ((topLeft.x() + botRight.x()) / 2 <= pos.x()) {
-                return topRightTree;
+            if ((northWestCorner.x() + southEastCorner.x()) / 2 <= pos.x()) {
+                return northEastTree;
                 // bottom right position
             } else {
-                return botRightTree;
+                return southEastTree;
             }
         }
     }
@@ -172,12 +177,13 @@ public class QuadTree {
         return (float) Math.sqrt(Math.pow(b.x() - a.x(), 2) + Math.pow(b.z() - a.z(), 2));
     }
 
-    private boolean inBounds(QuadTreePoint p) {
-        return (p.z() >= topLeft.z() && p.z() <= botRight.z() &&
-                p.x() <= topLeft.x() && p.x() >= botRight.x());
+    private boolean inBounds(QuadTreePoint pos) {
+        return (pos.z() >= northWestCorner.z() && pos.z() <= southEastCorner.z() &&
+                pos.x() <= northWestCorner.x() && pos.x() >= southEastCorner.x());
     }
 
     private boolean isLeafNode() {
-        return botLeftTree == null && botRightTree == null && topLeftTree == null && topRightTree == null;
+        return southWestTree == null && southEastTree == null &&
+                northWestTree == null && northEastTree == null;
     }
 }

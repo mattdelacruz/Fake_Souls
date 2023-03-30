@@ -111,9 +111,7 @@ public class CameraOrbit3D extends Camera {
         newY = (float) (Math.cos(pitchAngle) *
                 locked_dist);
         setLocation(new Vector3f(newX, newY, newZ).add(origin.getLocalLocation()));
-        current_dist = Math.max(locked_dist, MAX_CAMERA_DIST);
-
-        current_dist = Math.min(current_dist, max_zoom_dist);
+        current_dist = Math.min(Math.max(locked_dist, MAX_CAMERA_DIST), max_zoom_dist);
         lookAt(origin);
         deltaPitch = 0;
     }
