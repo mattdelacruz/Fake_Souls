@@ -64,7 +64,6 @@ public class QuadTree {
                 // bottom right position
             } else {
                 if (botRightTree == null) {
-
                     botRightTree = new QuadTree(
                             new QuadTreePoint((topLeft.z() + botRight.z()) / 2, (topLeft.x() + botRight.x()) / 2),
                             new QuadTreePoint(botRight.z(), botRight.x()));
