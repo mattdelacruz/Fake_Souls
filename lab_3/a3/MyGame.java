@@ -4,7 +4,16 @@ import a3.quadtree.*;
 import tage.*;
 import tage.input.InputManager;
 import tage.shapes.*;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -36,12 +45,15 @@ public class MyGame extends VariableFrameRateGame {
 
 	private GameObject planeMap, x, y, z, nX, nY, nZ;
 
+	private ScriptEngine jsEngine;
+	private File scriptFile;
+
 	private Enemy enemy;
 	private Player player;
+	private ScriptEngineManager factory;
 
 	private ObjShape playerS, enemyS;
 	private TextureImage playerTx, enemyTx, moonTx;
-	private Light light1;
 	private Line worldXAxis, worldYAxis, worldZAxis, worldNXAxis, worldNYAxis,
 			worldNZAxis;
 	private Plane moonCrater;
@@ -93,10 +105,13 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void initializeLights() {
-		Light.setGlobalAmbient(0.5f, 0.5f, 0.5f);
-		light1 = new Light();
-		light1.setLocation(new Vector3f(5.0f, 4.0f, 2.0f));
-		(engine.getSceneGraph()).addLight(light1);
+		factory = new ScriptEngineManager();
+		jsEngine = factory.getEngineByName("js");
+
+		scriptFile = new File("scripts/LoadLights.js");
+		this.executeScript(jsEngine, scriptFile);
+
+		(engine.getSceneGraph()).addLight((Light)jsEngine.get("light"));
 	}
 
 	@Override
@@ -129,7 +144,6 @@ public class MyGame extends VariableFrameRateGame {
 		if (player.isLocked) {
 			targetCamera.targetTo();
 		}
-
 		inputManager.update((float) elapsTime);
 	}
 
@@ -238,6 +252,26 @@ public class MyGame extends VariableFrameRateGame {
 		return null;
 	}
 
+	private void executeScript(ScriptEngine engine, File file) {
+		try {
+			FileReader fileReader = new FileReader(file);
+			engine.eval(fileReader);
+			fileReader.close();
+		}
+		catch (FileNotFoundException e1) {
+			System.out.println(file + " not found " + e1);
+		}
+		catch (IOException e2) {
+			System.out.println("IO problem with " + file + e2);
+		}
+		catch (ScriptException e3) {
+			System.out.println("ScriptException in " + file + e3);
+		}
+		catch (NullPointerException e4) {
+			System.out.println("Null pointer exception in " + file + e4);
+		}
+	}
+
 	public float getFrameTime() {
 		return frameTime;
 	}
@@ -265,5 +299,4 @@ public class MyGame extends VariableFrameRateGame {
 	public Enemy getEnemy() {
 		return enemy;
 	}
-
 }

@@ -31,13 +31,14 @@ public class CameraOrbit3D extends Camera {
         deltaPitch = 0;
         origin = target;
         pitchAngle = (float) Math.toRadians(INITIAL_ALTITUDE_ANGLE);
+        current_dist = (float) getLocation().distance(origin.getWorldLocation());
     }
 
     public void update() {
         x_dist = getLocation().z - origin.getLocalLocation().z;
         y_dist = getLocation().x - origin.getLocalLocation().x;
         z_dist = getLocation().y - origin.getLocalLocation().y;
-        current_dist = (float) getLocation().distance(origin.getWorldLocation());
+        
         xy_dist = (float) (Math.sqrt(Math.pow(x_dist, 2) + Math.pow(y_dist, 2)));
 
         adjustTheta();
