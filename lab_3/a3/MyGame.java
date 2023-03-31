@@ -1,5 +1,10 @@
 package a3;
 
+import a3.controlmaps.PlayerControlFunctions;
+import a3.controlmaps.PlayerControlMap;
+import a3.controlmaps.PlayerControls;
+import a3.npcs.Enemy;
+import a3.player.Player;
 import a3.quadtree.*;
 import tage.*;
 import tage.input.InputManager;
@@ -11,12 +16,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class MyGame extends VariableFrameRateGame {
@@ -108,10 +113,10 @@ public class MyGame extends VariableFrameRateGame {
 		factory = new ScriptEngineManager();
 		jsEngine = factory.getEngineByName("js");
 
-		scriptFile = new File("scripts/LoadLights.js");
-		this.executeScript(jsEngine, scriptFile);
+		scriptFile = new File("assets/scripts/LoadLights.js");
+		executeScript(jsEngine, scriptFile);
 
-		(engine.getSceneGraph()).addLight((Light)jsEngine.get("light"));
+		(engine.getSceneGraph()).addLight((Light) jsEngine.get("light"));
 	}
 
 	@Override
@@ -141,7 +146,7 @@ public class MyGame extends VariableFrameRateGame {
 	public void update() {
 		updateFrameTime();
 		targetCamera.update();
-		if (player.isLocked) {
+		if (player.isLocked()) {
 			targetCamera.targetTo();
 		}
 		inputManager.update((float) elapsTime);
@@ -257,17 +262,13 @@ public class MyGame extends VariableFrameRateGame {
 			FileReader fileReader = new FileReader(file);
 			engine.eval(fileReader);
 			fileReader.close();
-		}
-		catch (FileNotFoundException e1) {
+		} catch (FileNotFoundException e1) {
 			System.out.println(file + " not found " + e1);
-		}
-		catch (IOException e2) {
+		} catch (IOException e2) {
 			System.out.println("IO problem with " + file + e2);
-		}
-		catch (ScriptException e3) {
+		} catch (ScriptException e3) {
 			System.out.println("ScriptException in " + file + e3);
-		}
-		catch (NullPointerException e4) {
+		} catch (NullPointerException e4) {
 			System.out.println("Null pointer exception in " + file + e4);
 		}
 	}

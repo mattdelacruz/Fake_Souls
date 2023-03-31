@@ -1,7 +1,7 @@
 package tage;
 
-import a3.Enemy;
-import a3.Player;
+import a3.npcs.Enemy;
+import a3.player.Player;
 
 public class TargetCamera extends CameraOrbit3D {
 

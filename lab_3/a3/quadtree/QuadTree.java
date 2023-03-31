@@ -121,6 +121,7 @@ public class QuadTree {
     }
 
     public QuadTreeNode findNearby(QuadTreePoint targetPos, float nearestDistance, QuadTreeNode nearestNode) {
+        System.out.println("find nearby...");
         if (node == null) {
             return nearestNode;
         }
@@ -152,7 +153,7 @@ public class QuadTree {
 
     }
 
-    public QuadTree getChildNode(QuadTreePoint pos) {
+    private QuadTree getChildNode(QuadTreePoint pos) {
         if ((northWestCorner.z() + southEastCorner.z()) / 2 >= pos.z()) {
             // top left position
             if ((northWestCorner.x() + southEastCorner.x()) / 2 <= pos.x()) {
