@@ -121,7 +121,6 @@ public class QuadTree {
     }
 
     public QuadTreeNode findNearby(QuadTreePoint targetPos, float nearestDistance, QuadTreeNode nearestNode) {
-        System.out.println("find nearby...");
         if (node == null) {
             return nearestNode;
         }

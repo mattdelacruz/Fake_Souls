@@ -1,6 +1,6 @@
-package a3.controlmaps;
+package a3.controls;
 
-import a3.MyGame;
+import a3.world.MyGame;
 import tage.TargetCamera;
 
 public class CameraControls implements PlayerControlFunctions {

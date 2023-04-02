@@ -1,8 +1,8 @@
-package a3.controlmaps;
+package a3.controls;
 
-import a3.MyGame;
 import a3.npcs.Enemy;
 import a3.player.Player;
+import a3.world.MyGame;
 import tage.GameObject;
 
 public class PlayerControls implements PlayerControlFunctions {

@@ -1,8 +1,8 @@
-package a3;
+package a3.world;
 
-import a3.controlmaps.PlayerControlFunctions;
-import a3.controlmaps.PlayerControlMap;
-import a3.controlmaps.PlayerControls;
+import a3.controls.PlayerControlFunctions;
+import a3.controls.PlayerControlMap;
+import a3.controls.PlayerControls;
 import a3.npcs.Enemy;
 import a3.player.Player;
 import a3.quadtree.*;
@@ -129,6 +129,9 @@ public class MyGame extends VariableFrameRateGame {
 
 		initializeControls();
 		initializeCameras();
+
+		FindComponents fc = new FindComponents();
+		fc.listControllers();
 
 		state = new PlayerControls();
 	}

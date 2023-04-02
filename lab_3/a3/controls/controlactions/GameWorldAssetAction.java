@@ -1,6 +1,6 @@
-package a3.controlmaps.controlactions;
+package a3.controls.controlactions;
 
-import a3.MyGame;
+import a3.world.MyGame;
 import net.java.games.input.Event;
 import tage.input.action.AbstractInputAction;
 

@@ -2,13 +2,14 @@ package tage.nodeControllers;
 
 import org.joml.Vector3f;
 
-import a3.MyGame;
+import a3.world.MyGame;
 import tage.*;
 
 /**
  * A FloatController is a node controller that, when enabled, causes any
  * object
- * it is attached to to float in place between a specified range in the y-direction that is calculated using the object's scale.
+ * it is attached to to float in place between a specified range in the
+ * y-direction that is calculated using the object's scale.
  * 
  * @author Matthew Dela Cruz
  */
@@ -33,13 +34,13 @@ public class FloatController extends NodeController {
     public void apply(GameObject go) {
         float elapsedTime = super.getElapsedTime();
         float floatAmt = floatSpeed * elapsedTime;
-        float maxHeight = go.getLocalScale().get(0,0) * 5;
+        float maxHeight = go.getLocalScale().get(0, 0) * 5;
 
         if (go.getLocalLocation().y > maxHeight) {
-            isFloating = false; //fall
+            isFloating = false; // fall
         }
-        if (go.getLocalLocation().y <= go.getLocalScale().get(0,0)*3) {
-            isFloating = true; //float
+        if (go.getLocalLocation().y <= go.getLocalScale().get(0, 0) * 3) {
+            isFloating = true; // float
         }
 
         if (isFloating) {

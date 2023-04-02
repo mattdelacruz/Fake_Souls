@@ -1,8 +1,8 @@
-package a3.controlmaps.controlactions;
+package a3.controls.controlactions;
 
-import a3.MyGame;
-import a3.controlmaps.CameraControls;
-import a3.controlmaps.PlayerControls;
+import a3.controls.CameraControls;
+import a3.controls.PlayerControls;
+import a3.world.MyGame;
 import net.java.games.input.Event;
 import tage.input.action.AbstractInputAction;
 

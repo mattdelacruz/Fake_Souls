@@ -1,4 +1,4 @@
-package a3.controlmaps;
+package a3.controls;
 
 public interface PlayerControlFunctions {
 	void turnLeft(float frameTime);
