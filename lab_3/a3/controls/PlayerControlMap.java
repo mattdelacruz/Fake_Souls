@@ -44,27 +44,27 @@ public class PlayerControlMap {
 		// gameworld asset controls
 		initializeOverWorldControls();
 		// mouse controls
-		initializeMouseControls();
+		//initializeMouseControls();
 	}
 
-	private void initializeMouseControls() {
-		int i = 0;
-		for (Controller controller : ControllerEnvironment.getDefaultEnvironment().getControllers()) {
-			if (controller.getType() == Controller.Type.MOUSE) {
-				mouse = (Mouse) controller;
-				System.out.printf("mouse found %d\n", i);
-				break;
-			}
-			i++;
-		}
-		if (mouse == null) {
-			System.err.println("No mouse found.");
-			System.exit(-1);
-		}
-		inputManager.associateAction(mouse.toString(),
-				mouse.getLeft().getIdentifier(), mouseAction,
-				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-	}
+	// private void initializeMouseControls() {
+	// 	int i = 0;
+	// 	for (Controller controller : ControllerEnvironment.getDefaultEnvironment().getControllers()) {
+	// 		if (controller.getType() == Controller.Type.MOUSE) {
+	// 			mouse = (Mouse) controller;
+	// 			System.out.printf("mouse found %d\n", i);
+	// 			break;
+	// 		}
+	// 		i++;
+	// 	}
+	// 	if (mouse == null) {
+	// 		System.err.println("No mouse found.");
+	// 		System.exit(-1);
+	// 	}
+	// 	inputManager.associateAction(mouse.toString(),
+	// 			mouse.getLeft().getIdentifier(), mouseAction,
+	// 			InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+	// }
 
 	private void initializeOverWorldControls() {
 		inputManager.associateActionWithAllKeyboards(Component.Identifier.Key.R,

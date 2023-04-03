@@ -7,11 +7,8 @@ public class MouseAction extends AbstractInputAction {
 
     @Override
     public void performAction(float time, Event evt) {
-        if (evt.getComponent() == Component.Identifier.Button.LEFT)
-            System.out.println("pressing mouse button...");
-        else {
-            System.out.println("no!");
-        }
+        System.out.println("pressing mouse button...");
+        System.out.println("component: " + evt.getComponent().getName());
     }
 
 }

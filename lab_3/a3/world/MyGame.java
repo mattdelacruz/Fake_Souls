@@ -8,6 +8,9 @@ import a3.player.Player;
 import a3.quadtree.*;
 import tage.*;
 import tage.input.InputManager;
+import tage.physics.PhysicsEngine;
+import tage.physics.PhysicsEngineFactory;
+import tage.physics.PhysicsObject;
 import tage.shapes.*;
 
 import java.io.File;
@@ -47,10 +50,12 @@ public class MyGame extends VariableFrameRateGame {
 	private double lastFrameTime, currFrameTime, elapsTime;
 
 	private float frameTime = 0;
+	private float[] vals = new float[16];
 
 	private GameObject planeMap, x, y, z, nX, nY, nZ;
 
 	private ScriptEngine jsEngine;
+	private PhysicsEngine physicsEngine;
 	private File scriptFile;
 
 	private Enemy enemy;
@@ -64,7 +69,7 @@ public class MyGame extends VariableFrameRateGame {
 	private Plane moonCrater;
 	private ArrayList<GameObject> worldAxisList = new ArrayList<GameObject>();
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
-
+	private ArrayList <PhysicsObject> enemyPhysicsList = new ArrayList<PhysicsObject>();
 	private QuadTree quadTree = new QuadTree(new QuadTreePoint(-PLAY_AREA_SIZE, PLAY_AREA_SIZE),
 			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE));
 
@@ -101,6 +106,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void buildObjects() {
+		buildPhysicsEngine();
 		buildPlayer();
 		buildEnemy();
 		buildWorldAxes();
@@ -171,6 +177,14 @@ public class MyGame extends VariableFrameRateGame {
 		worldNZAxis = new Line(new Vector3f(0, 0, 0), new Vector3f(0, 0, -AXIS_LENGTH));
 	}
 
+	private void buildPhysicsEngine() {
+		String engine = "tage.physics.JBullet.JBulletPhysicsEngine";
+		float[] gravity = {0f, -5f, 0f};
+		physicsEngine = PhysicsEngineFactory.createPhysicsEngine(engine);
+		physicsEngine.initSystem();
+		physicsEngine.setGravity(gravity);
+	}
+
 	private void buildPlaneMap() {
 		planeMap = new GameObject(GameObject.root(), moonCrater, moonTx);
 		planeMap.setLocalLocation(new Vector3f(0, 0, 0));
@@ -182,10 +196,28 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void buildEnemy() {
+		float mass = 0.1f;
+		double[] tempTransform;
+		float[] size = {0.75f, 0.75f, 0.75f};
+		Matrix4f translation;
 		for (int i = 0; i < ENEMY_AMOUNT; i++) {
 			enemy = new Enemy(GameObject.root(), enemyS, enemyTx);
 			enemyList.add(enemy);
+			translation = new Matrix4f(enemy.getLocalTranslation());
+			tempTransform = toDoubleArray(translation.get(vals));
+			enemyPhysicsList.add(physicsEngine.addBoxObject(physicsEngine.nextUID(), mass, tempTransform, size));
 		}
+	}
+
+	private double[] toDoubleArray(float[] arr) {
+		if (arr == null) return null;
+		int n = arr.length;
+		double[] ret = new double[n];
+		for (int i = 0; i < n; i++)
+			{ 
+				ret[i] = (double)arr[i];
+			}
+		return ret;
 	}
 
 	private void buildEnemyQuadTree() {
