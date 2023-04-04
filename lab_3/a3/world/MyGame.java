@@ -3,6 +3,7 @@ package a3.world;
 import a3.controls.PlayerControlFunctions;
 import a3.controls.PlayerControlMap;
 import a3.controls.PlayerControls;
+import a3.network.GhostManager;
 import a3.npcs.Enemy;
 import a3.player.Player;
 import a3.quadtree.*;
@@ -335,4 +336,11 @@ public class MyGame extends VariableFrameRateGame {
 	public Enemy getEnemy() {
 		return enemy;
 	}
+
+	public void setIsConnected(boolean b) {
+	}
+
+    public GhostManager getGhostManager() {
+        return null;
+    }
 }
