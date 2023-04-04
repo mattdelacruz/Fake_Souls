@@ -20,8 +20,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
-
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -72,8 +73,8 @@ public class MyGame extends VariableFrameRateGame {
 	private ProtocolClient protocolClient;
 	private boolean isClientConnected = false;
 
-	private ObjShape playerS, enemyS;
-	private TextureImage playerTx, enemyTx, moonTx;
+	private ObjShape playerS, enemyS, ghostS;
+	private TextureImage playerTx, enemyTx, moonTx, ghostTx;
 	private Line worldXAxis, worldYAxis, worldZAxis, worldNXAxis, worldNYAxis,
 			worldNZAxis;
 	private Plane moonCrater;
@@ -103,9 +104,32 @@ public class MyGame extends VariableFrameRateGame {
 		getGameInstance().game_loop();
 	}
 
+	private void setupNetworking() {
+		isClientConnected = false;
+		try { 
+			protocolClient = new ProtocolClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (protocolClient == null) {
+			System.out.println("missing protocol host");
+		} else {
+			protocolClient.sendJoinMessage();
+		}
+	}
+
+	protected void processNetworking(float elapsTime) {
+		if (protocolClient != null) {
+			protocolClient.processPackets();
+		}
+	}
+
 	@Override
 	public void loadShapes() {
 		playerS = new ImportedModel("dolphinHighPoly.obj");
+		ghostS = new Sphere();
 		enemyS = new Cube();
 		moonCrater = new Plane();
 		loadWorldAxes();
@@ -114,6 +138,7 @@ public class MyGame extends VariableFrameRateGame {
 	@Override
 	public void loadTextures() {
 		playerTx = new TextureImage("Dolphin_HighPolyUV.png");
+		ghostTx = new TextureImage("neptune.jpg");
 		enemyTx = new TextureImage("mars.png");
 		moonTx = new TextureImage("moon-craters.jpg");
 	}
@@ -156,9 +181,6 @@ public class MyGame extends VariableFrameRateGame {
 		initializeControls();
 		initializeCameras();
 
-		FindComponents fc = new FindComponents();
-		fc.listControllers();
-
 		state = new PlayerControls();
 	}
 
@@ -174,6 +196,7 @@ public class MyGame extends VariableFrameRateGame {
 	@Override
 	public void update() {
 		updateFrameTime();
+		processNetworking((float)elapsTime);
 		targetCamera.update();
 		if (player.isLocked()) {
 			targetCamera.targetTo();
@@ -355,17 +378,22 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	public void setIsConnected(boolean b) {
+		isClientConnected = b;
 	}
 
 	public GhostManager getGhostManager() {
-		return null;
+		return ghostManager;
 	}
 
 	public ObjShape getGhostShape() {
-		return null;
+		return ghostS;
 	}
 
 	public TextureImage getGhostTexture() {
-		return null;
+		return ghostTx;
+	}
+
+	public ProtocolClient getProtocolClient() {
+		return protocolClient;
 	}
 }

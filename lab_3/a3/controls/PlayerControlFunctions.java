@@ -3,7 +3,11 @@ package a3.controls;
 public interface PlayerControlFunctions {
 	void turnLeft(float frameTime);
 
+	void turnCameraLeft(float frameTime);
+
 	void turnRight(float frameTime);
+
+	void turnCameraRight(float frameTime);
 
 	void moveForward(float frameTime);
 

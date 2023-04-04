@@ -63,6 +63,14 @@ public class ProtocolClient extends GameConnectionClient {
         }
     }
 
+    public void sendJoinMessage() {
+        try {
+            sendPacket(new String("join," + id.toString()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void sendCreateMessage(Vector3f pos) {
         // changed Vector3 to Vector3f, Vector3 is on the doc
         //
@@ -74,6 +82,10 @@ public class ProtocolClient extends GameConnectionClient {
         catch (IOException e) { 
             e.printStackTrace();
         } 
+    }
+
+    public void sendMoveMessage(Vector3f worldLocation) {
+        ghostManager.updateGhostAvatar(id, worldLocation);
     }
     
 }
