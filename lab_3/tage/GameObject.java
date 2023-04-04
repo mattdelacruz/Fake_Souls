@@ -550,7 +550,7 @@ public class GameObject {
 	 * returns the current position of the GameObject within a NodeController target
 	 * list
 	 */
-	public float getPosition() {
+	public float getControllerPosition() {
 		return position;
 	}
 
@@ -558,7 +558,7 @@ public class GameObject {
 	 * sets the current position of the GameObject within a NodeController target
 	 * list
 	 */
-	public void setPosition(float pos) {
+	public void setControllerPosition(float pos) {
 		position = pos;
 	}
 

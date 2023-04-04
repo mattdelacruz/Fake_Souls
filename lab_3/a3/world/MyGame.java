@@ -4,11 +4,13 @@ import a3.controls.PlayerControlFunctions;
 import a3.controls.PlayerControlMap;
 import a3.controls.PlayerControls;
 import a3.network.GhostManager;
+import a3.network.ProtocolClient;
 import a3.npcs.Enemy;
 import a3.player.Player;
 import a3.quadtree.*;
 import tage.*;
 import tage.input.InputManager;
+import tage.networking.IGameConnection.ProtocolType;
 import tage.physics.PhysicsEngine;
 import tage.physics.PhysicsEngineFactory;
 import tage.physics.PhysicsObject;
@@ -48,7 +50,10 @@ public class MyGame extends VariableFrameRateGame {
 	private OverheadCamera overheadCamera;
 	private PlayerControlFunctions state;
 
+	private int serverPort;
 	private double lastFrameTime, currFrameTime, elapsTime;
+
+	private String serverAddress;
 
 	private float frameTime = 0;
 	private float[] vals = new float[16];
@@ -57,11 +62,15 @@ public class MyGame extends VariableFrameRateGame {
 
 	private ScriptEngine jsEngine;
 	private PhysicsEngine physicsEngine;
+	private GhostManager ghostManager;
 	private File scriptFile;
 
 	private Enemy enemy;
 	private Player player;
 	private ScriptEngineManager factory;
+	private ProtocolType serverProtocol;
+	private ProtocolClient protocolClient;
+	private boolean isClientConnected = false;
 
 	private ObjShape playerS, enemyS;
 	private TextureImage playerTx, enemyTx, moonTx;
@@ -70,15 +79,25 @@ public class MyGame extends VariableFrameRateGame {
 	private Plane moonCrater;
 	private ArrayList<GameObject> worldAxisList = new ArrayList<GameObject>();
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
-	private ArrayList <PhysicsObject> enemyPhysicsList = new ArrayList<PhysicsObject>();
+	private ArrayList<PhysicsObject> enemyPhysicsList = new ArrayList<PhysicsObject>();
 	private QuadTree quadTree = new QuadTree(new QuadTreePoint(-PLAY_AREA_SIZE, PLAY_AREA_SIZE),
 			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE));
 
-	public MyGame() {
+	public MyGame(String serverAddress, int serverPort, String protocol) {
 		super();
+		ghostManager = new GhostManager(this);
+		this.serverAddress = serverAddress;
+		this.serverPort = serverPort;
+		if (protocol.toUpperCase().compareTo("UDP") == 0) {
+			this.serverProtocol = ProtocolType.UDP;
+		} else {
+			System.err.println("PROTOCOL NOT SUPPORTED, EXITING...");
+			System.exit(-1);
+		}
 	}
 
 	public static void main(String[] args) {
+		game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 		engine = new Engine(getGameInstance());
 		getGameInstance().initializeSystem();
 		getGameInstance().game_loop();
@@ -180,7 +199,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void buildPhysicsEngine() {
 		String engine = "tage.physics.JBullet.JBulletPhysicsEngine";
-		float[] gravity = {0f, -5f, 0f};
+		float[] gravity = { 0f, -5f, 0f };
 		physicsEngine = PhysicsEngineFactory.createPhysicsEngine(engine);
 		physicsEngine.initSystem();
 		physicsEngine.setGravity(gravity);
@@ -199,7 +218,7 @@ public class MyGame extends VariableFrameRateGame {
 	private void buildEnemy() {
 		float mass = 0.1f;
 		double[] tempTransform;
-		float[] size = {0.75f, 0.75f, 0.75f};
+		float[] size = { 0.75f, 0.75f, 0.75f };
 		Matrix4f translation;
 		for (int i = 0; i < ENEMY_AMOUNT; i++) {
 			enemy = new Enemy(GameObject.root(), enemyS, enemyTx);
@@ -211,13 +230,13 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private double[] toDoubleArray(float[] arr) {
-		if (arr == null) return null;
+		if (arr == null)
+			return null;
 		int n = arr.length;
 		double[] ret = new double[n];
-		for (int i = 0; i < n; i++)
-			{ 
-				ret[i] = (double)arr[i];
-			}
+		for (int i = 0; i < n; i++) {
+			ret[i] = (double) arr[i];
+		}
 		return ret;
 	}
 
@@ -258,8 +277,6 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	public static MyGame getGameInstance() {
-		if (game == null)
-			game = new MyGame();
 		return game;
 	}
 
@@ -340,7 +357,15 @@ public class MyGame extends VariableFrameRateGame {
 	public void setIsConnected(boolean b) {
 	}
 
-    public GhostManager getGhostManager() {
-        return null;
-    }
+	public GhostManager getGhostManager() {
+		return null;
+	}
+
+	public ObjShape getGhostShape() {
+		return null;
+	}
+
+	public TextureImage getGhostTexture() {
+		return null;
+	}
 }

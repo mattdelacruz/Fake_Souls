@@ -8,7 +8,9 @@ import tage.NodeController;
 /**
  * An OrbitController is a node controller that, when enabled, causes any
  * object
- * it is attached to orbit around a specified origin. The radius of the orbit is determined by the object's index in the target ArrayList defined in NodeController.
+ * it is attached to orbit around a specified origin. The radius of the orbit is
+ * determined by the object's index in the target ArrayList defined in
+ * NodeController.
  * 
  * @author Matthew Dela Cruz
  */
@@ -30,8 +32,8 @@ public class OrbitController extends NodeController {
             go.setTime(0);
         }
 
-        if (go.getPosition() == 0) {
-            go.setPosition(getTargetCount() * 5.0f);
+        if (go.getControllerPosition() == 0) {
+            go.setControllerPosition(getTargetCount() * 5.0f);
         }
 
         go.addTime(super.getElapsedTime());
@@ -41,8 +43,8 @@ public class OrbitController extends NodeController {
         go.setLocalScale(new Matrix4f().scaling(0.3f));
         Matrix4f currentTranslation = go.getLocalTranslation();
         currentTranslation.translation(
-                (float) (Math.sin(Math.toRadians(go.getTime() * SPEED)) * (RADIUS + go.getPosition())),
-                0.0f, (float) (Math.cos(Math.toRadians(go.getTime() * SPEED)) * (RADIUS + go.getPosition())));
+                (float) (Math.sin(Math.toRadians(go.getTime() * SPEED)) * (RADIUS + go.getControllerPosition())),
+                0.0f, (float) (Math.cos(Math.toRadians(go.getTime() * SPEED)) * (RADIUS + go.getControllerPosition())));
         go.setLocalTranslation(currentTranslation);
     }
 }
