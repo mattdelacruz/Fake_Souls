@@ -9,6 +9,7 @@ import tage.TargetCamera;
 public class PlayerControls implements PlayerControlFunctions {
 	private Player player;
 	private TargetCamera cam;
+
 	public PlayerControls() {
 		player = MyGame.getGameInstance().getPlayer();
 		cam = MyGame.getGameInstance().getTargetCamera();
@@ -17,22 +18,21 @@ public class PlayerControls implements PlayerControlFunctions {
 	@Override
 	public void turnLeft(float frameTime) {
 		player.move(player.getLocalRightVector(), -frameTime);
-		// MyGame.getGameInstance().getProtocolClient().sendMoveMessage(player.getWorldLocation());
 	}
 
 	@Override
-    public void turnCameraLeft(float frameTime) {
-		System.out.println("turnning camera left...");
-        cam.move(-frameTime, cam.getU());
-    }
+	public void turnCameraLeft(float frameTime) {
+		cam.move(-frameTime, cam.getU());
+	}
 
-    @Override
-    public void turnCameraRight(float frameTime) {
-        cam.move(frameTime, cam.getU());
-    }
+	@Override
+	public void turnCameraRight(float frameTime) {
+		cam.move(frameTime, cam.getU());
+	}
 
 	@Override
 	public void turnRight(float frameTime) {
+		System.out.println("turning player right");
 		player.move(player.getLocalRightVector(), frameTime);
 	}
 

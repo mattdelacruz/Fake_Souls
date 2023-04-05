@@ -86,19 +86,28 @@ public class MyGame extends VariableFrameRateGame {
 
 	public MyGame(String serverAddress, int serverPort, String protocol) {
 		super();
-		ghostManager = new GhostManager(this);
-		this.serverAddress = serverAddress;
-		this.serverPort = serverPort;
-		if (protocol.toUpperCase().compareTo("UDP") == 0) {
-			this.serverProtocol = ProtocolType.UDP;
-		} else {
-			System.err.println("PROTOCOL NOT SUPPORTED, EXITING...");
-			System.exit(-1);
+		if (serverAddress != null || serverPort != 0 || protocol != null) {
+			ghostManager = new GhostManager(this);
+			this.serverAddress = serverAddress;
+			this.serverPort = serverPort;
+			if (protocol.toUpperCase().compareTo("UDP") == 0) {
+				this.serverProtocol = ProtocolType.UDP;
+			} else {
+				System.err.println("PROTOCOL NOT SUPPORTED, EXITING...");
+				System.exit(-1);
+			}
 		}
 	}
 
+	public MyGame() {
+		super();
+	}
+
 	public static void main(String[] args) {
-		game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+		// if (args != null) {
+		// game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+		// }
+		game = new MyGame();
 		engine = new Engine(getGameInstance());
 		getGameInstance().initializeSystem();
 		getGameInstance().game_loop();
@@ -106,7 +115,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void setupNetworking() {
 		isClientConnected = false;
-		try { 
+		try {
 			protocolClient = new ProtocolClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -196,7 +205,7 @@ public class MyGame extends VariableFrameRateGame {
 	@Override
 	public void update() {
 		updateFrameTime();
-		processNetworking((float)elapsTime);
+		processNetworking((float) elapsTime);
 		targetCamera.update();
 		if (player.isLocked()) {
 			targetCamera.targetTo();

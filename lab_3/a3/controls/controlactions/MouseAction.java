@@ -7,27 +7,30 @@ import tage.input.action.AbstractInputAction;
 public class MouseAction extends AbstractInputAction {
     @Override
     public void performAction(float time, Event evt) {
-        switch(evt.getComponent().getName()) {
+        switch (evt.getComponent().getName()) {
             case "Left":
                 System.out.println("pressing left");
-                break;
+                return;
             case "Right":
                 System.out.println("pressing right");
-                break;
+                return;
             case "Middle":
                 System.out.println("pressing middle");
-                break;
-            case "x":
+                return;
             case "X":
                 if (evt.getValue() > 0) {
                     MyGame.getGameInstance().getState().turnCameraLeft(MyGame.getGameInstance().getFrameTime());
-                    // MyGame.getGameInstance().getState().turnLeft(MyGame.getGameInstance().getFrameTime());
-                }
-                else {
+                    System.out.println("turning left");
+                    MyGame.getGameInstance().getState().turnLeft(MyGame.getGameInstance().getFrameTime());
+                    //
+                    MyGame.getGameInstance().getState().turnLeft(MyGame.getGameInstance().getFrameTime());
+                } else {
                     MyGame.getGameInstance().getState().turnCameraRight(MyGame.getGameInstance().getFrameTime());
-                    // MyGame.getGameInstance().getState().turnRight(MyGame.getGameInstance().getFrameTime());
+                    System.out.println("turning right");
+                    MyGame.getGameInstance().getState().turnRight(MyGame.getGameInstance().getFrameTime());
+
                 }
-                break;
+                return;
         }
     }
 }
