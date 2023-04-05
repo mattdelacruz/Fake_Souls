@@ -19,12 +19,13 @@ public class MouseAction extends AbstractInputAction {
                 break;
             case "x":
             case "X":
-            System.out.println("VALUE: " + evt.getValue());
-                if (evt.getValue() < 0) {
+                if (evt.getValue() > 0) {
                     MyGame.getGameInstance().getState().turnCameraLeft(MyGame.getGameInstance().getFrameTime());
+                    // MyGame.getGameInstance().getState().turnLeft(MyGame.getGameInstance().getFrameTime());
                 }
                 else {
                     MyGame.getGameInstance().getState().turnCameraRight(MyGame.getGameInstance().getFrameTime());
+                    // MyGame.getGameInstance().getState().turnRight(MyGame.getGameInstance().getFrameTime());
                 }
                 break;
         }

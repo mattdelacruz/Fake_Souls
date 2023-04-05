@@ -8,6 +8,13 @@
             "type": "java",
             "name": "MyGame",
             "request": "launch",
+            "mainClass": "a3.world.MyGame",
+            "projectName": "lab_3_82085a88"
+        },
+        {
+            "type": "java",
+            "name": "MyGame",
+            "request": "launch",
             "mainClass": "a2.MyGame",
             "projectName": "CSC165_Lab_2_7762da6"
         },

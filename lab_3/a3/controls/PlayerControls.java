@@ -22,6 +22,7 @@ public class PlayerControls implements PlayerControlFunctions {
 
 	@Override
     public void turnCameraLeft(float frameTime) {
+		System.out.println("turnning camera left...");
         cam.move(-frameTime, cam.getU());
     }
 

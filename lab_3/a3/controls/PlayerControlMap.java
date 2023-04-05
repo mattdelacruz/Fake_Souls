@@ -54,7 +54,7 @@ public class PlayerControlMap {
 				Component.Identifier.Button.RIGHT, mouseAction, 
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 		inputManager.associateActionWithAllMice(
-			Component.Identifier.Axis.X, mouseAction, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+				Component.Identifier.Axis.X, mouseAction, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 	}
 
 	private void initializeOverWorldControls() {
