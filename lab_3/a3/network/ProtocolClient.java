@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import org.joml.Vector3f;
 
-import a3.world.MyGame;
+import a3.MyGame;
 import tage.networking.client.GameConnectionClient;
 
 public class ProtocolClient extends GameConnectionClient {

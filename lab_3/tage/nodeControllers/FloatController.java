@@ -2,7 +2,7 @@ package tage.nodeControllers;
 
 import org.joml.Vector3f;
 
-import a3.world.MyGame;
+import a3.MyGame;
 import tage.*;
 
 /**

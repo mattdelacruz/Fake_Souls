@@ -1,8 +1,8 @@
 package a3.controls;
 
+import a3.MyGame;
 import a3.npcs.Enemy;
 import a3.player.Player;
-import a3.world.MyGame;
 import tage.GameObject;
 import tage.TargetCamera;
 
@@ -18,32 +18,37 @@ public class PlayerControls implements PlayerControlFunctions {
 	@Override
 	public void turnLeft(float frameTime) {
 		player.move(player.getLocalRightVector(), -frameTime);
+		cam.updateCameraLocation();
+	}
+
+	@Override
+	public void turnRight(float frameTime) {
+		player.move(player.getLocalRightVector(), frameTime);
+		cam.updateCameraLocation();
 	}
 
 	@Override
 	public void turnCameraLeft(float frameTime) {
 		cam.move(-frameTime, cam.getU());
+		cam.update();
 	}
 
 	@Override
 	public void turnCameraRight(float frameTime) {
 		cam.move(frameTime, cam.getU());
-	}
-
-	@Override
-	public void turnRight(float frameTime) {
-		System.out.println("turning player right");
-		player.move(player.getLocalRightVector(), frameTime);
+		cam.update();
 	}
 
 	@Override
 	public void moveForward(float frameTime) {
 		player.move(player.getLocalForwardVector(), frameTime);
+		cam.updateCameraLocation();
 	}
 
 	@Override
 	public void moveBackward(float frameTime) {
 		player.move(player.getLocalForwardVector(), -frameTime);
+		cam.updateCameraLocation();
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package tage;
 import org.joml.Vector3f;
 
 /**
- * A CameraOrbit3D is a special type of Camera that it orbits around a specified
+ * A CameraOrbit3D is a special type of Camera that orbits around a specified
  * target.
  * A CameraOrbit3D instance calculates the position of the Camera by using
  * spherical coordinates to determine the location of the Camera about a
@@ -38,13 +38,25 @@ public class CameraOrbit3D extends Camera {
         x_dist = getLocation().z - origin.getLocalLocation().z;
         y_dist = getLocation().x - origin.getLocalLocation().x;
         z_dist = getLocation().y - origin.getLocalLocation().y;
-        
         xy_dist = (float) (Math.sqrt(Math.pow(x_dist, 2) + Math.pow(y_dist, 2)));
 
+        updateCameraAngles();
+        findNewCameraLocation();
+    }
+
+    public void updateCameraLocation() {
+        x_dist = getLocation().z - origin.getLocalLocation().z;
+        y_dist = getLocation().x - origin.getLocalLocation().x;
+        z_dist = getLocation().y - origin.getLocalLocation().y;
+        xy_dist = (float) (Math.sqrt(Math.pow(x_dist, 2) + Math.pow(y_dist, 2)));
+
+        findNewCameraLocation();
+    }
+
+    public void updateCameraAngles() {
         adjustTheta();
         adjustPhi();
         adjustPitchAngle();
-        findNewCameraLocation();
     }
 
     public void changeAltitude(float frameTime) {
@@ -103,6 +115,8 @@ public class CameraOrbit3D extends Camera {
         float zoomed_dist = (float) (Math.cos(pitchAngle) * current_dist);
         float max_zoom_dist = Math.max(MAX_ZOOM_DIST, MAX_CAMERA_DIST);
         float locked_dist = Math.min(zoomed_dist, LOCKED_DISTANCE);
+        lookAt(origin);
+
 
         newZ = (float) ((Math.sin(theta) * Math.cos(phi)) *
                 Math.min(Math.max(current_dist, locked_dist), MAX_CAMERA_DIST));
@@ -112,7 +126,6 @@ public class CameraOrbit3D extends Camera {
                 locked_dist);
         setLocation(new Vector3f(newX, newY, newZ).add(origin.getLocalLocation()));
         current_dist = Math.min(Math.max(locked_dist, MAX_CAMERA_DIST), max_zoom_dist);
-        lookAt(origin);
         deltaPitch = 0;
     }
 }

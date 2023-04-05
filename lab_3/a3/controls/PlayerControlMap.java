@@ -8,7 +8,6 @@ import a3.controls.controlactions.OverheadAction;
 import a3.controls.controlactions.RightStickXAction;
 import a3.controls.controlactions.RightStickYAction;
 import tage.input.*;
-import tage.input.IInputManager.INPUT_ACTION_TYPE;
 import net.java.games.input.*;
 
 public class PlayerControlMap {

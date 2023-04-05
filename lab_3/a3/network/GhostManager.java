@@ -8,7 +8,7 @@ import java.util.Vector;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import a3.world.MyGame;
+import a3.MyGame;
 import tage.ObjShape;
 import tage.TextureImage;
 import tage.VariableFrameRateGame;

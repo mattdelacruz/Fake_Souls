@@ -1,34 +1,29 @@
 package a3.controls.controlactions;
 
-import a3.world.MyGame;
+import a3.MyGame;
 import net.java.games.input.*;
 import tage.input.action.AbstractInputAction;
 
 public class MouseAction extends AbstractInputAction {
     @Override
     public void performAction(float time, Event evt) {
-        switch (evt.getComponent().getName()) {
-            case "Left":
-                System.out.println("pressing left");
+        switch (evt.getComponent().getName().toUpperCase()) {
+            case "LEFT":
+                System.out.println("pressing lefttttt");
                 return;
-            case "Right":
-                System.out.println("pressing right");
+            case "RIGHT":
+                System.out.println("pressing rightttt");
                 return;
-            case "Middle":
-                System.out.println("pressing middle");
+            case "MIDDLE":
+                System.out.println("pressing midddddle");
                 return;
             case "X":
                 if (evt.getValue() > 0) {
+                    System.out.println("testing");
                     MyGame.getGameInstance().getState().turnCameraLeft(MyGame.getGameInstance().getFrameTime());
-                    System.out.println("turning left");
-                    MyGame.getGameInstance().getState().turnLeft(MyGame.getGameInstance().getFrameTime());
-                    //
-                    MyGame.getGameInstance().getState().turnLeft(MyGame.getGameInstance().getFrameTime());
+
                 } else {
                     MyGame.getGameInstance().getState().turnCameraRight(MyGame.getGameInstance().getFrameTime());
-                    System.out.println("turning right");
-                    MyGame.getGameInstance().getState().turnRight(MyGame.getGameInstance().getFrameTime());
-
                 }
                 return;
         }

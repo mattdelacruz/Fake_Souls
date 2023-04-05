@@ -2,7 +2,7 @@ package a3.controls.controlactions;
 
 import org.joml.Vector3f;
 
-import a3.world.MyGame;
+import a3.MyGame;
 import net.java.games.input.Event;
 import tage.input.action.AbstractInputAction;
 
