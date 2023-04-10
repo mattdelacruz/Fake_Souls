@@ -104,10 +104,11 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	public static void main(String[] args) {
-		// if (args != null) {
-		// game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
-		// }
-		game = new MyGame();
+		if (args.length != 0) {
+			game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+		} else {
+			game = new MyGame();
+		}
 		engine = new Engine(getGameInstance());
 		getGameInstance().initializeSystem();
 		getGameInstance().game_loop();
@@ -244,8 +245,6 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void buildPlayer() {
 		player = new Player(GameObject.root(), playerS, playerTx);
-		player.setLocalScale(new Matrix4f().scaling(0.2f));
-		player.getRenderStates().setRenderHiddenFaces(true);
 	}
 
 	private void buildEnemy() {
@@ -255,10 +254,6 @@ public class MyGame extends VariableFrameRateGame {
 		Matrix4f translation;
 		for (int i = 0; i < ENEMY_AMOUNT; i++) {
 			enemy = new Enemy(GameObject.root(), enemyS, enemyTx);
-			enemy.setLocalScale(new Matrix4f().scaling(0.5f));
-			enemy.setLocalLocation(
-					new Vector3f(enemy.getLocalLocation().x, enemy.getLocalScale().m11(), enemy.getLocalLocation().z));
-			enemy.getRenderStates().setRenderHiddenFaces(true);
 			enemyList.add(enemy);
 			translation = new Matrix4f(enemy.getLocalTranslation());
 			tempTransform = toDoubleArray(translation.get(vals));

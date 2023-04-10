@@ -14,12 +14,10 @@ public class Enemy extends GameObject {
 
     public Enemy(GameObject p, ObjShape s, TextureImage t) {
         super(p, s, t);
-
-        initialScale = (new Matrix4f()).scaling(1);
-
+        setLocalScale((new Matrix4f()).scaling(0.5f));
         setLocalLocation(new Vector3f(ThreadLocalRandom.current().nextInt(-50, 50), getLocalScale().get(0, 0),
                 ThreadLocalRandom.current().nextInt(-50, 50)));
-        setLocalScale(initialScale);
+        getRenderStates().setRenderHiddenFaces(true);
     }
 
 }

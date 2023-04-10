@@ -9,19 +9,14 @@ import tage.TargetCamera;
 import tage.TextureImage;
 
 public class Player extends GameObject {
-    Matrix4f initialTranslation, initialScale;
-    TargetCamera camera;
-    boolean isLocked = false;
-    boolean isLeft = false;
+    private TargetCamera camera;
+    private boolean isLocked = false;
 
     public Player(GameObject p, ObjShape s, TextureImage t) {
         super(p, s, t);
-
-        initialScale = (new Matrix4f()).scaling(1);
-        initialTranslation = (new Matrix4f()).translation(new Vector3f(0, getLocalScale().get(0, 0), 0));
-
-        setLocalTranslation(initialTranslation);
-        setLocalScale(initialScale);
+        setLocalScale(new Matrix4f().scaling(0.2f));
+        setLocalLocation(new Vector3f(0, getLocalScale().get(0, 0), 0));
+        getRenderStates().setRenderHiddenFaces(true);
     }
 
     public TargetCamera getCamera() {
