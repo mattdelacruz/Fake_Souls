@@ -45,12 +45,12 @@ public class MyGame extends VariableFrameRateGame {
 	private static Engine engine;
 	private static MyGame game;
 	private static PlayerControlMap playerControlMaps; // do not delete!!!
-	
+
 	private InputManager inputManager;
 	private TargetCamera targetCamera;
 	private OverheadCamera overheadCamera;
 	private PlayerControlFunctions state;
-	
+
 	private int serverPort;
 	private double lastFrameTime, currFrameTime, elapsTime;
 
@@ -137,18 +137,18 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void loadShapes() {
-		playerS = new ImportedModel("dolphinHighPoly.obj");
+		playerS = new ImportedModel("player.obj");
 		ghostS = new Sphere();
-		enemyS = new Cube();
+		enemyS = new ImportedModel("enemy.obj");
 		moonCrater = new Plane();
 		loadWorldAxes();
 	}
 
 	@Override
 	public void loadTextures() {
-		playerTx = new TextureImage("Dolphin_HighPolyUV.png");
+		playerTx = new TextureImage("player-texture.png");
 		ghostTx = new TextureImage("neptune.jpg");
-		enemyTx = new TextureImage("mars.png");
+		enemyTx = new TextureImage("enemy-texture.png");
 		moonTx = new TextureImage("moon-craters.jpg");
 	}
 
@@ -244,6 +244,8 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void buildPlayer() {
 		player = new Player(GameObject.root(), playerS, playerTx);
+		player.setLocalScale(new Matrix4f().scaling(0.2f));
+		player.getRenderStates().setRenderHiddenFaces(true);
 	}
 
 	private void buildEnemy() {
@@ -253,6 +255,10 @@ public class MyGame extends VariableFrameRateGame {
 		Matrix4f translation;
 		for (int i = 0; i < ENEMY_AMOUNT; i++) {
 			enemy = new Enemy(GameObject.root(), enemyS, enemyTx);
+			enemy.setLocalScale(new Matrix4f().scaling(0.5f));
+			enemy.setLocalLocation(
+					new Vector3f(enemy.getLocalLocation().x, enemy.getLocalScale().m11(), enemy.getLocalLocation().z));
+			enemy.getRenderStates().setRenderHiddenFaces(true);
 			enemyList.add(enemy);
 			translation = new Matrix4f(enemy.getLocalTranslation());
 			tempTransform = toDoubleArray(translation.get(vals));

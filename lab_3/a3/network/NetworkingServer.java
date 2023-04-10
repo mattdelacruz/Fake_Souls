@@ -24,5 +24,5 @@ public class NetworkingServer {
             NetworkingServer app = new NetworkingServer(Integer.parseInt(args[0]), args[1]);
         }
     }
-    
+
 }
