@@ -21,27 +21,20 @@ public class CameraOrbit3D extends Camera {
     private static final float MAX_CAMERA_DIST = 5.0f;
     private static final float LOCKED_DISTANCE = 20.0f;
     private static final float MAX_ZOOM_DIST = 20.0f;
-    private static final float INITIAL_ALTITUDE_ANGLE = 80;
+    private static final float INITIAL_ALTITUDE_ANGLE = 85;
     private static final float PITCH_SPEED = 2.0f;
+    private static final float PHI_SPEED = 0.5f;
+    private static final float THETA_SPEED = 0.5f;
 
     private GameObject origin;
+    private Vector3f lookAtTarget;
     private float phi, theta, deltaPitch, pitchAngle, x_dist, y_dist, z_dist, current_dist, xy_dist, newX, newY, newZ;
 
     public CameraOrbit3D(GameObject target) {
-        deltaPitch = 0;
         origin = target;
         pitchAngle = (float) Math.toRadians(INITIAL_ALTITUDE_ANGLE);
         current_dist = (float) getLocation().distance(origin.getWorldLocation());
-    }
-
-    public void update() {
-        x_dist = getLocation().z - origin.getLocalLocation().z;
-        y_dist = getLocation().x - origin.getLocalLocation().x;
-        z_dist = getLocation().y - origin.getLocalLocation().y;
-        xy_dist = (float) (Math.sqrt(Math.pow(x_dist, 2) + Math.pow(y_dist, 2)));
-
-        updateCameraAngles();
-        findNewCameraLocation();
+        lookAtTarget = origin.getLocalLocation();
     }
 
     public void updateCameraLocation() {
@@ -53,18 +46,24 @@ public class CameraOrbit3D extends Camera {
         findNewCameraLocation();
     }
 
-    public void updateCameraAngles() {
-        adjustTheta();
-        adjustPhi();
-        adjustPitchAngle();
+    public void updateCameraAngles(float frameTime) {
+        x_dist = getLocation().z - origin.getLocalLocation().z;
+        y_dist = getLocation().x - origin.getLocalLocation().x;
+        z_dist = getLocation().y - origin.getLocalLocation().y;
+        xy_dist = (float) (Math.sqrt(Math.pow(x_dist, 2) + Math.pow(y_dist, 2)));
+
+        adjustTheta(frameTime);
+        adjustPhi(frameTime);
+        adjustPitchAngle(frameTime);
+        findNewCameraLocation();
     }
 
-    public void changeAltitude(float frameTime) {
-        deltaPitch += (frameTime * PITCH_SPEED);
-    }
-
-    private void adjustTheta() {
+    private void adjustTheta(float frameTime) {
         // azimuth
+
+        float deltaTheta = frameTime * THETA_SPEED;
+        theta += deltaTheta;
+
         if (z_dist != 0) {
             theta = (float) Math.acos((z_dist / current_dist));
         } else {
@@ -82,9 +81,12 @@ public class CameraOrbit3D extends Camera {
         }
     }
 
-    private void adjustPhi() {
+    private void adjustPhi(float frameTime) {
         // altitude
         phi = (float) Math.acos(x_dist / xy_dist);
+
+        float deltaPhi = frameTime * PHI_SPEED;
+        phi += deltaPhi;
 
         if (x_dist > 0) {
             phi = (float) Math.atan(y_dist / x_dist);
@@ -99,7 +101,7 @@ public class CameraOrbit3D extends Camera {
         }
     }
 
-    private void adjustPitchAngle() {
+    private void adjustPitchAngle(float frameTime) {
         pitchAngle += deltaPitch;
 
         if (pitchAngle >= Math.PI / 2) {
@@ -112,20 +114,19 @@ public class CameraOrbit3D extends Camera {
     }
 
     private void findNewCameraLocation() {
-        float zoomed_dist = (float) (Math.cos(pitchAngle) * current_dist);
-        float max_zoom_dist = Math.max(MAX_ZOOM_DIST, MAX_CAMERA_DIST);
-        float locked_dist = Math.min(zoomed_dist, LOCKED_DISTANCE);
-        lookAt(origin);
-
+        lookAt(lookAtTarget);
 
         newZ = (float) ((Math.sin(theta) * Math.cos(phi)) *
-                Math.min(Math.max(current_dist, locked_dist), MAX_CAMERA_DIST));
+                MAX_CAMERA_DIST);
         newX = (float) ((Math.sin(theta) * Math.sin(phi)) *
-                Math.min(Math.max(current_dist, locked_dist), MAX_CAMERA_DIST));
+                MAX_CAMERA_DIST);
         newY = (float) (Math.cos(pitchAngle) *
-                locked_dist);
+                LOCKED_DISTANCE);
         setLocation(new Vector3f(newX, newY, newZ).add(origin.getLocalLocation()));
-        current_dist = Math.min(Math.max(locked_dist, MAX_CAMERA_DIST), max_zoom_dist);
-        deltaPitch = 0;
+        current_dist = Math.min(Math.max(LOCKED_DISTANCE, MAX_CAMERA_DIST), MAX_ZOOM_DIST);
+    }
+
+    public void setLookAtTarget(Vector3f t) {
+        lookAtTarget = t;
     }
 }

@@ -41,17 +41,16 @@ public class PlayerControls implements PlayerControlFunctions {
 
 	@Override
 	public void turnCameraLeft(float frameTime) {
-		cam.move(-frameTime/3, cam.getU());
-		cam.update();
+		cam.move(-frameTime, cam.getU());
+		cam.updateCameraAngles(frameTime);
 	}
 
 	@Override
 	public void turnCameraRight(float frameTime) {
-		cam.move(frameTime/3, cam.getU());
-		cam.update();
+		cam.move(frameTime, cam.getU());
+		cam.updateCameraAngles(frameTime);
 	}
 
-	
 	@Override
 	public void rotateUp(float frameTime) {
 		return;

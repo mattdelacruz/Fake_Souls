@@ -20,4 +20,6 @@ public class Enemy extends GameObject {
         getRenderStates().setRenderHiddenFaces(true);
     }
 
+    
+
 }

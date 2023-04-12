@@ -38,7 +38,7 @@ public class MyGame extends VariableFrameRateGame {
 	private static final int ENEMY_AMOUNT = 10;
 	private static final float PLAY_AREA_SIZE = 555f;
 
-	private static final Vector3f INITIAL_ORBIT_CAMERA_POS = new Vector3f(0f, 0f, 5f);
+	private static final Vector3f INITIAL_CAMERA_POS = new Vector3f(0f, 0f, 5f);
 
 	private static final String SKYBOX_NAME = "fluffyClouds";
 
@@ -150,7 +150,7 @@ public class MyGame extends VariableFrameRateGame {
 		playerTx = new TextureImage("player-texture.png");
 		ghostTx = new TextureImage("neptune.jpg");
 		enemyTx = new TextureImage("enemy-texture.png");
-		moonTx = new TextureImage("moon-craters.jpg");
+		moonTx = new TextureImage("castle-floor.jpg");
 	}
 
 	@Override
@@ -189,6 +189,7 @@ public class MyGame extends VariableFrameRateGame {
 		(engine.getRenderSystem()).setWindowDimensions(WINDOW_WIDTH, WINDOW_HEIGHT);
 
 		initializeControls();
+		updateFrameTime();
 		initializeCameras();
 
 		state = new PlayerControls();
@@ -209,6 +210,8 @@ public class MyGame extends VariableFrameRateGame {
 		processNetworking((float) elapsTime);
 		if (player.isLocked()) {
 			targetCamera.targetTo();
+		} else {
+			targetCamera.setLookAtTarget(player.getLocalLocation());
 		}
 		inputManager.update((float) elapsTime);
 	}
@@ -262,8 +265,9 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private double[] toDoubleArray(float[] arr) {
-		if (arr == null)
+		if (arr == null) {
 			return null;
+		}
 		int n = arr.length;
 		double[] ret = new double[n];
 		for (int i = 0; i < n; i++) {
@@ -281,8 +285,10 @@ public class MyGame extends VariableFrameRateGame {
 	private void buildTargetCamera() {
 		targetCamera = new TargetCamera(getPlayer());
 		getPlayer().setCamera(targetCamera);
-		targetCamera.setLocation(INITIAL_ORBIT_CAMERA_POS);
+		targetCamera.setLocation(INITIAL_CAMERA_POS);
 		engine.getRenderSystem().getViewport("MAIN").setCamera(targetCamera);
+		targetCamera.setLookAtTarget(player.getLocalLocation().mul(-1));
+		targetCamera.updateCameraAngles(frameTime);
 	}
 
 	private void buildWorldAxes() {
