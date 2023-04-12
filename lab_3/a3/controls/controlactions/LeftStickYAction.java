@@ -11,6 +11,7 @@ public class LeftStickYAction extends AbstractInputAction {
         switch (evt.getComponent().getIdentifier().getName()) {
             case "W":
                 MyGame.getGameInstance().getState().moveForward(MyGame.getGameInstance().getFrameTime());
+                
                 return;
 
             case "S":

@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "NetworkingServer",
+            "request": "launch",
+            "mainClass": "server.NetworkingServer",
+            "projectName": "lab_3_82085a88"
+        },
+        {
+            "type": "java",
             "name": "MyGame",
             "request": "launch",
             "mainClass": "a3.MyGame",

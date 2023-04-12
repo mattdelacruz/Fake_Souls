@@ -1,6 +1,7 @@
 package a3.controls;
 
 import a3.MyGame;
+import a3.network.ProtocolClient;
 import a3.npcs.Enemy;
 import a3.player.Player;
 import tage.GameObject;
@@ -9,34 +10,52 @@ import tage.TargetCamera;
 public class PlayerControls implements PlayerControlFunctions {
 	private Player player;
 	private TargetCamera cam;
+	private MyGame game;
+	private ProtocolClient protocolClient = null;
 
 	public PlayerControls() {
-		player = MyGame.getGameInstance().getPlayer();
-		cam = MyGame.getGameInstance().getTargetCamera();
+		game = MyGame.getGameInstance();
+		player = game.getPlayer();
+		cam = game.getTargetCamera();
+		if (game.isConnected()) {
+			protocolClient = game.getProtocolClient();
+		}
 	}
 
 	@Override
 	public void turnLeft(float frameTime) {
 		player.move(player.getLocalRightVector(), -frameTime);
 		cam.updateCameraLocation();
+		if (protocolClient != null) {
+			protocolClient.sendMoveMessage(player.getWorldLocation());
+		}
 	}
 
 	@Override
 	public void turnRight(float frameTime) {
 		player.move(player.getLocalRightVector(), frameTime);
 		cam.updateCameraLocation();
+		if (protocolClient != null) {
+			protocolClient.sendMoveMessage(player.getWorldLocation());
+		}
 	}
 
 	@Override
 	public void moveForward(float frameTime) {
 		player.move(player.getLocalForwardVector(), frameTime);
 		cam.updateCameraLocation();
+		if (protocolClient != null) {
+			protocolClient.sendMoveMessage(player.getWorldLocation());
+		}
 	}
 
 	@Override
 	public void moveBackward(float frameTime) {
 		player.move(player.getLocalForwardVector(), -frameTime);
 		cam.updateCameraLocation();
+		if (protocolClient != null) {
+			protocolClient.sendMoveMessage(player.getWorldLocation());
+		}
 	}
 
 	@Override

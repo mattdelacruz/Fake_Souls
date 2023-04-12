@@ -105,6 +105,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	public static void main(String[] args) {
 		if (args.length != 0) {
+			System.out.println("setting up network...");
 			game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 		} else {
 			game = new MyGame();
@@ -287,7 +288,8 @@ public class MyGame extends VariableFrameRateGame {
 		getPlayer().setCamera(targetCamera);
 		targetCamera.setLocation(INITIAL_CAMERA_POS);
 		engine.getRenderSystem().getViewport("MAIN").setCamera(targetCamera);
-		targetCamera.setLookAtTarget(player.getLocalLocation().mul(-1));
+		targetCamera.setLookAtTarget(player.getLocalLocation());
+		targetCamera.setLocation(targetCamera.getLocation().mul(new Vector3f(1, 1, -1)));
 		targetCamera.updateCameraAngles(frameTime);
 	}
 
@@ -410,5 +412,9 @@ public class MyGame extends VariableFrameRateGame {
 
 	public ProtocolClient getProtocolClient() {
 		return protocolClient;
+	}
+
+	public boolean isConnected() {
+		return isClientConnected;
 	}
 }
