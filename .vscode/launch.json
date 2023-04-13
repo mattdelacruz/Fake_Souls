@@ -9,6 +9,13 @@
             "name": "NetworkingServer",
             "request": "launch",
             "mainClass": "server.NetworkingServer",
+            "projectName": "CSC165_Lab_3_95a929cf"
+        },
+        {
+            "type": "java",
+            "name": "NetworkingServer",
+            "request": "launch",
+            "mainClass": "server.NetworkingServer",
             "projectName": "lab_3_82085a88"
         },
         {
