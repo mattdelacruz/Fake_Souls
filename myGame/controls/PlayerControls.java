@@ -27,6 +27,7 @@ public class PlayerControls implements PlayerControlFunctions {
 		player.move(player.getLocalRightVector(), -frameTime);
 		cam.updateCameraLocation();
 		if (protocolClient != null) {
+			System.out.println("sending move message");
 			protocolClient.sendMoveMessage(player.getWorldLocation());
 		}
 	}
@@ -36,6 +37,7 @@ public class PlayerControls implements PlayerControlFunctions {
 		player.move(player.getLocalRightVector(), frameTime);
 		cam.updateCameraLocation();
 		if (protocolClient != null) {
+			System.out.println("sending move message");
 			protocolClient.sendMoveMessage(player.getWorldLocation());
 		}
 	}
@@ -45,6 +47,7 @@ public class PlayerControls implements PlayerControlFunctions {
 		player.move(player.getLocalForwardVector(), frameTime);
 		cam.updateCameraLocation();
 		if (protocolClient != null) {
+			System.out.println("sending move message");
 			protocolClient.sendMoveMessage(player.getWorldLocation());
 		}
 	}
@@ -54,6 +57,7 @@ public class PlayerControls implements PlayerControlFunctions {
 		player.move(player.getLocalForwardVector(), -frameTime);
 		cam.updateCameraLocation();
 		if (protocolClient != null) {
+			System.out.println("sending move message");
 			protocolClient.sendMoveMessage(player.getWorldLocation());
 		}
 	}

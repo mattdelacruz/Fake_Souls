@@ -19,8 +19,9 @@ import java.net.SocketException;
  * 
  * @author Kyle Matz
  * 
- * Modified from the SAGE Networking package for the RAGE game engine by Juan E. Ruiz.
- * Ported to TAGE by Scott Gordon.
+ *         Modified from the SAGE Networking package for the RAGE game engine by
+ *         Juan E. Ruiz.
+ *         Ported to TAGE by Scott Gordon.
  * 
  */
 public class UDPServerSocket extends DatagramSocket implements IServerSocket {
@@ -37,9 +38,9 @@ public class UDPServerSocket extends DatagramSocket implements IServerSocket {
 	 * local binding of socket.
 	 * 
 	 * @param localPort
-	 *            local port to bind socket to
+	 *                  local port to bind socket to
 	 * @param server
-	 *            server to process packets
+	 *                  server to process packets
 	 * @throws SocketException
 	 */
 	public UDPServerSocket(int localPort, GameConnectionServer server)

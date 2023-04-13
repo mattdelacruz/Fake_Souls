@@ -87,7 +87,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	public MyGame(String serverAddress, int serverPort, String protocol) {
 		super();
-		if (serverAddress != null || serverPort != 0 || protocol != null) {
+		if (serverAddress != null && serverPort != 0 && protocol != null) {
 			ghostManager = new GhostManager(this);
 			this.serverAddress = serverAddress;
 			this.serverPort = serverPort;
@@ -195,6 +195,7 @@ public class MyGame extends VariableFrameRateGame {
 		initializeCameras();
 
 		state = new PlayerControls();
+		setupNetworking();
 	}
 
 	private void initializeCameras() {
@@ -209,13 +210,13 @@ public class MyGame extends VariableFrameRateGame {
 	@Override
 	public void update() {
 		updateFrameTime();
-		processNetworking((float) elapsTime);
 		if (player.isLocked()) {
 			targetCamera.targetTo();
 		} else {
 			targetCamera.setLookAtTarget(player.getLocalLocation());
 		}
 		inputManager.update((float) elapsTime);
+		processNetworking((float) elapsTime);
 	}
 
 	private void updateFrameTime() {
