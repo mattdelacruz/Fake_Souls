@@ -37,7 +37,7 @@ public class MyGame extends VariableFrameRateGame {
 	private static final int WINDOW_HEIGHT = 1000;
 	private static final int AXIS_LENGTH = 10000;
 	private static final int ENEMY_AMOUNT = 10;
-	private static final float PLAY_AREA_SIZE = 555f;
+	private static final float PLAY_AREA_SIZE = 200f;
 
 	private static final Vector3f INITIAL_CAMERA_POS = new Vector3f(0f, 0f, 5f);
 
@@ -54,13 +54,14 @@ public class MyGame extends VariableFrameRateGame {
 
 	private int serverPort;
 	private double lastFrameTime, currFrameTime, elapsTime;
+	private float lastHeightLoc, currHeightLoc;
 
 	private String serverAddress;
 
 	private float frameTime = 0;
 	private float[] vals = new float[16];
 
-	private GameObject planeMap, x, y, z, nX, nY, nZ;
+	private GameObject terrain, x, y, z, nX, nY, nZ;
 
 	private ScriptEngine jsEngine;
 	private PhysicsEngine physicsEngine;
@@ -74,11 +75,12 @@ public class MyGame extends VariableFrameRateGame {
 	private ProtocolClient protocolClient;
 	private boolean isClientConnected = false;
 
-	private ObjShape playerS, enemyS, ghostS;
-	private TextureImage playerTx, enemyTx, moonTx, ghostTx;
+	private ObjShape playerS, enemyS, ghostS, terrS;
+	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx;
 	private Line worldXAxis, worldYAxis, worldZAxis, worldNXAxis, worldNYAxis,
 			worldNZAxis;
 	private Plane moonCrater;
+
 	private ArrayList<GameObject> worldAxisList = new ArrayList<GameObject>();
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 	private ArrayList<PhysicsObject> enemyPhysicsList = new ArrayList<PhysicsObject>();
@@ -143,7 +145,7 @@ public class MyGame extends VariableFrameRateGame {
 		playerS = new ImportedModel("player.obj");
 		ghostS = new Sphere();
 		enemyS = new ImportedModel("enemy.obj");
-		moonCrater = new Plane();
+		terrS = new TerrainPlane(100);
 		loadWorldAxes();
 	}
 
@@ -152,7 +154,8 @@ public class MyGame extends VariableFrameRateGame {
 		playerTx = new TextureImage("player-texture.png");
 		ghostTx = new TextureImage("neptune.jpg");
 		enemyTx = new TextureImage("enemy-texture.png");
-		moonTx = new TextureImage("castle-floor.jpg");
+		terrMap = new TextureImage("terrain-map.png");
+		terrTx = new TextureImage("castle-floor.jpg");
 	}
 
 	@Override
@@ -164,10 +167,10 @@ public class MyGame extends VariableFrameRateGame {
 	@Override
 	public void buildObjects() {
 		buildPhysicsEngine();
-		buildPlayer();
-		buildEnemy();
 		buildWorldAxes();
 		buildPlaneMap();
+		buildPlayer();
+		buildEnemy();
 		buildEnemyQuadTree();
 	}
 
@@ -186,6 +189,7 @@ public class MyGame extends VariableFrameRateGame {
 	public void initializeGame() {
 		lastFrameTime = System.currentTimeMillis();
 		currFrameTime = System.currentTimeMillis();
+		lastHeightLoc = 0;
 		elapsTime = 0.0;
 
 		(engine.getRenderSystem()).setWindowDimensions(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -193,7 +197,6 @@ public class MyGame extends VariableFrameRateGame {
 		initializeControls();
 		updateFrameTime();
 		initializeCameras();
-
 		state = new PlayerControls();
 		setupNetworking();
 	}
@@ -215,8 +218,21 @@ public class MyGame extends VariableFrameRateGame {
 		} else {
 			targetCamera.setLookAtTarget(player.getLocalLocation());
 		}
+		updatePlayerTerrainLocation();
 		inputManager.update((float) elapsTime);
 		processNetworking((float) elapsTime);
+	}
+
+	private void updatePlayerTerrainLocation() {
+		Vector3f currLoc = player.getLocalLocation();
+		currHeightLoc = terrain.getHeight(currLoc.x, currLoc.z);
+		if (Math.abs(currHeightLoc - lastHeightLoc) > 2f) {
+			player.setLocalLocation(new Vector3f(currLoc.x, currHeightLoc + player.getLocalScale().m00(), currLoc.z));
+			lastHeightLoc = currHeightLoc;
+			targetCamera.updateCameraLocation();
+		} else {
+			player.setLocalLocation(new Vector3f(currLoc.x, lastHeightLoc + player.getLocalScale().m00(), currLoc.z));
+		}
 	}
 
 	private void updateFrameTime() {
@@ -244,9 +260,10 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void buildPlaneMap() {
-		planeMap = new GameObject(GameObject.root(), moonCrater, moonTx);
-		planeMap.setLocalLocation(new Vector3f(0, 0, 0));
-		planeMap.setLocalScale((new Matrix4f().scaling(PLAY_AREA_SIZE)));
+		terrain = new GameObject(GameObject.root(), terrS, terrTx);
+		terrain.setLocalLocation(new Vector3f(0, 0, 0));
+		terrain.setLocalScale((new Matrix4f().scaling(PLAY_AREA_SIZE)));
+		terrain.setHeightMap(terrMap);
 	}
 
 	private void buildPlayer() {

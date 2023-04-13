@@ -15,7 +15,7 @@ public class Player extends GameObject {
     public Player(GameObject p, ObjShape s, TextureImage t) {
         super(p, s, t);
         setLocalScale(new Matrix4f().scaling(0.2f));
-        setLocalLocation(new Vector3f(0, getLocalScale().get(0, 0), 0));
+        setLocalLocation(new Vector3f(50, getLocalScale().get(0, 0), 50));
         getRenderStates().setRenderHiddenFaces(true);
     }
 
