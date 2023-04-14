@@ -2,8 +2,8 @@ package tage;
 
 import org.joml.Vector3f;
 
-import myGame.npcs.Enemy;
-import myGame.player.Player;
+import a3.npcs.Enemy;
+import a3.player.Player;
 
 public class TargetCamera extends CameraOrbit3D {
 
