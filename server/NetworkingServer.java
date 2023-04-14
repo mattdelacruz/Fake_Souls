@@ -1,13 +1,13 @@
 package server;
 
 import java.io.IOException;
-import java.net.BindException;
+import tage.networking.IGameConnection.ProtocolType;
 
 public class NetworkingServer {
 
     private GameServerUDP thisUDPServer;
 
-    public NetworkingServer(int serverPort, String protocol) throws BindException {
+    public NetworkingServer(int serverPort, String protocol) {
         try {
             if (protocol.toUpperCase().compareTo("UDP") == 0) {
                 thisUDPServer = new GameServerUDP(serverPort);
@@ -20,7 +20,7 @@ public class NetworkingServer {
         }
     }
 
-    public static void main(String[] args) throws BindException, NumberFormatException {
+    public static void main(String[] args) {
         if (args.length > 1) {
             NetworkingServer app = new NetworkingServer(Integer.parseInt(args[0]), args[1]);
         }
