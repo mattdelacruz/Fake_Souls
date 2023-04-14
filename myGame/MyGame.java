@@ -169,7 +169,7 @@ public class MyGame extends VariableFrameRateGame {
 	public void buildObjects() {
 		buildPhysicsEngine();
 		buildWorldAxes();
-		buildPlaneMap();
+		buildTerrainMap();
 		buildPlayer();
 		buildEnemy();
 		buildEnemyQuadTree();
@@ -260,11 +260,13 @@ public class MyGame extends VariableFrameRateGame {
 		physicsEngine.setGravity(gravity);
 	}
 
-	private void buildPlaneMap() {
+	private void buildTerrainMap() {
 		terrain = new GameObject(GameObject.root(), terrS, terrTx);
 		terrain.setLocalLocation(new Vector3f(0, 0, 0));
 		terrain.setLocalScale((new Matrix4f().scaling(PLAY_AREA_SIZE)));
 		terrain.setHeightMap(terrMap);
+		terrain.getRenderStates().setTiling(1);
+
 	}
 
 	private void buildPlayer() {
