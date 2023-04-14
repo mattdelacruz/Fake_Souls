@@ -3,6 +3,7 @@ package myGame.player;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import myGame.MyGame;
 import tage.GameObject;
 import tage.ObjShape;
 import tage.TargetCamera;
@@ -17,6 +18,15 @@ public class Player extends GameObject {
         setLocalScale(new Matrix4f().scaling(0.2f));
         setLocalLocation(new Vector3f(50, getLocalScale().get(0, 0), 50));
         getRenderStates().setRenderHiddenFaces(true);
+    }
+
+    @Override
+    public void move(Vector3f vec, float frameTime) {
+        super.move(vec, frameTime);
+        if (MyGame.getGameInstance().getProtocolClient() != null) {
+            MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
+        }
+
     }
 
     public TargetCamera getCamera() {
