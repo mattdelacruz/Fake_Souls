@@ -130,6 +130,7 @@ public class MyGame extends VariableFrameRateGame {
 		if (protocolClient == null) {
 			System.out.println("missing protocol host");
 		} else {
+			System.out.println("sending join message...");
 			protocolClient.sendJoinMessage();
 		}
 	}
@@ -197,8 +198,8 @@ public class MyGame extends VariableFrameRateGame {
 		initializeControls();
 		updateFrameTime();
 		initializeCameras();
-		state = new PlayerControls();
 		setupNetworking();
+		state = new PlayerControls();
 	}
 
 	private void initializeCameras() {
@@ -417,6 +418,10 @@ public class MyGame extends VariableFrameRateGame {
 		isClientConnected = b;
 	}
 
+	public boolean isConnected() {
+		return isClientConnected;
+	}
+
 	public GhostManager getGhostManager() {
 		return ghostManager;
 	}
@@ -433,7 +438,4 @@ public class MyGame extends VariableFrameRateGame {
 		return protocolClient;
 	}
 
-	public boolean isConnected() {
-		return isClientConnected;
-	}
 }

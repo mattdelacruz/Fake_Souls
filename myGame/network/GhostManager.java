@@ -24,15 +24,18 @@ public class GhostManager {
     public void removeGhostAvatar(UUID ghostID) {
         GhostAvatar ghostAvatar = findAvatar(ghostID);
         if (ghostAvatar != null) {
-            VariableFrameRateGame.getEngine().getSceneGraph().removeGameObject(ghostAvatar);
+            MyGame.getEngine().getSceneGraph().removeGameObject(ghostAvatar);
             ghostAvatars.remove(ghostAvatar);
+        } else {
+            System.out.println("tried to remove, but unable to find ghost in list");
         }
     }
 
-    public void createGhost(UUID id, Vector3f p) throws IOException {
+    public void createGhostAvatar(UUID id, Vector3f pos) throws IOException {
+        System.out.println("adding ghost with ID --> " + id);
         ObjShape s = game.getGhostShape();
         TextureImage t = game.getGhostTexture();
-        GhostAvatar newAvatar = new GhostAvatar(id, s, t, p);
+        GhostAvatar newAvatar = new GhostAvatar(id, s, t, pos);
         Matrix4f initialScale = (new Matrix4f()).scaling(0.25f);
         newAvatar.setLocalScale(initialScale);
         ghostAvatars.add(newAvatar);

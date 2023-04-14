@@ -11,14 +11,17 @@ public class PlayerControls implements PlayerControlFunctions {
 	private Player player;
 	private TargetCamera cam;
 	private MyGame game;
-	private ProtocolClient protocolClient = null;
+	private ProtocolClient protocolClient;
 
 	public PlayerControls() {
 		game = MyGame.getGameInstance();
 		player = game.getPlayer();
 		cam = game.getTargetCamera();
 		if (game.isConnected()) {
+			System.out.println("game is connected...");
 			protocolClient = game.getProtocolClient();
+		} else {
+			System.out.println("game is not connected");
 		}
 	}
 
