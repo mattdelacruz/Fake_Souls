@@ -17,52 +17,30 @@ public class PlayerControls implements PlayerControlFunctions {
 		game = MyGame.getGameInstance();
 		player = game.getPlayer();
 		cam = game.getTargetCamera();
-		if (game.isConnected()) {
-			System.out.println("game is connected...");
-			protocolClient = game.getProtocolClient();
-		} else {
-			System.out.println("game is not connected");
-		}
 	}
 
 	@Override
 	public void turnLeft(float frameTime) {
 		player.move(player.getLocalRightVector(), -frameTime);
 		cam.updateCameraLocation();
-		if (protocolClient != null) {
-			System.out.println("sending move message");
-			protocolClient.sendMoveMessage(player.getWorldLocation());
-		}
 	}
 
 	@Override
 	public void turnRight(float frameTime) {
 		player.move(player.getLocalRightVector(), frameTime);
 		cam.updateCameraLocation();
-		if (protocolClient != null) {
-			System.out.println("sending move message");
-			protocolClient.sendMoveMessage(player.getWorldLocation());
-		}
 	}
 
 	@Override
 	public void moveForward(float frameTime) {
 		player.move(player.getLocalForwardVector(), frameTime);
 		cam.updateCameraLocation();
-		if (protocolClient != null) {
-			System.out.println("sending move message");
-			protocolClient.sendMoveMessage(player.getWorldLocation());
-		}
 	}
 
 	@Override
 	public void moveBackward(float frameTime) {
 		player.move(player.getLocalForwardVector(), -frameTime);
 		cam.updateCameraLocation();
-		if (protocolClient != null) {
-			System.out.println("sending move message");
-			protocolClient.sendMoveMessage(player.getWorldLocation());
-		}
 	}
 
 	@Override
