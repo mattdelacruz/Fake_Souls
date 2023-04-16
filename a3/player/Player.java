@@ -1,5 +1,9 @@
 package a3.player;
 
+import java.io.File;
+
+import javax.script.ScriptEngine;
+
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -12,11 +16,16 @@ import tage.TextureImage;
 public class Player extends GameObject {
     private TargetCamera camera;
     private boolean isLocked = false;
+    private ScriptEngine jsEngine;
+    private File scriptFile;
 
     public Player(GameObject p, ObjShape s, TextureImage t) {
         super(p, s, t);
-        setLocalScale(new Matrix4f().scaling(0.2f));
-        setLocalLocation(new Vector3f(50, getLocalScale().get(0, 0), 50));
+        jsEngine = MyGame.getGameInstance().getScriptEngine();
+        scriptFile = new File("assets/scripts/LoadInitValues.js");
+        MyGame.getGameInstance().executeScript(jsEngine, scriptFile);
+        setLocalScale(new Matrix4f().scaling(.2f));
+        setLocalLocation(new Vector3f((int)jsEngine.get("xpos"), getLocalScale().get(0, 0), (int)jsEngine.get("zpos")));
         getRenderStates().setRenderHiddenFaces(true);
     }
 
@@ -26,7 +35,6 @@ public class Player extends GameObject {
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
         }
-
     }
 
     public TargetCamera getCamera() {

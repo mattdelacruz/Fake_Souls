@@ -37,7 +37,7 @@ public class MyGame extends VariableFrameRateGame {
 	private static final int WINDOW_HEIGHT = 1000;
 	private static final int AXIS_LENGTH = 10000;
 	private static final int ENEMY_AMOUNT = 10;
-	private static final float PLAY_AREA_SIZE = 200f;
+	private static final float PLAY_AREA_SIZE = 300f;
 
 	private static final Vector3f INITIAL_CAMERA_POS = new Vector3f(0f, 0f, 5f);
 
@@ -63,14 +63,14 @@ public class MyGame extends VariableFrameRateGame {
 
 	private GameObject terrain, x, y, z, nX, nY, nZ;
 
-	private ScriptEngine jsEngine;
+	private static ScriptEngine jsEngine;
 	private PhysicsEngine physicsEngine;
 	private GhostManager ghostManager;
 	private File scriptFile;
 
 	private Enemy enemy;
 	private Player player;
-	private ScriptEngineManager factory;
+	private static ScriptEngineManager factory;
 	private ProtocolType serverProtocol;
 	private ProtocolClient protocolClient;
 	private boolean isClientConnected = false;
@@ -79,7 +79,6 @@ public class MyGame extends VariableFrameRateGame {
 	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx;
 	private Line worldXAxis, worldYAxis, worldZAxis, worldNXAxis, worldNYAxis,
 			worldNZAxis;
-	private Plane moonCrater;
 
 	private ArrayList<GameObject> worldAxisList = new ArrayList<GameObject>();
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
@@ -105,7 +104,6 @@ public class MyGame extends VariableFrameRateGame {
 	public MyGame() {
 		super();
 	}
-
 	public static void main(String[] args) {
 		if (args.length != 0) {
 			System.out.println("setting up network...");
@@ -114,6 +112,8 @@ public class MyGame extends VariableFrameRateGame {
 			game = new MyGame();
 		}
 		engine = new Engine(getGameInstance());
+		factory = new ScriptEngineManager();
+		jsEngine = factory.getEngineByName("js");
 		getGameInstance().initializeSystem();
 		getGameInstance().game_loop();
 	}
@@ -156,7 +156,7 @@ public class MyGame extends VariableFrameRateGame {
 		ghostTx = new TextureImage("neptune.jpg");
 		enemyTx = new TextureImage("enemy-texture.png");
 		terrMap = new TextureImage("terrain-map.png");
-		terrTx = new TextureImage("castle-floor.jpg");
+		terrTx = new TextureImage("moon-craters.jpg");
 	}
 
 	@Override
@@ -177,10 +177,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void initializeLights() {
-		factory = new ScriptEngineManager();
-		jsEngine = factory.getEngineByName("js");
-
-		scriptFile = new File("assets/scripts/LoadLights.js");
+		scriptFile = new File("assets/scripts/LoadInitValues.js");
 		executeScript(jsEngine, scriptFile);
 
 		(engine.getSceneGraph()).addLight((Light) jsEngine.get("light"));
@@ -371,7 +368,7 @@ public class MyGame extends VariableFrameRateGame {
 		return null;
 	}
 
-	private void executeScript(ScriptEngine engine, File file) {
+	public void executeScript(ScriptEngine engine, File file) {
 		try {
 			FileReader fileReader = new FileReader(file);
 			engine.eval(fileReader);
@@ -438,5 +435,15 @@ public class MyGame extends VariableFrameRateGame {
 	public ProtocolClient getProtocolClient() {
 		return protocolClient;
 	}
+
+	public ScriptEngineManager getScriptEngineManager() {
+		return factory;
+	}
+
+	public ScriptEngine getScriptEngine() {
+		return jsEngine;
+	}
+
+
 
 }

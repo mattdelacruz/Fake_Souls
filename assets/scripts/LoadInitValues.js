@@ -8,3 +8,7 @@ with (JavaPackages) {
     Light.setGlobalAmbient(0.5, 0.5, 0.5);
 	light.setLocation(new Vector3f(5.0, 0.0, 2.0));
 }
+
+var scale = 0.2;
+var xpos = 50;
+var zpos = 50;

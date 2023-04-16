@@ -14,12 +14,11 @@ public class Enemy extends GameObject {
 
     public Enemy(GameObject p, ObjShape s, TextureImage t) {
         super(p, s, t);
+        float posX = (float) (-50 + (Math.random() * ((50 + 50) + 1)));
+        float posZ = (float) (-50 + (Math.random() * ((50 + 50) + 1)));
+
         setLocalScale((new Matrix4f()).scaling(0.5f));
-        setLocalTranslation(
-                new Matrix4f().translation(ThreadLocalRandom.current().nextInt(-50, 50),
-                        0.5f,
-                        ThreadLocalRandom.current().nextInt(-50, 50)));
+        setLocalTranslation(new Matrix4f().translation(posX, 0.5f, posZ));
         getRenderStates().setRenderHiddenFaces(true);
     }
-
 }
