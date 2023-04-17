@@ -22,25 +22,29 @@ public class PlayerControls implements PlayerControlFunctions {
 	@Override
 	public void turnLeft(float frameTime) {
 		player.move(player.getLocalRightVector(), -frameTime);
-		cam.updateCameraLocation();
+		cam.updateCameraLocation(frameTime);
+		cam.lookAt(player);
 	}
 
 	@Override
 	public void turnRight(float frameTime) {
 		player.move(player.getLocalRightVector(), frameTime);
-		cam.updateCameraLocation();
+		cam.updateCameraLocation(frameTime);
+		cam.lookAt(player);
 	}
 
 	@Override
 	public void moveForward(float frameTime) {
 		player.move(player.getLocalForwardVector(), frameTime);
-		cam.updateCameraLocation();
+		cam.updateCameraLocation(frameTime);
+		cam.lookAt(player);
 	}
 
 	@Override
 	public void moveBackward(float frameTime) {
 		player.move(player.getLocalForwardVector(), -frameTime);
-		cam.updateCameraLocation();
+		cam.updateCameraLocation(frameTime);
+		cam.lookAt(player);
 	}
 
 	@Override

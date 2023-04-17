@@ -213,9 +213,8 @@ public class MyGame extends VariableFrameRateGame {
 		updateFrameTime();
 		if (player.isLocked()) {
 			targetCamera.targetTo();
-		} else {
-			targetCamera.setLookAtTarget(player.getLocalLocation());
 		}
+		targetCamera.setLookAtTarget(player.getLocalLocation());
 		updatePlayerTerrainLocation();
 		inputManager.update((float) elapsTime);
 		processNetworking((float) elapsTime);
@@ -227,7 +226,7 @@ public class MyGame extends VariableFrameRateGame {
 		if (Math.abs(currHeightLoc - lastHeightLoc) > 2f) {
 			player.setLocalLocation(new Vector3f(currLoc.x, currHeightLoc + player.getLocalScale().m00(), currLoc.z));
 			lastHeightLoc = currHeightLoc;
-			targetCamera.updateCameraLocation();
+			targetCamera.updateCameraLocation(frameTime);
 		} else {
 			player.setLocalLocation(new Vector3f(currLoc.x, lastHeightLoc + player.getLocalScale().m00(), currLoc.z));
 		}
@@ -443,7 +442,4 @@ public class MyGame extends VariableFrameRateGame {
 	public ScriptEngine getScriptEngine() {
 		return jsEngine;
 	}
-
-
-
 }

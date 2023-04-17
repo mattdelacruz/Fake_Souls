@@ -37,6 +37,16 @@ public class Player extends GameObject {
         }
     }
 
+    public void attack() {
+        //swing weapon
+        //calculate damage
+
+    }
+
+    public void guard() {
+        //set the player into a guard state
+    }
+
     public TargetCamera getCamera() {
         return camera;
     }
