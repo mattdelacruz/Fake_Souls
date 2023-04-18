@@ -1,4 +1,4 @@
-package a3.player;
+package a3.player.movement;
 
 public class PlayerSprintMovementState implements PlayerMovementState {
 
@@ -7,5 +7,4 @@ public class PlayerSprintMovementState implements PlayerMovementState {
         return 2f;
     }
 
-    
 }

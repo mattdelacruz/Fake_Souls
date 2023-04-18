@@ -1,6 +1,6 @@
-package a3.player;
+package a3.player.stances;
 
-public class PlayerNormalStanceState implements PlayerStanceState{
+public class PlayerNormalStanceState implements PlayerStanceState {
 
     @Override
     public float getMoveValue() {
@@ -11,5 +11,5 @@ public class PlayerNormalStanceState implements PlayerStanceState{
     public float getGuardValue() {
         return 1;
     }
-    
+
 }

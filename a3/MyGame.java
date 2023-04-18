@@ -16,6 +16,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import javax.script.Invocable;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -44,7 +45,7 @@ public class MyGame extends VariableFrameRateGame {
 	private static Engine engine;
 	private static MyGame game;
 	private static PlayerControlMap playerControlMaps; // do not delete!!!
-	private static ScriptEngineManager factory;
+	private static ScriptManager scriptManager;
 
 	private InputManager inputManager;
 	private TargetCamera targetCamera;
@@ -62,10 +63,8 @@ public class MyGame extends VariableFrameRateGame {
 
 	private GameObject terrain;
 
-	private static ScriptEngine jsEngine;
 	private PhysicsEngine physicsEngine;
 	private GhostManager ghostManager;
-	private File scriptFile;
 
 	private Enemy enemy;
 	private Player player;
@@ -99,6 +98,7 @@ public class MyGame extends VariableFrameRateGame {
 	public MyGame() {
 		super();
 	}
+
 	public static void main(String[] args) {
 		if (args.length != 0) {
 			System.out.println("setting up network...");
@@ -107,8 +107,7 @@ public class MyGame extends VariableFrameRateGame {
 			game = new MyGame();
 		}
 		engine = new Engine(getGameInstance());
-		factory = new ScriptEngineManager();
-		jsEngine = factory.getEngineByName("js");
+		scriptManager = new ScriptManager();
 		getGameInstance().initializeSystem();
 		getGameInstance().game_loop();
 	}
@@ -170,10 +169,8 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void initializeLights() {
-		scriptFile = new File("assets/scripts/LoadInitValues.js");
-		executeScript(jsEngine, scriptFile);
-
-		(engine.getSceneGraph()).addLight((Light) jsEngine.get("light"));
+		scriptManager.loadScript("assets/scripts/LoadInitValues.js");
+		(engine.getSceneGraph()).addLight((Light) scriptManager.getValue("light"));
 	}
 
 	@Override
@@ -384,11 +381,7 @@ public class MyGame extends VariableFrameRateGame {
 		return protocolClient;
 	}
 
-	public ScriptEngineManager getScriptEngineManager() {
-		return factory;
-	}
-
-	public ScriptEngine getScriptEngine() {
-		return jsEngine;
+	public ScriptManager getScriptManager() {
+		return scriptManager;
 	}
 }

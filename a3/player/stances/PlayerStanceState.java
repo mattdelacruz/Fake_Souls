@@ -1,4 +1,4 @@
-package a3.player;
+package a3.player.stances;
 
 public interface PlayerStanceState {
     public float getMoveValue();

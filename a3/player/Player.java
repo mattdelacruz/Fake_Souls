@@ -8,6 +8,13 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import a3.MyGame;
+import a3.ScriptManager;
+import a3.player.movement.PlayerMovementState;
+import a3.player.movement.PlayerRunMovementState;
+import a3.player.movement.PlayerSprintMovementState;
+import a3.player.stances.PlayerGuardStanceState;
+import a3.player.stances.PlayerNormalStanceState;
+import a3.player.stances.PlayerStanceState;
 import tage.GameObject;
 import tage.ObjShape;
 import tage.TargetCamera;
@@ -16,7 +23,7 @@ import tage.TextureImage;
 public class Player extends GameObject {
     private TargetCamera camera;
     private boolean isLocked = false;
-    private ScriptEngine jsEngine;
+    private ScriptManager scriptManager;
     private File scriptFile;
     private PlayerStanceState stanceState;
     private PlayerMovementState movementState;
@@ -25,26 +32,32 @@ public class Player extends GameObject {
     private PlayerGuardStanceState guardStance = new PlayerGuardStanceState();
     private PlayerNormalStanceState normalStance = new PlayerNormalStanceState();
 
-    //player states --- if in the same state, then it is mutually exclusive : 
-    /* stance states:
-     *      guard - player goes into guard mode 
-     *      normal - player is in a normal state, movement, damage taken, speed 
-     *              is normal
-     *      
+    // player states --- if in the same state category, then it is mutually
+    // exclusive :
+    /*
+     * stance states:
+     * guard - player goes into guard mode, cannot attack, speed is halved,
+     * damage taken is halved
+     * 
+     * normal - player is in a normal state, movement, damage taken, speed
+     * is normal
+     * 
      * movement states:
-     *      run - player is normally running, doesn't burn stamina
-     *      sprint - player moves 2x the normal run, burns stamina more
+     * run - player is normally running, doesn't burn stamina
+     * 
+     * sprint - player moves 2x the normal run, burns stamina
      * 
      * 
-     *      
+     * 
      */
     public Player(GameObject p, ObjShape s, TextureImage t) {
         super(p, s, t);
-        jsEngine = MyGame.getGameInstance().getScriptEngine();
-        scriptFile = new File("assets/scripts/LoadInitValues.js");
-        MyGame.getGameInstance().executeScript(jsEngine, scriptFile);
+        scriptManager = MyGame.getGameInstance().getScriptManager();
+        scriptManager.loadScript("assets/scripts/LoadInitValues.js");
         setLocalScale(new Matrix4f().scaling(.2f));
-        setLocalLocation(new Vector3f((int)jsEngine.get("xpos"), getLocalScale().get(0, 0), (int)jsEngine.get("zpos")));
+        setLocalLocation(
+                new Vector3f((int) scriptManager.getValue("xPlayerPos"), getLocalScale().get(0, 0),
+                        (int) scriptManager.getValue("zPlayerPos")));
         setStanceState(normalStance);
         setMovementState(run);
         getRenderStates().setRenderHiddenFaces(true);
@@ -52,6 +65,7 @@ public class Player extends GameObject {
 
     @Override
     public void move(Vector3f vec, float frameTime) {
+        System.out.println("movement speed state : " + getMovementState().getSpeed());
         super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
@@ -59,12 +73,12 @@ public class Player extends GameObject {
     }
 
     public void attack() {
-        //swing weapon
-        //calculate damage
+        // swing weapon
+        // calculate damage
     }
 
     public void guard() {
-        //play guard animation
+        // play guard animation
         this.setStanceState(guardStance);
     }
 
@@ -112,5 +126,4 @@ public class Player extends GameObject {
         return this.stanceState;
     }
 
-    
 }
