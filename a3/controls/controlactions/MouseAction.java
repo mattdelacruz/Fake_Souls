@@ -8,12 +8,6 @@ public class MouseAction extends AbstractInputAction {
     @Override
     public void performAction(float time, Event evt) {
         switch (evt.getComponent().getName().toUpperCase()) {
-            case "LEFT":
-                return;
-            case "RIGHT":
-                return;
-            case "MIDDLE":
-                return;
             case "X":
                 if (evt.getValue() > 0) {
                     MyGame.getGameInstance().getState().turnCameraLeft(MyGame.getGameInstance().getFrameTime());

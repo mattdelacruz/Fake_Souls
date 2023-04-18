@@ -35,10 +35,8 @@ import a3.quadtree.*;
 public class MyGame extends VariableFrameRateGame {
 	private static final int WINDOW_WIDTH = 1900;
 	private static final int WINDOW_HEIGHT = 1000;
-	private static final int AXIS_LENGTH = 10000;
 	private static final int ENEMY_AMOUNT = 10;
 	private static final float PLAY_AREA_SIZE = 300f;
-
 	private static final Vector3f INITIAL_CAMERA_POS = new Vector3f(0f, 0f, 5f);
 
 	private static final String SKYBOX_NAME = "fluffyClouds";
@@ -46,6 +44,7 @@ public class MyGame extends VariableFrameRateGame {
 	private static Engine engine;
 	private static MyGame game;
 	private static PlayerControlMap playerControlMaps; // do not delete!!!
+	private static ScriptEngineManager factory;
 
 	private InputManager inputManager;
 	private TargetCamera targetCamera;
@@ -61,7 +60,7 @@ public class MyGame extends VariableFrameRateGame {
 	private float frameTime = 0;
 	private float[] vals = new float[16];
 
-	private GameObject terrain, x, y, z, nX, nY, nZ;
+	private GameObject terrain;
 
 	private static ScriptEngine jsEngine;
 	private PhysicsEngine physicsEngine;
@@ -70,17 +69,13 @@ public class MyGame extends VariableFrameRateGame {
 
 	private Enemy enemy;
 	private Player player;
-	private static ScriptEngineManager factory;
 	private ProtocolType serverProtocol;
 	private ProtocolClient protocolClient;
 	private boolean isClientConnected = false;
 
 	private ObjShape playerS, enemyS, ghostS, terrS;
 	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx;
-	private Line worldXAxis, worldYAxis, worldZAxis, worldNXAxis, worldNYAxis,
-			worldNZAxis;
 
-	private ArrayList<GameObject> worldAxisList = new ArrayList<GameObject>();
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 	private ArrayList<PhysicsObject> enemyPhysicsList = new ArrayList<PhysicsObject>();
 	private QuadTree quadTree = new QuadTree(new QuadTreePoint(-PLAY_AREA_SIZE, PLAY_AREA_SIZE),
@@ -147,7 +142,6 @@ public class MyGame extends VariableFrameRateGame {
 		ghostS = new Sphere();
 		enemyS = new ImportedModel("enemy.obj");
 		terrS = new TerrainPlane(100);
-		loadWorldAxes();
 	}
 
 	@Override
@@ -168,7 +162,6 @@ public class MyGame extends VariableFrameRateGame {
 	@Override
 	public void buildObjects() {
 		buildPhysicsEngine();
-		buildWorldAxes();
 		buildTerrainMap();
 		buildPlayer();
 		buildEnemy();
@@ -239,15 +232,6 @@ public class MyGame extends VariableFrameRateGame {
 		elapsTime += frameTime;
 	}
 
-	private void loadWorldAxes() {
-		worldXAxis = new Line(new Vector3f(0, 0, 0), new Vector3f(AXIS_LENGTH, 0, 0));
-		worldYAxis = new Line(new Vector3f(0, 0, 0), new Vector3f(0, AXIS_LENGTH, 0));
-		worldZAxis = new Line(new Vector3f(0, 0, 0), new Vector3f(0, 0, AXIS_LENGTH));
-		worldNXAxis = new Line(new Vector3f(0, 0, 0), new Vector3f(-AXIS_LENGTH, 0, 0));
-		worldNYAxis = new Line(new Vector3f(0, 0, 0), new Vector3f(0, -AXIS_LENGTH, 0));
-		worldNZAxis = new Line(new Vector3f(0, 0, 0), new Vector3f(0, 0, -AXIS_LENGTH));
-	}
-
 	private void buildPhysicsEngine() {
 		String engine = "tage.physics.JBullet.JBulletPhysicsEngine";
 		float[] gravity = { 0f, -5f, 0f };
@@ -310,29 +294,6 @@ public class MyGame extends VariableFrameRateGame {
 		targetCamera.updateCameraAngles(frameTime);
 	}
 
-	private void buildWorldAxes() {
-		x = new GameObject(GameObject.root(), worldXAxis);
-		y = new GameObject(GameObject.root(), worldYAxis);
-		z = new GameObject(GameObject.root(), worldZAxis);
-		nX = new GameObject(GameObject.root(), worldNXAxis);
-		nY = new GameObject(GameObject.root(), worldNYAxis);
-		nZ = new GameObject(GameObject.root(), worldNZAxis);
-
-		x.getRenderStates().setColor(new Vector3f(1f, 0f, 0f));
-		y.getRenderStates().setColor(new Vector3f(0f, 1f, 0f));
-		z.getRenderStates().setColor(new Vector3f(0f, 0f, 1f));
-		nX.getRenderStates().setColor(new Vector3f(1f, 0f, 0f));
-		nY.getRenderStates().setColor(new Vector3f(0f, 1f, 0f));
-		nZ.getRenderStates().setColor(new Vector3f(0f, 0f, 1f));
-
-		worldAxisList.add(x);
-		worldAxisList.add(y);
-		worldAxisList.add(z);
-		worldAxisList.add(nX);
-		worldAxisList.add(nY);
-		worldAxisList.add(nZ);
-	}
-
 	public static MyGame getGameInstance() {
 		return game;
 	}
@@ -341,18 +302,6 @@ public class MyGame extends VariableFrameRateGame {
 		if (engine == null)
 			engine = new Engine(getGameInstance());
 		return engine;
-	}
-
-	public void renderGameAxis() {
-		if (worldAxisList.get(0).getRenderStates().renderingEnabled()) {
-			for (GameObject go : worldAxisList) {
-				go.getRenderStates().disableRendering();
-			}
-		} else {
-			for (GameObject go : worldAxisList) {
-				go.getRenderStates().enableRendering();
-			}
-		}
 	}
 
 	public GameObject findTarget() {
