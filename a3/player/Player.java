@@ -24,7 +24,6 @@ public class Player extends GameObject {
     private TargetCamera camera;
     private boolean isLocked = false;
     private ScriptManager scriptManager;
-    private File scriptFile;
     private PlayerStanceState stanceState;
     private PlayerMovementState movementState;
     private PlayerSprintMovementState sprint = new PlayerSprintMovementState();
@@ -32,9 +31,10 @@ public class Player extends GameObject {
     private PlayerGuardStanceState guardStance = new PlayerGuardStanceState();
     private PlayerNormalStanceState normalStance = new PlayerNormalStanceState();
 
-    // player states --- if in the same state category, then it is mutually
-    // exclusive :
     /*
+     * player states --- if in the same state category, then it is mutually
+     * exclusive :
+     *
      * stance states:
      * guard - player goes into guard mode, cannot attack, speed is halved,
      * damage taken is halved
@@ -65,7 +65,6 @@ public class Player extends GameObject {
 
     @Override
     public void move(Vector3f vec, float frameTime) {
-        System.out.println("movement speed state : " + getMovementState().getSpeed());
         super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
@@ -78,20 +77,24 @@ public class Player extends GameObject {
     }
 
     public void guard() {
-        // play guard animation
-        this.setStanceState(guardStance);
+        // play guard animation, play some sound
+        if (getMovementState() == sprint) {
+            setMovementState(run);
+        }
+        setStanceState(guardStance);
+
     }
 
     public void unGuard() {
-        this.setStanceState(normalStance);
+        setStanceState(normalStance);
     }
 
     public void sprint() {
-        this.setMovementState(sprint);
+        setMovementState(sprint);
     }
 
     public void run() {
-        this.setMovementState(run);
+        setMovementState(run);
     }
 
     public TargetCamera getCamera() {
@@ -119,11 +122,11 @@ public class Player extends GameObject {
     }
 
     public PlayerMovementState getMovementState() {
-        return this.movementState;
+        return movementState;
     }
 
     public PlayerStanceState getStanceState() {
-        return this.stanceState;
+        return stanceState;
     }
 
 }

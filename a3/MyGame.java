@@ -39,8 +39,14 @@ public class MyGame extends VariableFrameRateGame {
 	private static final int ENEMY_AMOUNT = 10;
 	private static final float PLAY_AREA_SIZE = 300f;
 	private static final Vector3f INITIAL_CAMERA_POS = new Vector3f(0f, 0f, 5f);
-
 	private static final String SKYBOX_NAME = "fluffyClouds";
+	private static final String PLAYER_TEXTURE = "player-texture.png";
+	private static final String GHOST_TEXTURE = "neptune.jpg";
+	private static final String ENEMY_TEXTURE = "enemy-texture.png";
+	private static final String TERRAIN_MAP = "terrain-map.png";
+	private static final String TERRAIN_TEXTURE = "moon-craters.jpg";
+	private static final String PLAYER_OBJ = "player.obj";
+	private static final String ENEMY_OBJ = "enemy.obj";
 
 	private static Engine engine;
 	private static MyGame game;
@@ -77,7 +83,8 @@ public class MyGame extends VariableFrameRateGame {
 
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 	private ArrayList<PhysicsObject> enemyPhysicsList = new ArrayList<PhysicsObject>();
-	private QuadTree quadTree = new QuadTree(new QuadTreePoint(-PLAY_AREA_SIZE, PLAY_AREA_SIZE),
+	private QuadTree quadTree = new QuadTree(
+			new QuadTreePoint(-PLAY_AREA_SIZE, PLAY_AREA_SIZE),
 			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE));
 
 	public MyGame(String serverAddress, int serverPort, String protocol) {
@@ -108,6 +115,7 @@ public class MyGame extends VariableFrameRateGame {
 		}
 		engine = new Engine(getGameInstance());
 		scriptManager = new ScriptManager();
+		scriptManager.loadScript("assets/scripts/LoadInitValues.js");
 		getGameInstance().initializeSystem();
 		getGameInstance().game_loop();
 	}
@@ -137,19 +145,19 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void loadShapes() {
-		playerS = new ImportedModel("player.obj");
+		playerS = new ImportedModel(PLAYER_OBJ);
 		ghostS = new Sphere();
-		enemyS = new ImportedModel("enemy.obj");
+		enemyS = new ImportedModel(ENEMY_OBJ);
 		terrS = new TerrainPlane(100);
 	}
 
 	@Override
 	public void loadTextures() {
-		playerTx = new TextureImage("player-texture.png");
-		ghostTx = new TextureImage("neptune.jpg");
-		enemyTx = new TextureImage("enemy-texture.png");
-		terrMap = new TextureImage("terrain-map.png");
-		terrTx = new TextureImage("moon-craters.jpg");
+		playerTx = new TextureImage(PLAYER_TEXTURE);
+		ghostTx = new TextureImage(GHOST_TEXTURE);
+		enemyTx = new TextureImage(ENEMY_TEXTURE);
+		terrMap = new TextureImage(TERRAIN_MAP);
+		terrTx = new TextureImage(TERRAIN_TEXTURE);
 	}
 
 	@Override
@@ -169,7 +177,6 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void initializeLights() {
-		scriptManager.loadScript("assets/scripts/LoadInitValues.js");
 		(engine.getSceneGraph()).addLight((Light) scriptManager.getValue("light"));
 	}
 
@@ -311,22 +318,6 @@ public class MyGame extends VariableFrameRateGame {
 			return target.getData();
 		}
 		return null;
-	}
-
-	public void executeScript(ScriptEngine engine, File file) {
-		try {
-			FileReader fileReader = new FileReader(file);
-			engine.eval(fileReader);
-			fileReader.close();
-		} catch (FileNotFoundException e1) {
-			System.out.println(file + " not found " + e1);
-		} catch (IOException e2) {
-			System.out.println("IO problem with " + file + e2);
-		} catch (ScriptException e3) {
-			System.out.println("ScriptException in " + file + e3);
-		} catch (NullPointerException e4) {
-			System.out.println("Null pointer exception in " + file + e4);
-		}
 	}
 
 	public float getFrameTime() {

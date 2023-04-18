@@ -1,9 +1,6 @@
 package a3.npcs;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import tage.GameObject;
 import tage.ObjShape;

@@ -4,7 +4,7 @@ public class PlayerSprintMovementState implements PlayerMovementState {
 
     @Override
     public float getSpeed() {
-        return 2f;
+        return 1.5f;
     }
 
 }
