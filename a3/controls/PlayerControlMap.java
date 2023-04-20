@@ -58,7 +58,7 @@ public class PlayerControlMap {
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 		inputManager.associateActionWithAllMice(
 				Component.Identifier.Button.RIGHT, mouseAction,
-				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
 		inputManager.associateActionWithAllMice(
 				Component.Identifier.Axis.X, mouseAction,
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);

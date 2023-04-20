@@ -233,7 +233,6 @@ public class JBulletPhysicsEngine implements PhysicsEngine {
 			this.dynamicsWorld.addRigidBody(cylinderObject.getRigidBody());
 			this.objects.add(cylinderObject);
 			return cylinderObject;
-
 		}
 
 		/**

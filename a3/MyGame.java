@@ -6,20 +6,14 @@ import tage.networking.IGameConnection.ProtocolType;
 import tage.physics.PhysicsEngine;
 import tage.physics.PhysicsEngineFactory;
 import tage.physics.PhysicsObject;
+import tage.physics.JBullet.*;
 import tage.shapes.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import javax.script.Invocable;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
+import java.util.Iterator;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -34,9 +28,9 @@ import a3.player.Player;
 import a3.quadtree.*;
 
 public class MyGame extends VariableFrameRateGame {
-	private static final int WINDOW_WIDTH = 1900;
-	private static final int WINDOW_HEIGHT = 1000;
-	private static final int ENEMY_AMOUNT = 10;
+	private static final int WINDOW_WIDTH = 500;
+	private static final int WINDOW_HEIGHT = 500;
+	private static final int ENEMY_AMOUNT = 4;
 	private static final float PLAY_AREA_SIZE = 300f;
 	private static final Vector3f INITIAL_CAMERA_POS = new Vector3f(0f, 0f, 5f);
 	private static final String SKYBOX_NAME = "fluffyClouds";
@@ -86,6 +80,8 @@ public class MyGame extends VariableFrameRateGame {
 	private QuadTree quadTree = new QuadTree(
 			new QuadTreePoint(-PLAY_AREA_SIZE, PLAY_AREA_SIZE),
 			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE));
+	private com.bulletphysics.dynamics.RigidBody object1, object2;
+
 
 	public MyGame(String serverAddress, int serverPort, String protocol) {
 		super();
@@ -193,7 +189,13 @@ public class MyGame extends VariableFrameRateGame {
 		updateFrameTime();
 		initializeCameras();
 		setupNetworking();
+		initializePhysicsObjects();
 		state = new PlayerControls();
+	}
+
+	private void initializePhysicsObjects() {
+		Iterator<PhysicsObject> it = enemyPhysicsList.iterator();
+		
 	}
 
 	private void initializeCameras() {
@@ -211,16 +213,18 @@ public class MyGame extends VariableFrameRateGame {
 		if (player.isLocked()) {
 			targetCamera.targetTo();
 		}
+		checkForCollisions();
 		targetCamera.setLookAtTarget(player.getLocalLocation());
 		updatePlayerTerrainLocation();
 		inputManager.update((float) elapsTime);
+		physicsEngine.update((float) elapsTime);
 		processNetworking((float) elapsTime);
 	}
 
 	private void updatePlayerTerrainLocation() {
 		Vector3f currLoc = player.getLocalLocation();
 		currHeightLoc = terrain.getHeight(currLoc.x, currLoc.z);
-		if (Math.abs(currHeightLoc - lastHeightLoc) > 2f) {
+		if (Math.abs(currHeightLoc - lastHeightLoc) > 5f) {
 			player.setLocalLocation(new Vector3f(currLoc.x, currHeightLoc + player.getLocalScale().m00(), currLoc.z));
 			lastHeightLoc = currHeightLoc;
 			targetCamera.updateCameraLocation(frameTime);
@@ -238,7 +242,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void buildPhysicsEngine() {
 		String engine = "tage.physics.JBullet.JBulletPhysicsEngine";
-		float[] gravity = { 0f, -5f, 0f };
+		float[] gravity = { 0f, -10f, 0f };
 		physicsEngine = PhysicsEngineFactory.createPhysicsEngine(engine);
 		physicsEngine.initSystem();
 		physicsEngine.setGravity(gravity);
@@ -253,20 +257,63 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void buildPlayer() {
+		float mass = 0.1f;
+		double[] tempTransform;
+		float[] size = { 0.75f, 0.75f, 0.75f };
+		Matrix4f translation;
+		PhysicsObject playerBody;
 		player = new Player(GameObject.root(), playerS, playerTx);
+		translation = new Matrix4f(player.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		playerBody = physicsEngine.addBoxObject(physicsEngine.nextUID(), mass, tempTransform, size);
+		playerBody.setBounciness(9.8f);
 	}
 
 	private void buildEnemy() {
 		float mass = 0.1f;
 		double[] tempTransform;
-		float[] size = { 0.75f, 0.75f, 0.75f };
+		float[] size;
 		Matrix4f translation;
 		for (int i = 0; i < ENEMY_AMOUNT; i++) {
-			enemy = new Enemy(GameObject.root(), enemyS, enemyTx);
+			enemy = new Enemy(GameObject.root(), enemyS, enemyTx, i);
 			enemyList.add(enemy);
+			size = new float[] {enemy.getLocalScale().m00(),enemy.getLocalScale().m00(), enemy.getLocalScale().m00()};
 			translation = new Matrix4f(enemy.getLocalTranslation());
 			tempTransform = toDoubleArray(translation.get(vals));
 			enemyPhysicsList.add(physicsEngine.addBoxObject(physicsEngine.nextUID(), mass, tempTransform, size));
+			enemyPhysicsList.get(i).setBounciness(5.5f);
+		}
+	}
+
+	private void checkForCollisions() { 
+		com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
+		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
+		com.bulletphysics.collision.narrowphase.PersistentManifold manifold;
+		com.bulletphysics.collision.narrowphase.ManifoldPoint contactPoint;
+
+		dynamicsWorld = ((JBulletPhysicsEngine) physicsEngine).getDynamicsWorld();
+		
+		dispatcher = dynamicsWorld.getDispatcher();
+		int manifoldCount = dispatcher.getNumManifolds();
+		if (manifoldCount != 0)
+			System.out.println("manifold count: " + manifoldCount);
+		for (int i = 0; i < manifoldCount; i++) { 
+			manifold = dispatcher.getManifoldByIndexInternal(i);
+			object1 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody0();object2 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody1();
+
+			JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
+			JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
+
+			System.out.println("number of manifold contacts: " + manifold.getNumContacts());
+			for (int j = 0; j < manifold.getNumContacts(); j++) { 
+				contactPoint = manifold.getContactPoint(j);
+				if (contactPoint.getDistance() < 0.0f) {
+					obj1.applyForce(10, 0, 0, 0, 0, 0);
+					System.out.println("---- hit between " + obj1 + " and " + obj2);
+					System.out.printf("obj1 bounciness %.2f obj2 bounciness %.2f\n", obj1.getBounciness(), obj2.getBounciness());
+					break;
+				}
+			}
 		}
 	}
 
@@ -315,7 +362,7 @@ public class MyGame extends VariableFrameRateGame {
 		target = quadTree.findNearby(playerPos, -1, null);
 
 		if (target != null) {
-			return target.getData();
+			return (GameObject)target.getData();
 		}
 		return null;
 	}

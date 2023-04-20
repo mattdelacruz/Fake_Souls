@@ -16,6 +16,20 @@ public class MouseAction extends AbstractInputAction {
                     MyGame.getGameInstance().getState().turnCameraRight(MyGame.getGameInstance().getFrameTime());
                 }
                 return;
+            //guard
+            case "RIGHT": 
+                if (evt.getValue() > 0) {
+                    MyGame.getGameInstance().getPlayer().guard();
+                } else {
+                    MyGame.getGameInstance().getPlayer().unGuard();
+                }
+                return;
+            //attack
+            case "LEFT":
+                
+            
+            
+                
         }
     }
 }

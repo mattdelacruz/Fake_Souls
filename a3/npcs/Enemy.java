@@ -8,12 +8,16 @@ import tage.TextureImage;
 
 public class Enemy extends GameObject {
     Matrix4f initialTranslation, initialScale;
+    int id;
 
-    public Enemy(GameObject p, ObjShape s, TextureImage t) {
+    public Enemy(GameObject p, ObjShape s, TextureImage t, int id) {
+        //(float) (min + (Math.random() * ((max - min) + 1)));
         super(p, s, t);
-        float posX = (float) (-50 + (Math.random() * ((50 + 50) + 1)));
-        float posZ = (float) (-50 + (Math.random() * ((50 + 50) + 1)));
+//        float posX = (float) (40 + (Math.random() * ((60 - 40) + 1)));
+        float posX = (float) 50f;
 
+        float posZ = (float) 124f + (5 * id);
+        this.id = id;
         setLocalScale((new Matrix4f()).scaling(0.5f));
         setLocalTranslation(new Matrix4f().translation(posX, 0.5f, posZ));
         getRenderStates().setRenderHiddenFaces(true);

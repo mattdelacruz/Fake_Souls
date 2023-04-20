@@ -7,7 +7,7 @@ import tage.input.action.AbstractInputAction;
 public class KeyboardActions extends AbstractInputAction {
     @Override
     public void performAction(float time, Event evt) {
-        switch (evt.getComponent().getIdentifier().getName()) {
+        switch (evt.getComponent().getIdentifier().getName().toUpperCase()) {
             case "O":
                 MyGame.getGameInstance().getState().target();
                 return;
@@ -19,7 +19,7 @@ public class KeyboardActions extends AbstractInputAction {
                     MyGame.getGameInstance().getPlayer().unGuard();
                     return;
                 }
-            case "Left Shift":
+            case "LEFT SHIFT":
                 if (evt.getValue() == 1.0f) {
                     MyGame.getGameInstance().getPlayer().sprint();
                     return;

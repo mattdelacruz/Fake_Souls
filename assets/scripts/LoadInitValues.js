@@ -10,4 +10,4 @@ with (JavaPackages) {
 }
 
 var xPlayerPos = 50;
-var zPlayerPos = 50;
+var zPlayerPos = 124;

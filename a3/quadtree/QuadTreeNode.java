@@ -4,7 +4,7 @@ import tage.GameObject;
 
 public class QuadTreeNode {
     private QuadTreePoint pos;
-    private GameObject data;
+    private Object data;
 
     public QuadTreeNode(QuadTreePoint _pos, GameObject _data) {
         pos = _pos;
@@ -19,7 +19,7 @@ public class QuadTreeNode {
         return pos;
     }
 
-    public GameObject getData() {
+    public Object getData() {
         return data;
     }
 
