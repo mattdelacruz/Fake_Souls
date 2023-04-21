@@ -1,9 +1,5 @@
 package a3.player;
 
-import java.io.File;
-
-import javax.script.ScriptEngine;
-
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -82,7 +78,6 @@ public class Player extends GameObject {
             setMovementState(run);
         }
         setStanceState(guardStance);
-
     }
 
     public void unGuard() {
@@ -95,14 +90,6 @@ public class Player extends GameObject {
 
     public void run() {
         setMovementState(run);
-    }
-
-    public TargetCamera getCamera() {
-        return camera;
-    }
-
-    public void setCamera(TargetCamera c) {
-        camera = c;
     }
 
     public void setLock(boolean lock) {

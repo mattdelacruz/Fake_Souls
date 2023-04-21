@@ -73,7 +73,6 @@ public class PlayerControls implements PlayerControlFunctions {
 	public void target() {
 		GameObject target = MyGame.getGameInstance().findTarget();
 		if (target != null && target instanceof Enemy) {
-			player.getCamera().setTarget((Enemy) target);
 			player.setLock(true);
 		}
 		return;
