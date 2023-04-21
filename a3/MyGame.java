@@ -214,20 +214,19 @@ public class MyGame extends VariableFrameRateGame {
 			targetCamera.targetTo();
 		}
 		checkForCollisions();
-		for (GameObject go : getEngine().getSceneGraph().getGameObjects()) {
-			if (go.getPhysicsObject() != null) {
-				mat.set(toFloatArray(go.getPhysicsObject().getTransform()));
-				mat2.set(3, 0, mat.m30());
-				mat2.set(3, 1, mat.m31());
-				mat2.set(3, 2, mat.m32());
-				go.setLocalTranslation(mat2);
-				if (go instanceof Player) {
-					getTargetCamera().lookAt((Player) go);
-					getTargetCamera().updateCameraLocation(frameTime);
-					getTargetCamera().updateCameraAngles(frameTime);
-				}
-			}
-		}
+		// for (GameObject go : getEngine().getSceneGraph().getGameObjects()) {
+		// 	if (go.getPhysicsObject() != null) {
+
+		// 		mat.set(toFloatArray(go.getPhysicsObject().getTransform()));
+		// 		// [col, row, value]
+		// 		mat2.set(3, 1, mat.m30());
+		// 		if (go instanceof Player) {
+		// 			getTargetCamera().lookAt((Player) go);
+		// 			getTargetCamera().updateCameraLocation(frameTime);
+		// 			getTargetCamera().updateCameraAngles(frameTime);
+		// 		}
+		// 	}
+		// }
 		targetCamera.setLookAtTarget(player.getLocalLocation());
 		updatePlayerTerrainLocation();
 		inputManager.update((float) elapsTime);
@@ -271,7 +270,7 @@ public class MyGame extends VariableFrameRateGame {
 		translation = new Matrix4f(terrain.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
 		planeP = physicsManager.addStaticPlaneObject(
-				physicsManager.nextUID(), tempTransform, up, 0.0f);
+				physicsManager.nextUID(), tempTransform, up,0.0f);
 		terrain.setPhysicsObject(planeP);
 	}
 
@@ -287,7 +286,7 @@ public class MyGame extends VariableFrameRateGame {
 		tempTransform = toDoubleArray(translation.get(vals));
 		playerBody = physicsManager.addBoxObject(physicsManager.nextUID(), mass, tempTransform, size);
 		player.setPhysicsObject(playerBody);
-		JBulletPhysicsObject.getJBulletPhysicsObject(playerBody);
+		//JBulletPhysicsObject.getJBulletPhysicsObject(playerBody);
 	}
 
 	private void buildEnemy() {
@@ -328,41 +327,20 @@ public class MyGame extends VariableFrameRateGame {
 			JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
 			JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
 
-			// for (int j = 0; j < manifold.getNumContacts(); j++) {
-			// contactPoint = manifold.getContactPoint(j);
-			// if (contactPoint.getDistance() < 0.001f) {
-
-			// System.out.println("---- hit between " + obj1 + " and " + obj2);
-			// System.out.printf("obj1 bounciness %.2f obj2 bounciness %.2f\n",
-			// obj1.getBounciness(),
-			// obj2.getBounciness());
-			// break;
-			// }
-			// }
+			//should change to check collision of the weapon object with an enemy physics object
+			//this will be my damage system
+			for (int j = 0; j < manifold.getNumContacts(); j++) {
+				contactPoint = manifold.getContactPoint(j);
+				if (contactPoint.getDistance() < 0f) {
+					// obj1.applyForce(0, 10, 0, 0, 0, 0);
+					// System.out.println("---- hit between " + obj1 + " and " + obj2);
+					// System.out.printf("obj1 bounciness %.2f obj2 bounciness %.2f\n",
+					// obj1.getBounciness(),
+					// obj2.getBounciness());
+					break;
+				}
+			}
 		}
-	}
-
-	private float[] toFloatArray(double[] arr) {
-		if (arr == null)
-			return null;
-		int n = arr.length;
-		float[] ret = new float[n];
-		for (int i = 0; i < n; i++) {
-			ret[i] = (float) arr[i];
-		}
-		return ret;
-	}
-
-	private double[] toDoubleArray(float[] arr) {
-		if (arr == null) {
-			return null;
-		}
-		int n = arr.length;
-		double[] ret = new double[n];
-		for (int i = 0; i < n; i++) {
-			ret[i] = (double) arr[i];
-		}
-		return ret;
 	}
 
 	private void buildEnemyQuadTree() {
@@ -401,6 +379,30 @@ public class MyGame extends VariableFrameRateGame {
 		}
 		return null;
 	}
+
+	private float[] toFloatArray(double[] arr) {
+		if (arr == null)
+			return null;
+		int n = arr.length;
+		float[] ret = new float[n];
+		for (int i = 0; i < n; i++) {
+			ret[i] = (float) arr[i];
+		}
+		return ret;
+	}
+
+	private double[] toDoubleArray(float[] arr) {
+		if (arr == null) {
+			return null;
+		}
+		int n = arr.length;
+		double[] ret = new double[n];
+		for (int i = 0; i < n; i++) {
+			ret[i] = (double) arr[i];
+		}
+		return ret;
+	}
+
 
 	public float getFrameTime() {
 		return frameTime;

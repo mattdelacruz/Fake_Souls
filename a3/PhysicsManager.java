@@ -9,7 +9,7 @@ public class PhysicsManager {
 
     public PhysicsManager() {
         String engine = "tage.physics.JBullet.JBulletPhysicsEngine";
-        float[] gravity = { 0f, -10f, 0f };
+        float[] gravity = { 0f, 0f, 0f };
         physicsEngine = PhysicsEngineFactory.createPhysicsEngine(engine);
         physicsEngine.initSystem();
         physicsEngine.setGravity(gravity);
