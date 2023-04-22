@@ -17,7 +17,6 @@ import tage.TargetCamera;
 import tage.TextureImage;
 
 public class Player extends GameObject {
-    private TargetCamera camera;
     private boolean isLocked = false;
     private ScriptManager scriptManager;
     private PlayerStanceState stanceState;

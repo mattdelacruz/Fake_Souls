@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -74,7 +76,7 @@ public class MyGame extends VariableFrameRateGame {
 	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx;
 
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
-	private ArrayList<PhysicsObject> enemyPhysicsList = new ArrayList<PhysicsObject>();
+	private Map<Integer, Enemy> enemyMap = new HashMap<Integer, Enemy>();
 	private QuadTree quadTree = new QuadTree(
 			new QuadTreePoint(-PLAY_AREA_SIZE, PLAY_AREA_SIZE),
 			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE));
@@ -191,8 +193,6 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void initializePhysicsObjects() {
-		Iterator<PhysicsObject> it = enemyPhysicsList.iterator();
-
 	}
 
 	private void initializeCameras() {
@@ -214,19 +214,6 @@ public class MyGame extends VariableFrameRateGame {
 			targetCamera.targetTo();
 		}
 		checkForCollisions();
-		// for (GameObject go : getEngine().getSceneGraph().getGameObjects()) {
-		// 	if (go.getPhysicsObject() != null) {
-
-		// 		mat.set(toFloatArray(go.getPhysicsObject().getTransform()));
-		// 		// [col, row, value]
-		// 		mat2.set(3, 1, mat.m30());
-		// 		if (go instanceof Player) {
-		// 			getTargetCamera().lookAt((Player) go);
-		// 			getTargetCamera().updateCameraLocation(frameTime);
-		// 			getTargetCamera().updateCameraAngles(frameTime);
-		// 		}
-		// 	}
-		// }
 		targetCamera.setLookAtTarget(player.getLocalLocation());
 		updatePlayerTerrainLocation();
 		inputManager.update((float) elapsTime);
@@ -294,6 +281,7 @@ public class MyGame extends VariableFrameRateGame {
 		double[] tempTransform;
 		float[] size;
 		Matrix4f translation;
+		PhysicsObject enemyObject;
 
 		for (int i = 0; i < ENEMY_AMOUNT; i++) {
 			enemy = new Enemy(GameObject.root(), enemyS, enemyTx, i);
@@ -303,9 +291,10 @@ public class MyGame extends VariableFrameRateGame {
 					enemy.getLocalScale().m00() };
 			translation = new Matrix4f(enemy.getLocalTranslation());
 			tempTransform = toDoubleArray(translation.get(vals));
-			enemyPhysicsList.add(physicsManager.addBoxObject(physicsManager.nextUID(),
-					mass, tempTransform, size));
-			enemy.setPhysicsObject(enemyPhysicsList.get(i));
+			enemyObject = physicsManager.addBoxObject(physicsManager.nextUID(),
+					mass, tempTransform, size);
+			enemyMap.put(enemyObject.getUID(), enemy);
+			enemy.setPhysicsObject(enemyObject);
 		}
 	}
 
@@ -332,12 +321,24 @@ public class MyGame extends VariableFrameRateGame {
 			for (int j = 0; j < manifold.getNumContacts(); j++) {
 				contactPoint = manifold.getContactPoint(j);
 				if (contactPoint.getDistance() < 0f) {
-					// obj1.applyForce(0, 10, 0, 0, 0, 0);
-					// System.out.println("---- hit between " + obj1 + " and " + obj2);
-					// System.out.printf("obj1 bounciness %.2f obj2 bounciness %.2f\n",
-					// obj1.getBounciness(),
-					// obj2.getBounciness());
+					// create a hashmap <UID, Object>
+					// obj2.getUID(); 
+					if (enemyMap.get(obj2.getUID()) != null) {
+							if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject()) {
+								//based on this, I am able to determine what type of object has collided with another object
+								//therefore, I should set the enemies and weapons to be the only physics objects in the game
+								//the weapon will be static to, say obj1 and obj2 will be the retrieved object from the enemyMap.
+								//this also solves the problem of not having to worry about what object I hit with the weapon
+								//after a hit, the damage should be calculated
+								//I should also make the player a physics object and have any collision with an enemy, while the enemy is in attack mode, to be considered damage to the player
+								//therefore the enemy should have state that I could check whether the enemy is in attack mode once the collision has happened.
+								//this solves the problem of ANY collision with the enemy being considered as damage to the player
+								System.out.println("is an enemy");
+							}
 					break;
+					}  else {
+						System.out.println(obj2);
+					}
 				}
 			}
 		}

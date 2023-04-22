@@ -9,6 +9,6 @@ with (JavaPackages) {
 	light.setLocation(new Vector3f(5.0, 0.0, 2.0));
 }
 
-var xPlayerPos = 67;
-var yPlayerPos = 40;
+var xPlayerPos = 50;
+var yPlayerPos = 0;
 var zPlayerPos = 124;
