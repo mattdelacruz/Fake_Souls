@@ -15,8 +15,10 @@ import tage.GameObject;
 import tage.ObjShape;
 import tage.TargetCamera;
 import tage.TextureImage;
+import tage.shapes.AnimatedShape;
 
 public class Player extends GameObject {
+    private AnimatedShape playerShape;
     private boolean isLocked = false;
     private ScriptManager scriptManager;
     private PlayerStanceState stanceState;
@@ -55,12 +57,12 @@ public class Player extends GameObject {
                         (int) scriptManager.getValue("zPlayerPos")));
         setStanceState(normalStance);
         setMovementState(run);
-        getRenderStates().setRenderHiddenFaces(true);
     }
 
     @Override
     public void move(Vector3f vec, float frameTime) {
         super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
+        playRunAnimation();
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
         }
@@ -113,6 +115,19 @@ public class Player extends GameObject {
 
     public PlayerStanceState getStanceState() {
         return stanceState;
+    }
+
+    public void setAnimationShape(AnimatedShape playerShape) {
+        this.playerShape = playerShape;
+    }
+
+    public void playRunAnimation() {
+        playerShape.playAnimation("RUN", 1f, AnimatedShape.EndType.LOOP, 0);
+
+    }
+
+    public void updateAnimation() {
+        playerShape.updateAnimation();
     }
 
 }

@@ -34,12 +34,12 @@ public class MyGame extends VariableFrameRateGame {
 	private static final float PLAY_AREA_SIZE = 300f;
 	private static final Vector3f INITIAL_CAMERA_POS = new Vector3f(0f, 0f, 5f);
 	private static final String SKYBOX_NAME = "fluffyClouds";
-	private static final String PLAYER_TEXTURE = "player-texture.png";
+	private static final String PLAYER_TEXTURE = "player-tex-NEW.png";
 	private static final String GHOST_TEXTURE = "neptune.jpg";
 	private static final String ENEMY_TEXTURE = "enemy-texture.png";
 	private static final String TERRAIN_MAP = "terrain-map.png";
 	private static final String TERRAIN_TEXTURE = "moon-craters.jpg";
-	private static final String PLAYER_OBJ = "player.obj";
+	// private static final String PLAYER_OBJ = "player-remake.obj";
 	private static final String ENEMY_OBJ = "enemy.obj";
 
 	private static Engine engine;
@@ -74,6 +74,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private ObjShape playerS, enemyS, ghostS, terrS;
 	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx;
+	private AnimatedShape playerShape;
 
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 	private Map<Integer, Enemy> enemyMap = new HashMap<Integer, Enemy>();
@@ -141,10 +142,11 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void loadShapes() {
-		playerS = new ImportedModel(PLAYER_OBJ);
 		ghostS = new Sphere();
 		enemyS = new ImportedModel(ENEMY_OBJ);
 		terrS = new TerrainPlane(100);
+		playerShape = new AnimatedShape("player-remake.rkm", "player-remake.rks");
+		playerShape.loadAnimation("RUN", "player-remake.rka");
 	}
 
 	@Override
@@ -208,6 +210,7 @@ public class MyGame extends VariableFrameRateGame {
 	public void update() {
 		Matrix4f mat = new Matrix4f();
 		Matrix4f mat2 = new Matrix4f().identity();
+		player.updateAnimation();
 
 		updateFrameTime();
 		if (player.isLocked()) {
@@ -224,7 +227,7 @@ public class MyGame extends VariableFrameRateGame {
 	private void updatePlayerTerrainLocation() {
 		Vector3f currLoc = player.getLocalLocation();
 		currHeightLoc = terrain.getHeight(currLoc.x, currLoc.z);
-		if (Math.abs(currHeightLoc - lastHeightLoc) > 5f) {
+		if (Math.abs(currHeightLoc - lastHeightLoc) > 0.1f) {
 			player.setLocalLocation(new Vector3f(currLoc.x,
 					currHeightLoc + player.getLocalScale().m00(), currLoc.z()));
 			lastHeightLoc = currHeightLoc;
@@ -257,7 +260,7 @@ public class MyGame extends VariableFrameRateGame {
 		translation = new Matrix4f(terrain.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
 		planeP = physicsManager.addStaticPlaneObject(
-				physicsManager.nextUID(), tempTransform, up,0.0f);
+				physicsManager.nextUID(), tempTransform, up, 0.0f);
 		terrain.setPhysicsObject(planeP);
 	}
 
@@ -268,12 +271,13 @@ public class MyGame extends VariableFrameRateGame {
 		Matrix4f translation;
 		PhysicsObject playerBody;
 
-		player = new Player(GameObject.root(), playerS, playerTx);
+		player = new Player(GameObject.root(), playerShape, playerTx);
+		player.setAnimationShape(playerShape);
 		translation = new Matrix4f(player.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
 		playerBody = physicsManager.addBoxObject(physicsManager.nextUID(), mass, tempTransform, size);
 		player.setPhysicsObject(playerBody);
-		//JBulletPhysicsObject.getJBulletPhysicsObject(playerBody);
+		// JBulletPhysicsObject.getJBulletPhysicsObject(playerBody);
 	}
 
 	private void buildEnemy() {
@@ -316,27 +320,36 @@ public class MyGame extends VariableFrameRateGame {
 			JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
 			JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
 
-			//should change to check collision of the weapon object with an enemy physics object
-			//this will be my damage system
+			// should change to check collision of the weapon object with an enemy physics
+			// object
+			// this will be my damage system
 			for (int j = 0; j < manifold.getNumContacts(); j++) {
 				contactPoint = manifold.getContactPoint(j);
 				if (contactPoint.getDistance() < 0f) {
 					// create a hashmap <UID, Object>
-					// obj2.getUID(); 
+					// obj2.getUID();
 					if (enemyMap.get(obj2.getUID()) != null) {
-							if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject()) {
-								//based on this, I am able to determine what type of object has collided with another object
-								//therefore, I should set the enemies and weapons to be the only physics objects in the game
-								//the weapon will be static to, say obj1 and obj2 will be the retrieved object from the enemyMap.
-								//this also solves the problem of not having to worry about what object I hit with the weapon
-								//after a hit, the damage should be calculated
-								//I should also make the player a physics object and have any collision with an enemy, while the enemy is in attack mode, to be considered damage to the player
-								//therefore the enemy should have state that I could check whether the enemy is in attack mode once the collision has happened.
-								//this solves the problem of ANY collision with the enemy being considered as damage to the player
-								System.out.println("is an enemy");
-							}
-					break;
-					}  else {
+						if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject()) {
+							// based on this, I am able to determine what type of object has collided with
+							// another object
+							// therefore, I should set the enemies and weapons to be the only physics
+							// objects in the game
+							// the weapon will be static to, say obj1 and obj2 will be the retrieved object
+							// from the enemyMap.
+							// this also solves the problem of not having to worry about what object I hit
+							// with the weapon
+							// after a hit, the damage should be calculated
+							// I should also make the player a physics object and have any collision with an
+							// enemy, while the enemy is in attack mode, to be considered damage to the
+							// player
+							// therefore the enemy should have state that I could check whether the enemy is
+							// in attack mode once the collision has happened.
+							// this solves the problem of ANY collision with the enemy being considered as
+							// damage to the player
+							System.out.println("is an enemy");
+						}
+						break;
+					} else {
 						System.out.println(obj2);
 					}
 				}
@@ -403,7 +416,6 @@ public class MyGame extends VariableFrameRateGame {
 		}
 		return ret;
 	}
-
 
 	public float getFrameTime() {
 		return frameTime;
