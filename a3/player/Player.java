@@ -122,7 +122,7 @@ public class Player extends GameObject {
     }
 
     public void playRunAnimation() {
-        playerShape.playAnimation("RUN", 1f, AnimatedShape.EndType.LOOP, 0);
+        playerShape.playAnimation("RUN", 0.2f, AnimatedShape.EndType.LOOP, 0);
 
     }
 
