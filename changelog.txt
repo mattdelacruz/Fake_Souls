@@ -1,1 +1,2 @@
 -add associateActionWithAllMice in InputManager class
+-add isAnimPlaying in AnimatedShape class

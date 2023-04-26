@@ -38,7 +38,7 @@ public final class Animation
 	protected void setBoneCount(int boneCount) { this.boneCount = boneCount; }
 	protected int getBoneCount() { return boneCount; }
 	protected void setFrameCount(int frameCount) { this.frameCount = frameCount; }
-	protected int getFrameCount() { return frameCount; }
+	public int getFrameCount() { return frameCount; }
 	protected FloatBuffer getFrame(int frameIndex) { return framesList.get(frameIndex); }
 
 	protected void setFrame(int frameIndex, FloatBuffer frame)

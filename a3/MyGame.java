@@ -60,6 +60,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private float frameTime = 0;
 	private float[] vals = new float[16];
+	private float[] lastLoc = new float[3];
 
 	private GameObject terrain;
 
@@ -145,8 +146,8 @@ public class MyGame extends VariableFrameRateGame {
 		ghostS = new Sphere();
 		enemyS = new ImportedModel(ENEMY_OBJ);
 		terrS = new TerrainPlane(100);
-		playerShape = new AnimatedShape("player-remake.rkm", "player-remake.rks");
-		playerShape.loadAnimation("RUN", "player-remake.rka");
+		playerShape = new AnimatedShape("player-remake.rkm", "player-remake2.rks");
+		playerShape.loadAnimation("RUN", "player-remake1.rka");
 	}
 
 	@Override
@@ -208,10 +209,8 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void update() {
-		Matrix4f mat = new Matrix4f();
-		Matrix4f mat2 = new Matrix4f().identity();
 		player.updateAnimation();
-
+		checkObjectMovement(player);
 		updateFrameTime();
 		if (player.isLocked()) {
 			targetCamera.targetTo();
@@ -219,14 +218,31 @@ public class MyGame extends VariableFrameRateGame {
 		checkForCollisions();
 		targetCamera.setLookAtTarget(player.getLocalLocation());
 		updatePlayerTerrainLocation();
+		
 		inputManager.update((float) elapsTime);
 		physicsManager.update((float) elapsTime);
 		processNetworking((float) elapsTime);
 	}
 
+	private void checkObjectMovement(GameObject obj) {
+		if (obj.getLocalLocation().x() == lastLoc[0] && obj.getLocalLocation().z() == lastLoc[1]) {
+			obj.setIsMoving(false);
+		} else {
+			obj.setIsMoving(true);
+		}
+
+		if (!obj.isMoving()) {
+			//change to play some idle animation	
+			obj.getAnimationShape().stopAnimation();
+		}
+		lastLoc = new float [] { obj.getLocalLocation().x(), obj.getLocalLocation().y(), obj.getLocalLocation().z() };
+	}
+
 	private void updatePlayerTerrainLocation() {
 		Vector3f currLoc = player.getLocalLocation();
 		currHeightLoc = terrain.getHeight(currLoc.x, currLoc.z);
+
+		
 		if (Math.abs(currHeightLoc - lastHeightLoc) > 0.1f) {
 			player.setLocalLocation(new Vector3f(currLoc.x,
 					currHeightLoc + player.getLocalScale().m00(), currLoc.z()));

@@ -71,6 +71,7 @@ public final class AnimatedShape extends ObjShape {
 	private int curAnimEndTypeTotal = -1; // how many times to loop (0 for forever)
 	private int curAnimEndTypeCount = 0; // how many time have we looped
 	private boolean curAnimPaused = false;
+	private boolean isAnimPlaying = false;
 
 	// Current Skeleton Pose Skinning Matrices.
 	// This array holds a list of 4x4 matrices.
@@ -496,9 +497,14 @@ public final class AnimatedShape extends ObjShape {
 
 			// Check if the animation is over
 			if (curAnimFrame >= curAnimation.getFrameCount() || curAnimFrame < 0) {
+				isAnimPlaying = false;
 				handleAnimationEnd();
 			}
 		}
+	}
+
+	public boolean isAnimPlaying() {
+		return isAnimPlaying;
 	}
 
 	private void handleAnimationEnd() {
@@ -611,11 +617,13 @@ public final class AnimatedShape extends ObjShape {
 
 		// Play the anim
 		curAnimPaused = false;
+		isAnimPlaying = true;
 	}
 
 	/** freezes a running animation at the last frame displayed */
 	public void pauseAnimation() {
 		curAnimPaused = true;
+		isAnimPlaying = false;
 	}
 
 	/**
@@ -630,6 +638,7 @@ public final class AnimatedShape extends ObjShape {
 		curAnimSpeed = 1.0f;
 		curAnimEndTypeCount = 0;
 		curAnimEndTypeTotal = 0;
+		isAnimPlaying = false;
 	}
 
 	// ---------- OTHER UTILITY FUNCTIONS ----------------
