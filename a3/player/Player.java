@@ -18,6 +18,7 @@ import tage.shapes.AnimatedShape;
 
 public class Player extends GameObject {
     private AnimatedShape playerShape;
+    private GameObject weapon;
     public int currFrame = 0;
     private boolean isLocked = false;
     private ScriptManager scriptManager;
@@ -63,7 +64,9 @@ public class Player extends GameObject {
     public void move(Vector3f vec, float frameTime) {
         super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
         if (!getAnimationShape().isAnimPlaying()) {
-            playRunAnimation();
+            playAnimation("IDLE");
+        } else {
+            playAnimation("IDLE");
         }
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
@@ -119,11 +122,19 @@ public class Player extends GameObject {
         return stanceState;
     }
 
-    public void playRunAnimation() {
-        getAnimationShape().playAnimation("RUN", 0.5f, AnimatedShape.EndType.STOP, 0);
+    public void playAnimation(String animation) {
+        getAnimationShape().playAnimation(animation, 0.5f, AnimatedShape.EndType.LOOP, 0);
+        if (weapon.getAnimationShape().getAnimation(animation) != null) {
+            weapon.getAnimationShape().playAnimation(animation, 0.5f, AnimatedShape.EndType.PAUSE, 0);
+        }
     }
 
     public void updateAnimation() {
         getAnimationShape().updateAnimation();
+        weapon.getAnimationShape().updateAnimation();
+    }
+
+    public void addWeapon(GameObject weapon) {
+        this.weapon = weapon;
     }
 }

@@ -39,9 +39,8 @@ public class MyGame extends VariableFrameRateGame {
 	private static final String ENEMY_TEXTURE = "enemy-texture.png";
 	private static final String TERRAIN_MAP = "terrain-map.png";
 	private static final String TERRAIN_TEXTURE = "moon-craters.jpg";
-	// private static final String PLAYER_OBJ = "player-remake.obj";
 	private static final String ENEMY_OBJ = "enemy.obj";
-
+	private static final String KATANA_TEXTURE = "katana-texture.png";
 	private static Engine engine;
 	private static MyGame game;
 	private static PlayerControlMap playerControlMaps; // do not delete!!!
@@ -69,13 +68,14 @@ public class MyGame extends VariableFrameRateGame {
 
 	private Enemy enemy;
 	private Player player;
+	private GameObject katana;
 	private ProtocolType serverProtocol;
 	private ProtocolClient protocolClient;
 	private boolean isClientConnected = false;
 
 	private ObjShape playerS, enemyS, ghostS, terrS;
-	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx;
-	private AnimatedShape playerShape;
+	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx, katanaTx;
+	private AnimatedShape playerShape, katanaShape;
 
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 	private Map<Integer, Enemy> enemyMap = new HashMap<Integer, Enemy>();
@@ -146,8 +146,11 @@ public class MyGame extends VariableFrameRateGame {
 		ghostS = new Sphere();
 		enemyS = new ImportedModel(ENEMY_OBJ);
 		terrS = new TerrainPlane(100);
-		playerShape = new AnimatedShape("player-remake.rkm", "player-remake2.rks");
-		playerShape.loadAnimation("RUN", "player-remake1.rka");
+		playerShape = new AnimatedShape("player-remake2.rkm", "player-remake2.rks");
+		playerShape.loadAnimation("RUN", "player-remake2.rka");
+		playerShape.loadAnimation("IDLE", "player-idle.rka");
+		katanaShape = new AnimatedShape("katana-run.rkm", "katana-run.rks");
+		katanaShape.loadAnimation("RUN", "katana-run.rka");
 	}
 
 	@Override
@@ -157,6 +160,7 @@ public class MyGame extends VariableFrameRateGame {
 		enemyTx = new TextureImage(ENEMY_TEXTURE);
 		terrMap = new TextureImage(TERRAIN_MAP);
 		terrTx = new TextureImage(TERRAIN_TEXTURE);
+		katanaTx = new TextureImage(KATANA_TEXTURE);
 	}
 
 	@Override
@@ -218,7 +222,7 @@ public class MyGame extends VariableFrameRateGame {
 		checkForCollisions();
 		targetCamera.setLookAtTarget(player.getLocalLocation());
 		updatePlayerTerrainLocation();
-		
+
 		inputManager.update((float) elapsTime);
 		physicsManager.update((float) elapsTime);
 		processNetworking((float) elapsTime);
@@ -232,17 +236,16 @@ public class MyGame extends VariableFrameRateGame {
 		}
 
 		if (!obj.isMoving()) {
-			//change to play some idle animation	
+			// change to play some idle animation
 			obj.getAnimationShape().stopAnimation();
 		}
-		lastLoc = new float [] { obj.getLocalLocation().x(), obj.getLocalLocation().y(), obj.getLocalLocation().z() };
+		lastLoc = new float[] { obj.getLocalLocation().x(), obj.getLocalLocation().y(), obj.getLocalLocation().z() };
 	}
 
 	private void updatePlayerTerrainLocation() {
 		Vector3f currLoc = player.getLocalLocation();
 		currHeightLoc = terrain.getHeight(currLoc.x, currLoc.z);
 
-		
 		if (Math.abs(currHeightLoc - lastHeightLoc) > 0.1f) {
 			player.setLocalLocation(new Vector3f(currLoc.x,
 					currHeightLoc + player.getLocalScale().m00(), currLoc.z()));
@@ -289,6 +292,11 @@ public class MyGame extends VariableFrameRateGame {
 
 		player = new Player(GameObject.root(), playerShape, playerTx);
 		player.setAnimationShape(playerShape);
+
+		katana = new GameObject(player, katanaShape, katanaTx);
+		katana.setAnimationShape(katanaShape);
+
+		player.addWeapon(katana);
 		translation = new Matrix4f(player.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
 		playerBody = physicsManager.addBoxObject(physicsManager.nextUID(), mass, tempTransform, size);
