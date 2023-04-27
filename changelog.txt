@@ -1,2 +1,3 @@
 -add associateActionWithAllMice in InputManager class
 -add isAnimPlaying in AnimatedShape class
+-add getCurrentAnimation in AnimatedShape class

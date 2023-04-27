@@ -1,5 +1,7 @@
 package a3.player;
 
+import javax.swing.Action;
+
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -29,6 +31,14 @@ public class Player extends GameObject {
     private PlayerGuardStanceState guardStance = new PlayerGuardStanceState();
     private PlayerNormalStanceState normalStance = new PlayerNormalStanceState();
 
+
+    public enum ActionType {
+        IDLE,
+        RUN,
+        ATTACK1,
+        ATTACK2,
+        ATTACK3
+    };
     /*
      * player states --- if in the same state category, then it is mutually
      * exclusive :
@@ -63,14 +73,14 @@ public class Player extends GameObject {
     @Override
     public void move(Vector3f vec, float frameTime) {
         super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
-        if (!getAnimationShape().isAnimPlaying()) {
-            playAnimation("IDLE");
-        } else {
-            playAnimation("IDLE");
-        }
+        handleAnimationSwitch(ActionType.RUN.toString());
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
         }
+    }
+
+    public void idle() {
+        handleAnimationSwitch(ActionType.IDLE.toString());
     }
 
     public void attack() {
@@ -122,10 +132,19 @@ public class Player extends GameObject {
         return stanceState;
     }
 
-    public void playAnimation(String animation) {
-        getAnimationShape().playAnimation(animation, 0.5f, AnimatedShape.EndType.LOOP, 0);
+    private void playAnimation(String animation) {
+        getAnimationShape().playAnimation(animation, 0.5f, AnimatedShape.EndType.PAUSE, 0);
         if (weapon.getAnimationShape().getAnimation(animation) != null) {
             weapon.getAnimationShape().playAnimation(animation, 0.5f, AnimatedShape.EndType.PAUSE, 0);
+        }
+    }
+
+    private void handleAnimationSwitch(String animation) {
+        if (!getAnimationShape().isAnimPlaying()) {
+            playAnimation(animation);
+        } else if (!getAnimationShape().getAnimation(animation).equals(getAnimationShape().getCurrentAnimation())) {
+            getAnimationShape().pauseAnimation();
+            playAnimation(animation);
         }
     }
 

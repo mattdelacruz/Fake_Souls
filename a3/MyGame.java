@@ -146,11 +146,7 @@ public class MyGame extends VariableFrameRateGame {
 		ghostS = new Sphere();
 		enemyS = new ImportedModel(ENEMY_OBJ);
 		terrS = new TerrainPlane(100);
-		playerShape = new AnimatedShape("player-remake2.rkm", "player-remake2.rks");
-		playerShape.loadAnimation("RUN", "player-remake2.rka");
-		playerShape.loadAnimation("IDLE", "player-idle.rka");
-		katanaShape = new AnimatedShape("katana-run.rkm", "katana-run.rks");
-		katanaShape.loadAnimation("RUN", "katana-run.rka");
+		initializePlayerAnimations();
 	}
 
 	@Override
@@ -202,6 +198,14 @@ public class MyGame extends VariableFrameRateGame {
 	private void initializePhysicsObjects() {
 	}
 
+	private void initializePlayerAnimations() {
+		playerShape = new AnimatedShape("player-remake2.rkm", "player-remake2.rks");
+		playerShape.loadAnimation("RUN", "player-remake2.rka");
+		playerShape.loadAnimation("IDLE", "player-idle.rka");
+		katanaShape = new AnimatedShape("katana-run.rkm", "katana-run.rks");
+		katanaShape.loadAnimation("RUN", "katana-run.rka");
+	}
+
 	private void initializeCameras() {
 		buildTargetCamera();
 	}
@@ -229,7 +233,7 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void checkObjectMovement(GameObject obj) {
-		if (obj.getLocalLocation().x() == lastLoc[0] && obj.getLocalLocation().z() == lastLoc[1]) {
+		if (obj.getLocalLocation().x() == lastLoc[0] && obj.getLocalLocation().z() == lastLoc[2]) {
 			obj.setIsMoving(false);
 		} else {
 			obj.setIsMoving(true);
@@ -237,7 +241,7 @@ public class MyGame extends VariableFrameRateGame {
 
 		if (!obj.isMoving()) {
 			// change to play some idle animation
-			obj.getAnimationShape().stopAnimation();
+			player.idle();
 		}
 		lastLoc = new float[] { obj.getLocalLocation().x(), obj.getLocalLocation().y(), obj.getLocalLocation().z() };
 	}
@@ -247,13 +251,15 @@ public class MyGame extends VariableFrameRateGame {
 		currHeightLoc = terrain.getHeight(currLoc.x, currLoc.z);
 
 		if (Math.abs(currHeightLoc - lastHeightLoc) > 0.1f) {
-			player.setLocalLocation(new Vector3f(currLoc.x,
-					currHeightLoc + player.getLocalScale().m00(), currLoc.z()));
+			player.setLocalLocation(
+				new Vector3f(currLoc.x,
+				currHeightLoc + player.getLocalScale().m00(), currLoc.z()));
 			lastHeightLoc = currHeightLoc;
 			targetCamera.updateCameraLocation(frameTime);
 		} else {
 			player.setLocalLocation(
-					new Vector3f(currLoc.x(), lastHeightLoc + player.getLocalScale().m00(), currLoc.z()));
+				new Vector3f(currLoc.x(), lastHeightLoc + 
+				player.getLocalScale().m00(), currLoc.z()));
 		}
 	}
 
@@ -297,6 +303,9 @@ public class MyGame extends VariableFrameRateGame {
 		katana.setAnimationShape(katanaShape);
 
 		player.addWeapon(katana);
+
+		player.idle();
+
 		translation = new Matrix4f(player.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
 		playerBody = physicsManager.addBoxObject(physicsManager.nextUID(), mass, tempTransform, size);
@@ -370,11 +379,11 @@ public class MyGame extends VariableFrameRateGame {
 							// in attack mode once the collision has happened.
 							// this solves the problem of ANY collision with the enemy being considered as
 							// damage to the player
-							System.out.println("is an enemy");
+							//System.out.println("is an enemy");
 						}
 						break;
 					} else {
-						System.out.println(obj2);
+						//System.out.println(obj2);
 					}
 				}
 			}

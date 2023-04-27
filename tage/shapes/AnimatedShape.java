@@ -641,6 +641,10 @@ public final class AnimatedShape extends ObjShape {
 		isAnimPlaying = false;
 	}
 
+	public Animation getCurrentAnimation() {
+		return curAnimation;
+	}
+
 	// ---------- OTHER UTILITY FUNCTIONS ----------------
 
 	private static String[] toStringArray(List<String> list) {
