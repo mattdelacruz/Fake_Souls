@@ -7,4 +7,9 @@ public class PlayerRunMovementState implements PlayerMovementState {
         return 1f;
     }
 
+    @Override
+    public String getAnimation() {
+        return "RUN";
+    }
+
 }

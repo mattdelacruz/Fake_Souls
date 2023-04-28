@@ -34,12 +34,11 @@ public class MyGame extends VariableFrameRateGame {
 	private static final float PLAY_AREA_SIZE = 300f;
 	private static final Vector3f INITIAL_CAMERA_POS = new Vector3f(0f, 0f, 5f);
 	private static final String SKYBOX_NAME = "fluffyClouds";
-	private static final String PLAYER_TEXTURE = "player-tex-NEW.png";
+	private static final String PLAYER_TEXTURE = "player-texture.png";
 	private static final String GHOST_TEXTURE = "neptune.jpg";
-	private static final String ENEMY_TEXTURE = "enemy-texture.png";
+	private static final String ENEMY_TEXTURE = "knight-texture.png";
 	private static final String TERRAIN_MAP = "terrain-map.png";
 	private static final String TERRAIN_TEXTURE = "moon-craters.jpg";
-	private static final String ENEMY_OBJ = "enemy.obj";
 	private static final String KATANA_TEXTURE = "katana-texture.png";
 	private static Engine engine;
 	private static MyGame game;
@@ -75,7 +74,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private ObjShape playerS, enemyS, ghostS, terrS;
 	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx, katanaTx;
-	private AnimatedShape playerShape, katanaShape;
+	private AnimatedShape playerShape, katanaShape, enemyShape;
 
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 	private Map<Integer, Enemy> enemyMap = new HashMap<Integer, Enemy>();
@@ -144,9 +143,9 @@ public class MyGame extends VariableFrameRateGame {
 	@Override
 	public void loadShapes() {
 		ghostS = new Sphere();
-		enemyS = new ImportedModel(ENEMY_OBJ);
 		terrS = new TerrainPlane(100);
 		initializePlayerAnimations();
+		initializeEnemyAnimations();
 	}
 
 	@Override
@@ -199,11 +198,22 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void initializePlayerAnimations() {
-		playerShape = new AnimatedShape("player-remake2.rkm", "player-remake2.rks");
-		playerShape.loadAnimation("RUN", "player-remake2.rka");
-		playerShape.loadAnimation("IDLE", "player-idle.rka");
-		katanaShape = new AnimatedShape("katana-run.rkm", "katana-run.rks");
-		katanaShape.loadAnimation("RUN", "katana-run.rka");
+		playerShape = new AnimatedShape("player-animations/player.rkm", "player-animations/player.rks");
+		playerShape.loadAnimation("RUN", "player-animations/player-run.rka");
+		playerShape.loadAnimation("IDLE", "player-animations/player-idle.rka");
+		// katanaShape = new
+		// AnimatedShape("player-animations/weapon-animations/katana.rkm",
+		// "katana.rks");
+		// katanaShape.loadAnimation("RUN",
+		// "player-animations/weapon-animations/katana-run.rka");
+		// katanaShape.loadAnimation("IDLE",
+		// "player-animations/weapon-animations/katana-idle.rka");
+	}
+
+	private void initializeEnemyAnimations() {
+		enemyShape = new AnimatedShape("enemy-animations/knight-enemy.rkm", "enemy-animations/knight-enemy.rks");
+		enemyShape.loadAnimation("RUN", "enemy-animations/knight-enemy-run.rka");
+		enemyShape.loadAnimation("IDLE", "enemy-animations/knight-enemy-idle.rka");
 	}
 
 	private void initializeCameras() {
@@ -252,14 +262,14 @@ public class MyGame extends VariableFrameRateGame {
 
 		if (Math.abs(currHeightLoc - lastHeightLoc) > 0.1f) {
 			player.setLocalLocation(
-				new Vector3f(currLoc.x,
-				currHeightLoc + player.getLocalScale().m00(), currLoc.z()));
+					new Vector3f(currLoc.x,
+							currHeightLoc + player.getLocalScale().m00(), currLoc.z()));
 			lastHeightLoc = currHeightLoc;
 			targetCamera.updateCameraLocation(frameTime);
 		} else {
 			player.setLocalLocation(
-				new Vector3f(currLoc.x(), lastHeightLoc + 
-				player.getLocalScale().m00(), currLoc.z()));
+					new Vector3f(currLoc.x(), lastHeightLoc +
+							player.getLocalScale().m00(), currLoc.z()));
 		}
 	}
 
@@ -299,11 +309,10 @@ public class MyGame extends VariableFrameRateGame {
 		player = new Player(GameObject.root(), playerShape, playerTx);
 		player.setAnimationShape(playerShape);
 
-		katana = new GameObject(player, katanaShape, katanaTx);
-		katana.setAnimationShape(katanaShape);
+		// katana = new GameObject(player, katanaShape, katanaTx);
+		// katana.setAnimationShape(katanaShape);
 
-		player.addWeapon(katana);
-
+		// player.addWeapon(katana);
 		player.idle();
 
 		translation = new Matrix4f(player.getLocalTranslation());
@@ -321,7 +330,7 @@ public class MyGame extends VariableFrameRateGame {
 		PhysicsObject enemyObject;
 
 		for (int i = 0; i < ENEMY_AMOUNT; i++) {
-			enemy = new Enemy(GameObject.root(), enemyS, enemyTx, i);
+			enemy = new Enemy(GameObject.root(), enemyShape, enemyTx, i);
 			enemyList.add(enemy);
 			size = new float[] { enemy.getLocalScale().m00(),
 					enemy.getLocalScale().m00(),
@@ -379,11 +388,11 @@ public class MyGame extends VariableFrameRateGame {
 							// in attack mode once the collision has happened.
 							// this solves the problem of ANY collision with the enemy being considered as
 							// damage to the player
-							//System.out.println("is an enemy");
+							// System.out.println("is an enemy");
 						}
 						break;
 					} else {
-						//System.out.println(obj2);
+						// System.out.println(obj2);
 					}
 				}
 			}

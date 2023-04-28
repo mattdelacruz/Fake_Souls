@@ -7,4 +7,9 @@ public class PlayerSprintMovementState implements PlayerMovementState {
         return 1.5f;
     }
 
+    @Override
+    public String getAnimation() {
+        return "SPRINT";
+    }
+
 }

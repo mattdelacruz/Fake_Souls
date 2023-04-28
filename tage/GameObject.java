@@ -592,27 +592,43 @@ public class GameObject {
 	 * sets the animation shape for this GameObject
 	 */
 	public void setAnimationShape(AnimatedShape animatedShape) {
-        this.animatedShape = animatedShape;
-    }
-	
+		this.animatedShape = animatedShape;
+	}
+
 	/**
 	 * gets the animation shape for this GameObject
 	 */
-    public AnimatedShape getAnimationShape() {
-        return animatedShape;
-    }
+	public AnimatedShape getAnimationShape() {
+		return animatedShape;
+	}
+
 	/**
 	 * sets the whether if the GameObject is moving in animation
 	 */
 	public void setIsMoving(boolean isMoving) {
-        this.isMoving = isMoving;
-    }
+		this.isMoving = isMoving;
+	}
+
 	/**
 	 * returns whether the GameObject is moving in animation
 	 */
 	public boolean isMoving() {
-        return isMoving;
-    }
+		return isMoving;
+	}
+
+	public void playAnimation(String animation) {
+		getAnimationShape().playAnimation(animation, 1f, AnimatedShape.EndType.PAUSE, 0);
+
+	}
+
+	public void handleAnimationSwitch(String animation) {
+		if (!getAnimationShape().isAnimPlaying()) {
+			playAnimation(animation);
+		} else if (!getAnimationShape().getAnimation(animation).equals(getAnimationShape().getCurrentAnimation())) {
+			getAnimationShape().pauseAnimation();
+			playAnimation(animation);
+		}
+	}
 
 	// --------------- private class for default height map ----------------
 

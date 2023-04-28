@@ -31,14 +31,6 @@ public class Player extends GameObject {
     private PlayerGuardStanceState guardStance = new PlayerGuardStanceState();
     private PlayerNormalStanceState normalStance = new PlayerNormalStanceState();
 
-
-    public enum ActionType {
-        IDLE,
-        RUN,
-        ATTACK1,
-        ATTACK2,
-        ATTACK3
-    };
     /*
      * player states --- if in the same state category, then it is mutually
      * exclusive :
@@ -68,19 +60,21 @@ public class Player extends GameObject {
                         (int) scriptManager.getValue("zPlayerPos")));
         setStanceState(normalStance);
         setMovementState(run);
+        getRenderStates().setRenderHiddenFaces(true);
     }
 
     @Override
     public void move(Vector3f vec, float frameTime) {
         super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
-        handleAnimationSwitch(ActionType.RUN.toString());
+        handleAnimationSwitch("RUN");
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
         }
     }
 
     public void idle() {
-        handleAnimationSwitch(ActionType.IDLE.toString());
+        handleAnimationSwitch("IDLE");
+        // weapon.handleAnimationSwitch("IDLE");
     }
 
     public void attack() {
@@ -132,25 +126,18 @@ public class Player extends GameObject {
         return stanceState;
     }
 
-    private void playAnimation(String animation) {
-        getAnimationShape().playAnimation(animation, 0.5f, AnimatedShape.EndType.PAUSE, 0);
-        if (weapon.getAnimationShape().getAnimation(animation) != null) {
-            weapon.getAnimationShape().playAnimation(animation, 0.5f, AnimatedShape.EndType.PAUSE, 0);
-        }
-    }
-
-    private void handleAnimationSwitch(String animation) {
-        if (!getAnimationShape().isAnimPlaying()) {
-            playAnimation(animation);
-        } else if (!getAnimationShape().getAnimation(animation).equals(getAnimationShape().getCurrentAnimation())) {
-            getAnimationShape().pauseAnimation();
-            playAnimation(animation);
-        }
-    }
-
     public void updateAnimation() {
         getAnimationShape().updateAnimation();
-        weapon.getAnimationShape().updateAnimation();
+        // weapon.getAnimationShape().updateAnimation();
+    }
+
+    @Override
+    public void playAnimation(String animation) {
+        super.playAnimation(animation);
+        // if (weapon.getAnimationShape().getAnimation(animation) != null) {
+        // weapon.getAnimationShape().playAnimation(animation, 0.25f,
+        // AnimatedShape.EndType.PAUSE, 0);
+        // }
     }
 
     public void addWeapon(GameObject weapon) {
