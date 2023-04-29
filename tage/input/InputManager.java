@@ -946,13 +946,14 @@ public class InputManager implements IInputManager {
 			}
 		}
 	}
+
 	/**
 	 * Specialized version of associateAction, that associates an action with a
 	 * component on all mice
 	 */
 	public void associateActionWithAllMice(Component.Identifier key, IAction action, INPUT_ACTION_TYPE actionType) {
 		ArrayList<Controller> controllers = getControllers();
-		for (Controller c: controllers) {
+		for (Controller c : controllers) {
 			if (c.getType() == Controller.Type.MOUSE) {
 				associateAction(c, key, action, actionType);
 			}

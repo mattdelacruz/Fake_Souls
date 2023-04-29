@@ -12,13 +12,11 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import a3.controls.PlayerControlFunctions;
 import a3.controls.PlayerControlMap;
 import a3.controls.PlayerControls;
 import a3.network.GhostManager;
@@ -48,7 +46,7 @@ public class MyGame extends VariableFrameRateGame {
 	private InputManager inputManager;
 	private TargetCamera targetCamera;
 	private OverheadCamera overheadCamera;
-	private PlayerControlFunctions state;
+	private PlayerControls controls;
 
 	private int serverPort;
 	private double lastFrameTime, currFrameTime, elapsTime;
@@ -58,6 +56,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private float frameTime = 0;
 	private float[] vals = new float[16];
+	private String[] diagonalMovementArr = new String[2];
 
 	private GameObject terrain;
 
@@ -66,7 +65,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private Enemy enemy;
 	private Player player;
-	private GameObject katana;
+	private AnimatedGameObject katana;
 	private ProtocolType serverProtocol;
 	private ProtocolClient protocolClient;
 	private boolean isClientConnected = false;
@@ -190,7 +189,7 @@ public class MyGame extends VariableFrameRateGame {
 		initializeCameras();
 		setupNetworking();
 		initializePhysicsObjects();
-		state = new PlayerControls();
+		controls = new PlayerControls();
 	}
 
 	private void initializePhysicsObjects() {
@@ -200,13 +199,12 @@ public class MyGame extends VariableFrameRateGame {
 		playerShape = new AnimatedShape("player-animations/player.rkm", "player-animations/player.rks");
 		playerShape.loadAnimation("RUN", "player-animations/player-run.rka");
 		playerShape.loadAnimation("IDLE", "player-animations/player-idle.rka");
-		// katanaShape = new
-		// AnimatedShape("player-animations/weapon-animations/katana.rkm",
-		// "katana.rks");
-		// katanaShape.loadAnimation("RUN",
-		// "player-animations/weapon-animations/katana-run.rka");
-		// katanaShape.loadAnimation("IDLE",
-		// "player-animations/weapon-animations/katana-idle.rka");
+		katanaShape = new AnimatedShape("player-animations/weapon-animations/katana.rkm",
+				"player-animations/weapon-animations/katana.rks");
+		katanaShape.loadAnimation("RUN",
+				"player-animations/weapon-animations/katana-run.rka");
+		katanaShape.loadAnimation("IDLE",
+				"player-animations/weapon-animations/katana-idle.rka");
 	}
 
 	private void initializeEnemyAnimations() {
@@ -226,24 +224,26 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void update() {
+
+		updateFrameTime();
 		player.updateAnimation();
 		checkObjectMovement(player);
-		for (int i = 0; i < enemyList.size(); i++) {
-			enemyList.get(i).updateAnimation();
-			checkObjectMovement(enemyList.get(i));
-		}
-		updateFrameTime();
+		// for (int i = 0; i < enemyList.size(); i++) {
+		// enemyList.get(i).updateAnimation();
+		// checkObjectMovement(enemyList.get(i));
+		// }
 		if (player.isLocked()) {
 			targetCamera.targetTo();
 		}
 		checkForCollisions();
-		//		translation = new Matrix4f(terrain.getLocalTranslation());
+		// translation = new Matrix4f(terrain.getLocalTranslation());
 		Matrix4f tempM = new Matrix4f(player.getLocalTranslation());
 		tempM.set(vals);
 		player.getPhysicsObject().setTransform(toDoubleArray(vals));
 
-		
-		// System.out.println("player body transform: " + temp[0] + " " + temp[1] + " " + temp[2] + " " + temp[3] + " " + temp[4] + " " + temp[5] + " " + temp[6] + " " + temp[7] + " " + temp[8]);
+		// System.out.println("player body transform: " + temp[0] + " " + temp[1] + " "
+		// + temp[2] + " " + temp[3] + " " + temp[4] + " " + temp[5] + " " + temp[6] + "
+		// " + temp[7] + " " + temp[8]);
 		targetCamera.setLookAtTarget(player.getLocalLocation());
 		updatePlayerTerrainLocation();
 
@@ -253,7 +253,8 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void checkObjectMovement(AnimatedGameObject obj) {
-		if (obj.getLocalLocation().x() == obj.getLastLocation(0) && obj.getLocalLocation().z() == obj.getLastLocation(2)) {
+		if (obj.getLocalLocation().x() == obj.getLastLocation(0)
+				&& obj.getLocalLocation().z() == obj.getLastLocation(2)) {
 			obj.setIsMoving(false);
 		} else {
 			obj.setIsMoving(true);
@@ -262,7 +263,8 @@ public class MyGame extends VariableFrameRateGame {
 		if (!obj.isMoving()) {
 			obj.idle();
 		}
-		obj.setLastLocation(new float[] { obj.getLocalLocation().x(), obj.getLocalLocation().y(), obj.getLocalLocation().z() });
+		obj.setLastLocation(
+				new float[] { obj.getLocalLocation().x(), obj.getLocalLocation().y(), obj.getLocalLocation().z() });
 	}
 
 	private void updatePlayerTerrainLocation() {
@@ -316,11 +318,9 @@ public class MyGame extends VariableFrameRateGame {
 		PhysicsObject playerBody;
 
 		player = new Player(GameObject.root(), playerShape, playerTx);
+		katana = new AnimatedGameObject(player, katanaShape, katanaTx);
 
-		// katana = new GameObject(player, katanaShape, katanaTx);
-		// katana.setAnimationShape(katanaShape);
-
-		// player.addWeapon(katana);
+		player.addWeapon(katana);
 		player.idle();
 
 		translation = new Matrix4f(player.getLocalTranslation());
@@ -472,8 +472,8 @@ public class MyGame extends VariableFrameRateGame {
 		return frameTime;
 	}
 
-	public PlayerControlFunctions getState() {
-		return state;
+	public PlayerControls getControls() {
+		return controls;
 	}
 
 	public TargetCamera getTargetCamera() {
@@ -482,10 +482,6 @@ public class MyGame extends VariableFrameRateGame {
 
 	public Camera getOverheadCamera() {
 		return overheadCamera;
-	}
-
-	public void setState(PlayerControlFunctions s) {
-		state = s;
 	}
 
 	public Player getPlayer() {
@@ -522,5 +518,17 @@ public class MyGame extends VariableFrameRateGame {
 
 	public ScriptManager getScriptManager() {
 		return scriptManager;
+	}
+
+	public void addKeyToDiagonal(String key) {
+		if (diagonalMovementArr[0] != null) {
+			diagonalMovementArr[1] = key;
+		} else {
+			diagonalMovementArr[0] = key;
+		}
+	}
+
+	public String getDiagonalMovement(int i) {
+		return diagonalMovementArr[i];
 	}
 }

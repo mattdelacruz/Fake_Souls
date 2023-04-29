@@ -21,7 +21,7 @@ import tage.shapes.AnimatedShape;
 
 public class Player extends AnimatedGameObject {
     private AnimatedShape playerShape;
-    private GameObject weapon;
+    private AnimatedGameObject weapon;
     public int currFrame = 0;
     private boolean isLocked = false;
     private ScriptManager scriptManager;
@@ -67,24 +67,19 @@ public class Player extends AnimatedGameObject {
     @Override
     public void move(Vector3f vec, float frameTime) {
         super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
-        run();
+        handleAnimationSwitch(getMovementState().getAnimation());
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
         }
     }
 
-    @Override
-    public void idle() {
-        super.idle();
-        System.out.println("playing player idle");
-        // weapon.handleAnimationSwitch("IDLE");
-    }
-
+    /* to be called by keyboard/gamepad events only */
     public void attack() {
         // swing weapon
         // calculate damage
     }
 
+    /* to be called by keyboard/gamepad events only */
     public void guard() {
         // play guard animation, play some sound
         if (getMovementState() == sprint) {
@@ -93,16 +88,39 @@ public class Player extends AnimatedGameObject {
         setStanceState(guardStance);
     }
 
+    /* to be called by keyboard/gamepad events only */
     public void unGuard() {
         setStanceState(normalStance);
     }
 
+    /* to be called by keyboard/gamepad events only */
     public void sprint() {
         setMovementState(sprint);
     }
 
+    /* to be called by keyboard/gamepad events only */
     public void run() {
         setMovementState(run);
+    }
+
+    @Override
+    public void updateAnimation() {
+        super.updateAnimation();
+        weapon.updateAnimation();
+    }
+
+    @Override
+    public void handleAnimationSwitch(String animation) {
+        super.handleAnimationSwitch(animation);
+        if (weapon.getAnimationShape().getAnimation(animation) != null) {
+            weapon.handleAnimationSwitch(animation);
+        }
+    }
+
+    @Override
+    public void idle() {
+        super.idle();
+        weapon.idle();
     }
 
     public void setLock(boolean lock) {
@@ -129,22 +147,7 @@ public class Player extends AnimatedGameObject {
         return stanceState;
     }
 
-    @Override
-    public void updateAnimation() {
-        super.updateAnimation();
-        // weapon.getAnimationShape().updateAnimation();
-    }
-
-    @Override
-    public void playAnimation(String animation) {
-        super.playAnimation(animation);
-        // if (weapon.getAnimationShape().getAnimation(animation) != null) {
-        // weapon.getAnimationShape().playAnimation(animation, 0.25f,
-        // AnimatedShape.EndType.PAUSE, 0);
-        // }
-    }
-
-    public void addWeapon(GameObject weapon) {
+    public void addWeapon(AnimatedGameObject weapon) {
         this.weapon = weapon;
     }
 }

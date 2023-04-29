@@ -3,14 +3,14 @@ package tage;
 import tage.shapes.AnimatedShape;
 
 public class AnimatedGameObject extends GameObject {
-    private AnimatedShape animatedShape;
-    private boolean isMoving = false;
+	private AnimatedShape animatedShape;
+	private boolean isMoving = false;
 	private float[] lastLocation = new float[3];
 
-    public AnimatedGameObject(GameObject p, ObjShape s, TextureImage t) {
-        super(p, s, t);
-        animatedShape = (AnimatedShape)s;
-    }
+	public AnimatedGameObject(GameObject p, ObjShape s, TextureImage t) {
+		super(p, s, t);
+		animatedShape = (AnimatedShape) s;
+	}
 
 	public void setLastLocation(float[] x) {
 		lastLocation = x;
@@ -20,7 +20,7 @@ public class AnimatedGameObject extends GameObject {
 		return lastLocation[i];
 	}
 
-    /**
+	/**
 	 * sets the animation shape for this GameObject
 	 */
 	public void setAnimationShape(AnimatedShape animatedShape) {
@@ -51,7 +51,7 @@ public class AnimatedGameObject extends GameObject {
 	/**
 	 * plays the specified animation
 	 */
-	public void playAnimation(String animation) {
+	private void playAnimation(String animation) {
 		if (getAnimationShape().getAnimation(animation) == null) {
 			System.out.println("Animation not found...");
 			return;
@@ -60,7 +60,7 @@ public class AnimatedGameObject extends GameObject {
 		getAnimationShape().playAnimation(animation, 1f, AnimatedShape.EndType.PAUSE, 0);
 	}
 
-	private void handleAnimationSwitch(String animation) {
+	public void handleAnimationSwitch(String animation) {
 		if (!getAnimationShape().isAnimPlaying()) {
 			playAnimation(animation);
 		} else if (!getAnimationShape().getAnimation(animation).equals(getAnimationShape().getCurrentAnimation())) {
@@ -69,11 +69,11 @@ public class AnimatedGameObject extends GameObject {
 		}
 	}
 
-    public void idle() {
-        handleAnimationSwitch("IDLE");
-    }
+	public void idle() {
+		handleAnimationSwitch("IDLE");
+	}
 
-    public void updateAnimation() {
-        getAnimationShape().updateAnimation();
-    }
+	public void updateAnimation() {
+		getAnimationShape().updateAnimation();
+	}
 }

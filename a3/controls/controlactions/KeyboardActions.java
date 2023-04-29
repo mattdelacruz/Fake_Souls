@@ -9,7 +9,7 @@ public class KeyboardActions extends AbstractInputAction {
     public void performAction(float time, Event evt) {
         switch (evt.getComponent().getIdentifier().getName().toUpperCase()) {
             case "O":
-                MyGame.getGameInstance().getState().target();
+                MyGame.getGameInstance().getControls().target();
                 return;
             case "G":
                 if (evt.getValue() == 1.0f) {

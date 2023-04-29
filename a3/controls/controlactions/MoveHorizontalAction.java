@@ -10,20 +10,24 @@ public class MoveHorizontalAction extends AbstractInputAction {
     public void performAction(float time, Event evt) {
         switch (evt.getComponent().getIdentifier().getName()) {
             case "A":
-                MyGame.getGameInstance().getState().turnLeft(MyGame.getGameInstance().getFrameTime());
+                if (MyGame.getGameInstance().getDiagonalMovement(0) == "W") {
+                    System.out.println("turn diagonal northWest");
+                } else {
+                    MyGame.getGameInstance().getControls().turnLeft(MyGame.getGameInstance().getFrameTime());
+                }
                 return;
             case "D":
-                MyGame.getGameInstance().getState().turnRight(MyGame.getGameInstance().getFrameTime());
+                MyGame.getGameInstance().getControls().turnRight(MyGame.getGameInstance().getFrameTime());
                 return;
         }
 
         if (evt.getValue() == 1.0) {
-            MyGame.getGameInstance().getState().turnRight(MyGame.getGameInstance().getFrameTime());
+            MyGame.getGameInstance().getControls().turnRight(MyGame.getGameInstance().getFrameTime());
             return;
         }
 
         if (evt.getValue() == -1.0) {
-            MyGame.getGameInstance().getState().turnLeft(MyGame.getGameInstance().getFrameTime());
+            MyGame.getGameInstance().getControls().turnLeft(MyGame.getGameInstance().getFrameTime());
             return;
         }
     }

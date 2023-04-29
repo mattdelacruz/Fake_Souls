@@ -10,26 +10,23 @@ public class MouseAction extends AbstractInputAction {
         switch (evt.getComponent().getName().toUpperCase()) {
             case "X":
                 if (evt.getValue() > 0) {
-                    MyGame.getGameInstance().getState().turnCameraLeft(MyGame.getGameInstance().getFrameTime());
+                    MyGame.getGameInstance().getControls().turnCameraLeft(MyGame.getGameInstance().getFrameTime());
 
                 } else {
-                    MyGame.getGameInstance().getState().turnCameraRight(MyGame.getGameInstance().getFrameTime());
+                    MyGame.getGameInstance().getControls().turnCameraRight(MyGame.getGameInstance().getFrameTime());
                 }
                 return;
-            //guard
-            case "RIGHT": 
+            // guard
+            case "RIGHT":
                 if (evt.getValue() > 0) {
                     MyGame.getGameInstance().getPlayer().guard();
                 } else {
                     MyGame.getGameInstance().getPlayer().unGuard();
                 }
                 return;
-            //attack
+            // attack
             case "LEFT":
-                
-            
-            
-                
+
         }
     }
 }

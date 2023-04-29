@@ -10,20 +10,20 @@ public class MoveVerticalAction extends AbstractInputAction {
     public void performAction(float time, Event evt) {
         switch (evt.getComponent().getIdentifier().getName()) {
             case "W":
-                MyGame.getGameInstance().getState().moveForward(MyGame.getGameInstance().getFrameTime());
+                MyGame.getGameInstance().getControls().moveForward(MyGame.getGameInstance().getFrameTime());
 
                 return;
 
             case "S":
-                MyGame.getGameInstance().getState().moveBackward(MyGame.getGameInstance().getFrameTime());
+                MyGame.getGameInstance().getControls().moveBackward(MyGame.getGameInstance().getFrameTime());
                 return;
         }
         if (evt.getValue() == -1.0) {
-            MyGame.getGameInstance().getState().moveForward(MyGame.getGameInstance().getFrameTime());
+            MyGame.getGameInstance().getControls().moveForward(MyGame.getGameInstance().getFrameTime());
             return;
         }
         if (evt.getValue() == 1.0) {
-            MyGame.getGameInstance().getState().moveBackward(MyGame.getGameInstance().getFrameTime());
+            MyGame.getGameInstance().getControls().moveBackward(MyGame.getGameInstance().getFrameTime());
             return;
         }
     }
