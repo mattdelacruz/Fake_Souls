@@ -100,7 +100,6 @@ public class GameObject {
 	private RenderStates renderStates = new RenderStates();
 	private GameObject parent;
 	private HashSet<GameObject> children = new HashSet<GameObject>();
-	private AnimatedShape animatedShape;
 
 	private Matrix4f localTranslation, localRotation, localScale;
 	private Matrix4f worldTranslation, worldRotation, worldScale;
@@ -110,7 +109,6 @@ public class GameObject {
 
 	private PhysicsObject physicsObject;
 	private boolean isTerrain = false;
-	private boolean isMoving = false;
 	private float rotationAngle = 0f;
 	private float time = 0f;
 	private float distancePerSecond = 10f;
@@ -586,48 +584,6 @@ public class GameObject {
 		x = (x / localScale.m00() + 1.0f) / 2.0f;
 		z = 1.0f - (z / localScale.m00() + 1.0f) / 2.0f;
 		return localScale.m11() * Engine.getEngine().getRenderSystem().getHeightAt(heightMap.getTexture(), x, z);
-	}
-
-	/**
-	 * sets the animation shape for this GameObject
-	 */
-	public void setAnimationShape(AnimatedShape animatedShape) {
-		this.animatedShape = animatedShape;
-	}
-
-	/**
-	 * gets the animation shape for this GameObject
-	 */
-	public AnimatedShape getAnimationShape() {
-		return animatedShape;
-	}
-
-	/**
-	 * sets the whether if the GameObject is moving in animation
-	 */
-	public void setIsMoving(boolean isMoving) {
-		this.isMoving = isMoving;
-	}
-
-	/**
-	 * returns whether the GameObject is moving in animation
-	 */
-	public boolean isMoving() {
-		return isMoving;
-	}
-
-	public void playAnimation(String animation) {
-		getAnimationShape().playAnimation(animation, 1f, AnimatedShape.EndType.PAUSE, 0);
-
-	}
-
-	public void handleAnimationSwitch(String animation) {
-		if (!getAnimationShape().isAnimPlaying()) {
-			playAnimation(animation);
-		} else if (!getAnimationShape().getAnimation(animation).equals(getAnimationShape().getCurrentAnimation())) {
-			getAnimationShape().pauseAnimation();
-			playAnimation(animation);
-		}
 	}
 
 	// --------------- private class for default height map ----------------

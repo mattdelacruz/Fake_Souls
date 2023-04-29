@@ -13,12 +13,13 @@ import a3.player.movement.PlayerSprintMovementState;
 import a3.player.stances.PlayerGuardStanceState;
 import a3.player.stances.PlayerNormalStanceState;
 import a3.player.stances.PlayerStanceState;
+import tage.AnimatedGameObject;
 import tage.GameObject;
 import tage.ObjShape;
 import tage.TextureImage;
 import tage.shapes.AnimatedShape;
 
-public class Player extends GameObject {
+public class Player extends AnimatedGameObject {
     private AnimatedShape playerShape;
     private GameObject weapon;
     public int currFrame = 0;
@@ -66,14 +67,16 @@ public class Player extends GameObject {
     @Override
     public void move(Vector3f vec, float frameTime) {
         super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
-        handleAnimationSwitch("RUN");
+        run();
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
         }
     }
 
+    @Override
     public void idle() {
-        handleAnimationSwitch("IDLE");
+        super.idle();
+        System.out.println("playing player idle");
         // weapon.handleAnimationSwitch("IDLE");
     }
 
@@ -126,8 +129,9 @@ public class Player extends GameObject {
         return stanceState;
     }
 
+    @Override
     public void updateAnimation() {
-        getAnimationShape().updateAnimation();
+        super.updateAnimation();
         // weapon.getAnimationShape().updateAnimation();
     }
 

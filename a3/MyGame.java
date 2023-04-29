@@ -58,7 +58,6 @@ public class MyGame extends VariableFrameRateGame {
 
 	private float frameTime = 0;
 	private float[] vals = new float[16];
-	private float[] lastLoc = new float[3];
 
 	private GameObject terrain;
 
@@ -229,11 +228,22 @@ public class MyGame extends VariableFrameRateGame {
 	public void update() {
 		player.updateAnimation();
 		checkObjectMovement(player);
+		for (int i = 0; i < enemyList.size(); i++) {
+			enemyList.get(i).updateAnimation();
+			checkObjectMovement(enemyList.get(i));
+		}
 		updateFrameTime();
 		if (player.isLocked()) {
 			targetCamera.targetTo();
 		}
 		checkForCollisions();
+		//		translation = new Matrix4f(terrain.getLocalTranslation());
+		Matrix4f tempM = new Matrix4f(player.getLocalTranslation());
+		tempM.set(vals);
+		player.getPhysicsObject().setTransform(toDoubleArray(vals));
+
+		
+		// System.out.println("player body transform: " + temp[0] + " " + temp[1] + " " + temp[2] + " " + temp[3] + " " + temp[4] + " " + temp[5] + " " + temp[6] + " " + temp[7] + " " + temp[8]);
 		targetCamera.setLookAtTarget(player.getLocalLocation());
 		updatePlayerTerrainLocation();
 
@@ -242,18 +252,17 @@ public class MyGame extends VariableFrameRateGame {
 		processNetworking((float) elapsTime);
 	}
 
-	private void checkObjectMovement(GameObject obj) {
-		if (obj.getLocalLocation().x() == lastLoc[0] && obj.getLocalLocation().z() == lastLoc[2]) {
+	private void checkObjectMovement(AnimatedGameObject obj) {
+		if (obj.getLocalLocation().x() == obj.getLastLocation(0) && obj.getLocalLocation().z() == obj.getLastLocation(2)) {
 			obj.setIsMoving(false);
 		} else {
 			obj.setIsMoving(true);
 		}
 
 		if (!obj.isMoving()) {
-			// change to play some idle animation
-			player.idle();
+			obj.idle();
 		}
-		lastLoc = new float[] { obj.getLocalLocation().x(), obj.getLocalLocation().y(), obj.getLocalLocation().z() };
+		obj.setLastLocation(new float[] { obj.getLocalLocation().x(), obj.getLocalLocation().y(), obj.getLocalLocation().z() });
 	}
 
 	private void updatePlayerTerrainLocation() {
@@ -307,7 +316,6 @@ public class MyGame extends VariableFrameRateGame {
 		PhysicsObject playerBody;
 
 		player = new Player(GameObject.root(), playerShape, playerTx);
-		player.setAnimationShape(playerShape);
 
 		// katana = new GameObject(player, katanaShape, katanaTx);
 		// katana.setAnimationShape(katanaShape);
@@ -318,6 +326,7 @@ public class MyGame extends VariableFrameRateGame {
 		translation = new Matrix4f(player.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
 		playerBody = physicsManager.addBoxObject(physicsManager.nextUID(), mass, tempTransform, size);
+		playerBody.setBounciness(0f);
 		player.setPhysicsObject(playerBody);
 		// JBulletPhysicsObject.getJBulletPhysicsObject(playerBody);
 	}

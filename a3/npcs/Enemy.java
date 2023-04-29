@@ -2,11 +2,12 @@ package a3.npcs;
 
 import org.joml.Matrix4f;
 
+import tage.AnimatedGameObject;
 import tage.GameObject;
 import tage.ObjShape;
 import tage.TextureImage;
 
-public class Enemy extends GameObject {
+public class Enemy extends AnimatedGameObject {
     Matrix4f initialTranslation, initialScale;
     int id;
 
@@ -21,5 +22,11 @@ public class Enemy extends GameObject {
         setLocalScale((new Matrix4f()).scaling(0.5f));
         setLocalTranslation(new Matrix4f().translation(posX, 0.5f, posZ));
         getRenderStates().setRenderHiddenFaces(true);
+    }
+
+    @Override
+    public void idle() {
+        super.idle();
+        System.out.println("playing enemy idle...");
     }
 }
