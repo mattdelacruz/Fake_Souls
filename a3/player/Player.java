@@ -81,7 +81,7 @@ public class Player extends AnimatedGameObject {
             setMovementState(runMovement);
         }
         setStanceState(attackStance);
-        handleAnimationSwitch(getStanceState().getAnimation());
+        handleAnimationSwitch(getStanceState().getAnimation(), 0.25f);
     }
 
     /* to be called by keyboard/gamepad events only */
@@ -117,6 +117,14 @@ public class Player extends AnimatedGameObject {
 
     @Override
     public void handleAnimationSwitch(String animation) {
+        super.handleAnimationSwitch(animation);
+        if (weapon.getAnimationShape().getAnimation(animation) != null) {
+            weapon.handleAnimationSwitch(animation);
+        }
+    }
+
+    @Override
+    public void handleAnimationSwitch(String animation, float speed) {
         super.handleAnimationSwitch(animation);
         if (weapon.getAnimationShape().getAnimation(animation) != null) {
             weapon.handleAnimationSwitch(animation);

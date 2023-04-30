@@ -303,6 +303,11 @@ public class MyGame extends VariableFrameRateGame {
 		po.setTransform(tempTransform);
 	}
 
+	private void matchGameObjectwithPhysicsObject(GameObject go, PhysicsObject po) {
+		Matrix4f translation = new Matrix4f().set(toFloatArray(po.getTransform()));
+		go.setLocalTranslation(translation);
+	}
+
 	private void checkObjectMovement(AnimatedGameObject obj) {
 		if (obj.getLocalLocation().x() == obj.getLastLocation(0)
 				&& obj.getLocalLocation().z() == obj.getLastLocation(2)) {
@@ -315,15 +320,19 @@ public class MyGame extends VariableFrameRateGame {
 			if (obj instanceof Player) {
 				if (((Player) obj).getStanceState().isNormal()) {
 					((Player) obj).idle();
-				} else if (((Player) obj).getStanceState().isAttacking()
-						|| ((Player) obj).getStanceState().isGuarding()) {
-					if (!((Player) obj).getAnimationShape().isAnimPlaying()) {
+				} else if (((Player) obj).getStanceState().isAttacking()) {
+					if (((Player) obj).getAnimationShape().isAnimPlaying()) {
+						obj.setLastLocation(
+								new float[] { obj.getLocalLocation().x(), obj.getLocalLocation().y(),
+										obj.getLocalLocation().z() });
+						return;
+					} else {
 						((Player) obj).idle();
 					}
 				}
+			} else {
+				obj.idle();
 			}
-		} else {
-			obj.idle();
 		}
 
 		obj.setLastLocation(
@@ -403,16 +412,13 @@ public class MyGame extends VariableFrameRateGame {
 	private void buildEnemy() {
 		float mass = 0.1f;
 		double[] tempTransform;
-		float[] size;
+		float[] size = new float[] { 0.5f, 0.5f, 0.5f };
 		Matrix4f translation;
 		PhysicsObject enemyObject;
 
 		for (int i = 0; i < ENEMY_AMOUNT; i++) {
 			enemy = new Enemy(GameObject.root(), enemyShape, enemyTx, i);
 			enemyList.add(enemy);
-			size = new float[] { enemy.getLocalScale().m00(),
-					enemy.getLocalScale().m00(),
-					enemy.getLocalScale().m00() };
 			translation = new Matrix4f(enemy.getLocalTranslation());
 			tempTransform = toDoubleArray(translation.get(vals));
 			enemyObject = physicsManager.addBoxObject(physicsManager.nextUID(),
@@ -445,9 +451,16 @@ public class MyGame extends VariableFrameRateGame {
 				if (contactPoint.getDistance() < 0f) {
 					if (enemyMap.get(obj2.getUID()) != null) {
 						if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
-								obj1.getUID() == katana.getPhysicsObject().getUID()) {
-							obj1.applyForce(50, 0, 0, 0, 0, 0);
+								obj1.getUID() == katana.getPhysicsObject().getUID()
+								&& player.getStanceState().isAttacking()) {
+
 							System.out.println("hit!");
+						} else if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
+								obj1.getUID() == player.getPhysicsObject().getUID()) {
+							System.out.println("collided with enemy...");
+							// obj2.applyForce(1, 0, 0, 0, 0, 0);
+							matchGameObjectwithPhysicsObject(player, obj1);
+							targetCamera.updateCameraLocation(getFrameTime());
 						}
 					}
 				}
