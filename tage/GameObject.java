@@ -1,6 +1,8 @@
 package tage;
 
 import org.joml.*;
+import org.joml.Math;
+
 import java.util.*;
 import tage.shapes.*;
 import tage.physics.PhysicsObject;
@@ -563,10 +565,15 @@ public class GameObject {
 	}
 
 	/** rotate the GameObject about the world-Y axis */
-	public void yaw(float frameTime) {
-		rotationAngle += (frameTime * anglePerSecond);
-		setLocalRotation((new Matrix4f()).rotation(rotationAngle, getWorldUpVector().x, getWorldUpVector().y,
-				getWorldUpVector().z));
+	public void yaw(float frameTime, float angle) {
+		setLocalRotation((new Matrix4f()).rotation(Math.toRadians(angle), getLocalUpVector().x, getWorldUpVector().y,
+				getLocalUpVector().z));
+	}
+
+	public float getYaw() {
+		Matrix4f rotationMatrix = getLocalRotation();
+		float yaw = (float) Math.atan2(-rotationMatrix.m20(), rotationMatrix.m00());
+		return yaw;
 	}
 
 	/** moves the GameObject along a specified vector */

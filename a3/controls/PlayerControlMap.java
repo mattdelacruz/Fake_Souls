@@ -58,7 +58,7 @@ public class PlayerControlMap {
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 		inputManager.associateActionWithAllMice(
 				Component.Identifier.Button.RIGHT, mouseAction,
-				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
+				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		inputManager.associateActionWithAllMice(
 				Component.Identifier.Axis.X, mouseAction,
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
@@ -67,16 +67,16 @@ public class PlayerControlMap {
 	private void initializeKeyboardMovementControls() {
 		inputManager.associateActionWithAllKeyboards(
 				Component.Identifier.Key.W, moveVerticalAction,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
 		inputManager.associateActionWithAllKeyboards(
 				Component.Identifier.Key.A, moveHorizontalAction,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
 		inputManager.associateActionWithAllKeyboards(
 				Component.Identifier.Key.S, moveVerticalAction,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
 		inputManager.associateActionWithAllKeyboards(
 				Component.Identifier.Key.D, moveHorizontalAction,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
 	}
 
 	private void initializeGamepadControls() {

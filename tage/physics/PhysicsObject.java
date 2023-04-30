@@ -13,8 +13,8 @@ public interface PhysicsObject {
 	 * transform represented by the specified array of doubles.
 	 * 
 	 * @param transform
-	 *            An array of 16 doubles representing a 4x4 matrix given in
-	 *            column-major order
+	 *                  An array of 16 doubles representing a 4x4 matrix given in
+	 *                  column-major order
 	 */
 	public void setTransform(double[] transform);
 
@@ -40,7 +40,7 @@ public interface PhysicsObject {
 	 * specified value.
 	 * 
 	 * @param friction
-	 *            A value between 0 and 1 representing the friction coefficient
+	 *                 A value between 0 and 1 representing the friction coefficient
 	 */
 	public void setFriction(float friction);
 
@@ -57,7 +57,7 @@ public interface PhysicsObject {
 	 * specified value.
 	 * 
 	 * @param bounciness
-	 *            A value between 0 and 1 specifying the object's bounciness
+	 *                   A value between 0 and 1 specifying the object's bounciness
 	 */
 	public void setBounciness(float bounciness);
 
@@ -74,8 +74,8 @@ public interface PhysicsObject {
 	 * values.
 	 * 
 	 * @param velocity
-	 *            An array of 3 floats specifying the [x,y,z] linear velocity
-	 *            for the object
+	 *                 An array of 3 floats specifying the [x,y,z] linear velocity
+	 *                 for the object
 	 */
 	public void setLinearVelocity(float[] velocity);
 
@@ -92,8 +92,8 @@ public interface PhysicsObject {
 	 * values.
 	 * 
 	 * @param velocity
-	 *            An array of 3 floats specifying the [x,y,z] angular velocity
-	 *            for the object
+	 *                 An array of 3 floats specifying the [x,y,z] angular velocity
+	 *                 for the object
 	 */
 	public void setAngularVelocity(float[] velocity);
 
@@ -156,10 +156,12 @@ public interface PhysicsObject {
 	 * @return the angular dampling value for this object
 	 */
 	public float getAngularDamping();
-	
+
 	/**
-	 * Applies a force with the force vector (fx, fy, fz) at local position (px, py, pz).
-	 * For example, applyForce(0,10,0,0,0,0) will apply a force of 10 in the Y direction
+	 * Applies a force with the force vector (fx, fy, fz) at local position (px, py,
+	 * pz).
+	 * For example, applyForce(0,10,0,0,0,0) will apply a force of 10 in the Y
+	 * direction
 	 * in the local center of the object.
 	 * 
 	 * @param fx the X component of the force vector
@@ -170,11 +172,13 @@ public interface PhysicsObject {
 	 * @param pz the Z component of the local position
 	 */
 	public void applyForce(float fx, float fy, float fz, float px, float py, float pz);
-	
+
 	/**
-	 * Applies a torque on the object. The torque vector direction defines the axis the objects force will be applied to
+	 * Applies a torque on the object. The torque vector direction defines the axis
+	 * the objects force will be applied to
 	 * and the magnitude of the vector defines the actual amount of torque.
-	 * For example, applyTorque(0,50,0) will cause the object to spin with a force of 50 around the vector pointed in
+	 * For example, applyTorque(0,50,0) will cause the object to spin with a force
+	 * of 50 around the vector pointed in
 	 * the Y direction using the right-handed rule.
 	 * 
 	 * @param fx the X component of the torque vector

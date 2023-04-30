@@ -26,6 +26,9 @@ public class MouseAction extends AbstractInputAction {
                 return;
             // attack
             case "LEFT":
+                if (evt.getValue() > 0) {
+                    MyGame.getGameInstance().getPlayer().attack();
+                }
 
         }
     }

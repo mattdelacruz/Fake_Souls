@@ -12,7 +12,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -38,6 +40,29 @@ public class MyGame extends VariableFrameRateGame {
 	private static final String TERRAIN_MAP = "terrain-map.png";
 	private static final String TERRAIN_TEXTURE = "moon-craters.jpg";
 	private static final String KATANA_TEXTURE = "katana-texture.png";
+	private static final String PLAYER_RKM = "player-animations/player.rkm";
+	private static final String PLAYER_RKS = "player-animations/player.rks";
+	private static final String PLAYER_RUN_RKA = "player-animations/player-run.rka";
+	private static final String PLAYER_IDLE_RKA = "player-animations/player-idle.rka";
+	private static final String PLAYER_ATTACK_1_RKA = "player-animations/player-attack-1.rka";
+	private static final String PLAYER_GUARD_RKA = "player-animations/player-guard.rka";
+
+	// Katana animation file paths
+	private static final String KATANA_RKM = "player-animations/weapon-animations/katana.rkm";
+	private static final String KATANA_RKS = "player-animations/weapon-animations/katana.rks";
+	private static final String KATANA_RUN_RKA = "player-animations/weapon-animations/katana-run.rka";
+	private static final String KATANA_IDLE_RKA = "player-animations/weapon-animations/katana-idle.rka";
+	private static final String KATANA_ATTACK_1_RKA = "player-animations/weapon-animations/katana-attack-1.rka";
+	private static final String KATANA_GUARD_RKA = "player-animations/weapon-animations/katana-guard.rka";
+	// Enemy animation file paths
+	private static final String ENEMY_RKM = "enemy-animations/knight-enemy.rkm";
+	private static final String ENEMY_RKS = "enemy-animations/knight-enemy.rks";
+	private static final String ENEMY_RUN_RKA = "enemy-animations/knight-enemy-run.rka";
+	private static final String ENEMY_IDLE_RKA = "enemy-animations/knight-enemy-idle.rka";
+
+	final int WEAPON_COLLISION_GROUP = 1;
+	final int ENEMY_COLLISION_GROUP = 2;
+
 	private static Engine engine;
 	private static MyGame game;
 	private static PlayerControlMap playerControlMaps; // do not delete!!!
@@ -55,8 +80,8 @@ public class MyGame extends VariableFrameRateGame {
 	private String serverAddress;
 
 	private float frameTime = 0;
+	private float currentRotation = 0;
 	private float[] vals = new float[16];
-	private String[] diagonalMovementArr = new String[2];
 
 	private GameObject terrain;
 
@@ -69,6 +94,14 @@ public class MyGame extends VariableFrameRateGame {
 	private ProtocolType serverProtocol;
 	private ProtocolClient protocolClient;
 	private boolean isClientConnected = false;
+	private boolean hasRotated = false;
+	private boolean hasMovedNorthWest = false;
+	private boolean hasMovedNorthEast = false;
+	private boolean hasMovedSouthWest = false;
+	private boolean hasMovedSouthEast = false;
+	private boolean hasMovedWest = false;
+	private boolean hasMovedEast = false;
+	private boolean hasMovedSouth = false;
 
 	private ObjShape playerS, enemyS, ghostS, terrS;
 	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx, katanaTx;
@@ -76,6 +109,8 @@ public class MyGame extends VariableFrameRateGame {
 
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 	private Map<Integer, Enemy> enemyMap = new HashMap<Integer, Enemy>();
+	private Set<String> activeKeys = new HashSet<>();
+	private Set<String> activeOrientation = new HashSet<>();
 	private QuadTree quadTree = new QuadTree(
 			new QuadTreePoint(-PLAY_AREA_SIZE, PLAY_AREA_SIZE),
 			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE));
@@ -141,7 +176,7 @@ public class MyGame extends VariableFrameRateGame {
 	@Override
 	public void loadShapes() {
 		ghostS = new Sphere();
-		terrS = new TerrainPlane(100);
+		terrS = new TerrainPlane(150);
 		initializePlayerAnimations();
 		initializeEnemyAnimations();
 	}
@@ -196,21 +231,23 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void initializePlayerAnimations() {
-		playerShape = new AnimatedShape("player-animations/player.rkm", "player-animations/player.rks");
-		playerShape.loadAnimation("RUN", "player-animations/player-run.rka");
-		playerShape.loadAnimation("IDLE", "player-animations/player-idle.rka");
-		katanaShape = new AnimatedShape("player-animations/weapon-animations/katana.rkm",
-				"player-animations/weapon-animations/katana.rks");
-		katanaShape.loadAnimation("RUN",
-				"player-animations/weapon-animations/katana-run.rka");
-		katanaShape.loadAnimation("IDLE",
-				"player-animations/weapon-animations/katana-idle.rka");
+		playerShape = new AnimatedShape(PLAYER_RKM, PLAYER_RKS);
+		playerShape.loadAnimation("RUN", PLAYER_RUN_RKA);
+		playerShape.loadAnimation("IDLE", PLAYER_IDLE_RKA);
+		playerShape.loadAnimation("ATTACK1", PLAYER_ATTACK_1_RKA);
+		playerShape.loadAnimation("GUARD", PLAYER_GUARD_RKA);
+
+		katanaShape = new AnimatedShape(KATANA_RKM, KATANA_RKS);
+		katanaShape.loadAnimation("RUN", KATANA_RUN_RKA);
+		katanaShape.loadAnimation("IDLE", KATANA_IDLE_RKA);
+		katanaShape.loadAnimation("ATTACK1", KATANA_ATTACK_1_RKA);
+		katanaShape.loadAnimation("GUARD", KATANA_GUARD_RKA);
 	}
 
 	private void initializeEnemyAnimations() {
-		enemyShape = new AnimatedShape("enemy-animations/knight-enemy.rkm", "enemy-animations/knight-enemy.rks");
-		enemyShape.loadAnimation("RUN", "enemy-animations/knight-enemy-run.rka");
-		enemyShape.loadAnimation("IDLE", "enemy-animations/knight-enemy-idle.rka");
+		enemyShape = new AnimatedShape(ENEMY_RKM, ENEMY_RKS);
+		enemyShape.loadAnimation("RUN", ENEMY_RUN_RKA);
+		enemyShape.loadAnimation("IDLE", ENEMY_IDLE_RKA);
 	}
 
 	private void initializeCameras() {
@@ -224,32 +261,46 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void update() {
-
 		updateFrameTime();
+		updateMovementControls();
 		player.updateAnimation();
 		checkObjectMovement(player);
-		// for (int i = 0; i < enemyList.size(); i++) {
-		// enemyList.get(i).updateAnimation();
-		// checkObjectMovement(enemyList.get(i));
-		// }
+		// System.out.printf(
+		// "player x: %.2f, player y: %.2f, player z: %.2f\nkatana x: %.2f, katana y:
+		// %.2f, katana z: %.2f\n",
+		// player.getLocalLocation().x(), player.getLocalLocation().y(),
+		// player.getLocalLocation().z(),
+		// katana.getWorldLocation().x(),
+		// katana.getWorldLocation().y(),
+		// katana.getWorldLocation().z());
+
 		if (player.isLocked()) {
 			targetCamera.targetTo();
 		}
 		checkForCollisions();
-		// translation = new Matrix4f(terrain.getLocalTranslation());
-		Matrix4f tempM = new Matrix4f(player.getLocalTranslation());
-		tempM.set(vals);
-		player.getPhysicsObject().setTransform(toDoubleArray(vals));
 
-		// System.out.println("player body transform: " + temp[0] + " " + temp[1] + " "
-		// + temp[2] + " " + temp[3] + " " + temp[4] + " " + temp[5] + " " + temp[6] + "
-		// " + temp[7] + " " + temp[8]);
 		targetCamera.setLookAtTarget(player.getLocalLocation());
 		updatePlayerTerrainLocation();
+
+		updatePhysicsObjectLocation(player.getPhysicsObject(), player.getLocalTranslation());
+
+		updatePhysicsObjectLocation(katana.getPhysicsObject(), katana.getWorldTranslation());
+
+		for (int i = 0; i < enemyList.size(); i++) {
+			updatePhysicsObjectLocation(enemyList.get(i).getPhysicsObject(), enemyList.get(i).getLocalTranslation());
+		}
 
 		inputManager.update((float) elapsTime);
 		physicsManager.update((float) elapsTime);
 		processNetworking((float) elapsTime);
+	}
+
+	private void updatePhysicsObjectLocation(PhysicsObject po, Matrix4f localTranslation) {
+		Matrix4f translation = new Matrix4f();
+		double[] tempTransform;
+		translation = new Matrix4f(localTranslation);
+		tempTransform = toDoubleArray(translation.get(vals));
+		po.setTransform(tempTransform);
 	}
 
 	private void checkObjectMovement(AnimatedGameObject obj) {
@@ -261,10 +312,23 @@ public class MyGame extends VariableFrameRateGame {
 		}
 
 		if (!obj.isMoving()) {
+			if (obj instanceof Player) {
+				if (((Player) obj).getStanceState().isNormal()) {
+					((Player) obj).idle();
+				} else if (((Player) obj).getStanceState().isAttacking()
+						|| ((Player) obj).getStanceState().isGuarding()) {
+					if (!((Player) obj).getAnimationShape().isAnimPlaying()) {
+						((Player) obj).idle();
+					}
+				}
+			}
+		} else {
 			obj.idle();
 		}
+
 		obj.setLastLocation(
 				new float[] { obj.getLocalLocation().x(), obj.getLocalLocation().y(), obj.getLocalLocation().z() });
+
 	}
 
 	private void updatePlayerTerrainLocation() {
@@ -313,22 +377,27 @@ public class MyGame extends VariableFrameRateGame {
 	private void buildPlayer() {
 		float mass = 0.1f;
 		double[] tempTransform;
-		float[] size = { 0.75f, 0.75f, 0.75f };
+		float[] size = { 5f, 5f, 5f };
 		Matrix4f translation;
-		PhysicsObject playerBody;
+		PhysicsObject playerBody, katanaBody;
 
 		player = new Player(GameObject.root(), playerShape, playerTx);
 		katana = new AnimatedGameObject(player, katanaShape, katanaTx);
-
 		player.addWeapon(katana);
 		player.idle();
+		katana.propagateTranslation(true);
 
 		translation = new Matrix4f(player.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
-		playerBody = physicsManager.addBoxObject(physicsManager.nextUID(), mass, tempTransform, size);
-		playerBody.setBounciness(0f);
+		playerBody = physicsManager.addBoxObject(physicsManager.nextUID(), mass,
+				tempTransform, size);
 		player.setPhysicsObject(playerBody);
-		// JBulletPhysicsObject.getJBulletPhysicsObject(playerBody);
+
+		size = new float[] { 1f, 1f, 1f };
+		translation = new Matrix4f(player.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		katanaBody = physicsManager.addBoxObject(physicsManager.nextUID(), mass, tempTransform, size);
+		katana.setPhysicsObject(katanaBody);
 	}
 
 	private void buildEnemy() {
@@ -371,40 +440,175 @@ public class MyGame extends VariableFrameRateGame {
 			JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
 			JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
 
-			// should change to check collision of the weapon object with an enemy physics
-			// object
-			// this will be my damage system
 			for (int j = 0; j < manifold.getNumContacts(); j++) {
 				contactPoint = manifold.getContactPoint(j);
 				if (contactPoint.getDistance() < 0f) {
-					// create a hashmap <UID, Object>
-					// obj2.getUID();
 					if (enemyMap.get(obj2.getUID()) != null) {
-						if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject()) {
-							// based on this, I am able to determine what type of object has collided with
-							// another object
-							// therefore, I should set the enemies and weapons to be the only physics
-							// objects in the game
-							// the weapon will be static to, say obj1 and obj2 will be the retrieved object
-							// from the enemyMap.
-							// this also solves the problem of not having to worry about what object I hit
-							// with the weapon
-							// after a hit, the damage should be calculated
-							// I should also make the player a physics object and have any collision with an
-							// enemy, while the enemy is in attack mode, to be considered damage to the
-							// player
-							// therefore the enemy should have state that I could check whether the enemy is
-							// in attack mode once the collision has happened.
-							// this solves the problem of ANY collision with the enemy being considered as
-							// damage to the player
-							// System.out.println("is an enemy");
+						if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
+								obj1.getUID() == katana.getPhysicsObject().getUID()) {
+							obj1.applyForce(50, 0, 0, 0, 0, 0);
+							System.out.println("hit!");
 						}
-						break;
-					} else {
-						// System.out.println(obj2);
 					}
 				}
 			}
+		}
+	}
+
+	private void updateMovementControls() {
+		boolean movingNorth = isKeyPressed("W");
+		boolean movingWest = isKeyPressed("A");
+		boolean movingSouth = isKeyPressed("S");
+		boolean movingEast = isKeyPressed("D");
+
+		if (movingNorth == false && movingWest == false && movingEast == false && movingSouth == false) {
+			hasMovedNorthWest = false;
+			hasMovedSouthEast = false;
+			hasMovedNorthEast = false;
+			hasMovedSouthWest = false;
+			hasMovedEast = false;
+			hasMovedWest = false;
+			hasMovedSouth = false;
+		}
+
+		if (movingNorth && movingWest) {
+			if (!hasMovedNorthWest) {
+				if (!hasRotated) {
+					currentRotation += 45f;
+					player.yaw(getFrameTime(), currentRotation);
+					hasRotated = true;
+				}
+				hasMovedNorthWest = true;
+				hasMovedSouthEast = false;
+				hasMovedNorthEast = false;
+				hasMovedSouthWest = false;
+				hasMovedEast = false;
+				hasMovedWest = false;
+				hasMovedSouth = false;
+			}
+			getControls().moveNorth(getFrameTime());
+
+		} else if (movingNorth && movingEast) {
+			if (!hasMovedNorthEast) {
+				if (!hasRotated) {
+					currentRotation += -45f;
+					player.yaw(getFrameTime(), currentRotation);
+					hasRotated = true;
+				}
+				hasMovedNorthWest = false;
+				hasMovedSouthEast = false;
+				hasMovedNorthEast = true;
+				hasMovedSouthWest = false;
+				hasMovedEast = false;
+				hasMovedWest = false;
+				hasMovedSouth = false;
+			}
+			getControls().moveNorth(getFrameTime());
+
+		} else if (movingSouth && movingWest) {
+			if (!hasMovedSouthWest) {
+				if (!hasRotated) {
+					currentRotation += 135f;
+					player.yaw(getFrameTime(), currentRotation);
+					hasRotated = true;
+				}
+				hasMovedNorthWest = false;
+				hasMovedSouthEast = false;
+				hasMovedNorthEast = false;
+				hasMovedSouthWest = true;
+				hasMovedEast = false;
+				hasMovedWest = false;
+				hasMovedSouth = false;
+			}
+			getControls().moveNorth(getFrameTime());
+		} else if (movingSouth && movingEast) {
+			if (!hasMovedSouthEast) {
+				if (!hasRotated) {
+					currentRotation += -135f;
+					player.yaw(getFrameTime(), currentRotation);
+					hasRotated = true;
+				}
+				hasMovedNorthWest = false;
+				hasMovedSouthEast = true;
+				hasMovedNorthEast = false;
+				hasMovedSouthWest = false;
+				hasMovedEast = false;
+				hasMovedWest = false;
+				hasMovedSouth = false;
+			}
+			getControls().moveNorth(getFrameTime());
+		} else if (movingNorth) {
+			hasMovedNorthWest = false;
+			hasMovedNorthEast = false;
+			getControls().moveNorth(getFrameTime());
+		} else if (movingSouth) {
+			if (!hasMovedSouth) {
+				if (!hasRotated) {
+					player.yaw(getFrameTime(), currentRotation);
+					hasRotated = true;
+				}
+				hasMovedNorthWest = false;
+				hasMovedSouthEast = false;
+				hasMovedNorthEast = false;
+				hasMovedSouthWest = false;
+				hasMovedEast = false;
+				hasMovedWest = false;
+				hasMovedSouth = true;
+			}
+			if (!player.isLocked()) {
+				getControls().moveNorth(-getFrameTime());
+			} else {
+				getControls().moveNorth(-getFrameTime());
+			}
+		} else if (movingWest) {
+			if (!hasMovedWest) {
+				if (!hasRotated) {
+					currentRotation += 90f;
+					player.yaw(getFrameTime(), currentRotation);
+					hasRotated = true;
+				}
+				hasMovedNorthWest = false;
+				hasMovedSouthEast = false;
+				hasMovedNorthEast = false;
+				hasMovedSouthWest = false;
+				hasMovedEast = false;
+				hasMovedWest = true;
+				hasMovedSouth = false;
+			}
+			if (!player.isLocked()) {
+				getControls().moveNorth(getFrameTime());
+			} else {
+				getControls().moveEast(-getFrameTime());
+			}
+
+		} else if (movingEast) {
+			if (!hasMovedEast) {
+				if (!hasRotated) {
+					currentRotation += -90f;
+					player.yaw(getFrameTime(), currentRotation);
+					hasRotated = true;
+				}
+				hasMovedNorthWest = false;
+				hasMovedSouthEast = false;
+				hasMovedNorthEast = false;
+				hasMovedSouthWest = false;
+				hasMovedEast = true;
+				hasMovedWest = false;
+				hasMovedSouth = false;
+			}
+			if (!player.isLocked()) {
+				getControls().moveNorth(getFrameTime());
+			} else {
+				getControls().moveEast(getFrameTime());
+			}
+
+		}
+		hasRotated = false;
+
+		if (currentRotation >= 360f) {
+			currentRotation -= 360f;
+		} else if (currentRotation <= -360f) {
+			currentRotation += 360f;
 		}
 	}
 
@@ -520,15 +724,28 @@ public class MyGame extends VariableFrameRateGame {
 		return scriptManager;
 	}
 
-	public void addKeyToDiagonal(String key) {
-		if (diagonalMovementArr[0] != null) {
-			diagonalMovementArr[1] = key;
-		} else {
-			diagonalMovementArr[0] = key;
-		}
+	public void addKeyToActiveKeys(String key) {
+		activeKeys.add(key);
 	}
 
-	public String getDiagonalMovement(int i) {
-		return diagonalMovementArr[i];
+	public void removeKeyFromActiveKeys(String key) {
+		activeKeys.remove(key);
+	}
+
+	public boolean isKeyPressed(String key) {
+		return activeKeys.contains(key);
+	}
+
+	public void addOrientationToActiveOrientation(String orientation) {
+		activeOrientation.add(orientation);
+	}
+
+	public void removeKeyFromActiveOrientation(String orientation) {
+		activeOrientation.remove(orientation);
+	}
+
+	public boolean isCurrentOrientation(String orientation) {
+		return activeOrientation.contains(orientation);
+
 	}
 }

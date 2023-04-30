@@ -19,26 +19,14 @@ public class PlayerControls {
 		cam = game.getTargetCamera();
 	}
 
-	public void turnLeft(float frameTime) {
-		player.move(player.getLocalRightVector(), -frameTime);
-		cam.updateCameraLocation(frameTime);
-		cam.lookAt(player);
-	}
-
-	public void turnRight(float frameTime) {
-		player.move(player.getLocalRightVector(), frameTime);
-		cam.updateCameraLocation(frameTime);
-		cam.lookAt(player);
-	}
-
-	public void moveForward(float frameTime) {
+	public void moveNorth(float frameTime) {
 		player.move(player.getLocalForwardVector(), frameTime);
 		cam.updateCameraLocation(frameTime);
 		cam.lookAt(player);
 	}
 
-	public void moveBackward(float frameTime) {
-		player.move(player.getLocalForwardVector(), -frameTime);
+	public void moveEast(float frameTime) {
+		player.move(player.getLocalRightVector(), frameTime);
 		cam.updateCameraLocation(frameTime);
 		cam.lookAt(player);
 	}

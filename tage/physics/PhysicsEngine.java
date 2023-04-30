@@ -26,8 +26,9 @@ public interface PhysicsEngine {
 	 * vector.
 	 * 
 	 * @param gravity_vector
-	 *            The X,Y,Z components of the gravity vector in the physics
-	 *            simulation
+	 *                       The X,Y,Z components of the gravity vector in the
+	 *                       physics
+	 *                       simulation
 	 */
 	public void setGravity(float[] gravity_vector);
 
@@ -35,14 +36,15 @@ public interface PhysicsEngine {
 	 * Add a Box object to the physics world.
 	 * 
 	 * @param uid
-	 *            The unique ID of the box object
+	 *                  The unique ID of the box object
 	 * @param mass
-	 *            The mass of the box
+	 *                  The mass of the box
 	 * @param transform
-	 *            An array of 4x4=16 floats defining the initial transform
-	 *            applied to the box
+	 *                  An array of 4x4=16 floats defining the initial transform
+	 *                  applied to the box
 	 * @param size
-	 *            An array of 3 floats giving the dimensions [x,y,z] of the box
+	 *                  An array of 3 floats giving the dimensions [x,y,z] of the
+	 *                  box
 	 * 
 	 * @return A reference to the box which was addded to the physics world
 	 */
@@ -104,41 +106,44 @@ public interface PhysicsEngine {
 	/**
 	 * 
 	 * @param uid
-	 * 			The unique ID of the constraint
+	 *              The unique ID of the constraint
 	 * @param bodyA
-	 * 			The PhysicsObject of the first body
+	 *              The PhysicsObject of the first body
 	 * @param bodyB
-	 * 			The PhysicsObject of the second body
-	 * @return  The newly created and added IPhysicsBallSocketConstraint
+	 *              The PhysicsObject of the second body
+	 * @return The newly created and added IPhysicsBallSocketConstraint
 	 */
 	public PhysicsBallSocketConstraint addBallSocketConstraint(int uid, PhysicsObject bodyA, PhysicsObject bodyB);
-	
+
 	/**
 	 * Adds a hinge constraint to the world between two physics objects.
 	 * 
-	 * The pivots can be thought of as an offset in the body's local space. For example
+	 * The pivots can be thought of as an offset in the body's local space. For
+	 * example
 	 * XYZ on bodyA being 0 1 0 means that the hinge will be 1 unit above body A.
 	 * 
-	 * The axis describes the hinge itself. For example having XYZ equal 0 1 0 means the
-	 * hinge is facing the Y axis and objects constrained to this will move around that vector.
+	 * The axis describes the hinge itself. For example having XYZ equal 0 1 0 means
+	 * the
+	 * hinge is facing the Y axis and objects constrained to this will move around
+	 * that vector.
 	 * 
 	 * @param uid
-	 *            The unique ID of the constraint
+	 *              The unique ID of the constraint
 	 * @param bodyA
-	 *            The PhysicsObject of the first body
+	 *              The PhysicsObject of the first body
 	 * @param bodyB
-	 *            The PhysicsObject of the second body
+	 *              The PhysicsObject of the second body
 	 * @param axisX
-	 * 			  The X value of the axis direction vector
+	 *              The X value of the axis direction vector
 	 * @param axisY
-	 * 			  The Y value of the axis direction vector
+	 *              The Y value of the axis direction vector
 	 * @param axisZ
-	 * 			  The Z value of the axis direction vector
+	 *              The Z value of the axis direction vector
 	 * @return The newly created and added IPhysicsHingeConstraint
 	 */
-	public PhysicsHingeConstraint addHingeConstraint(int uid, PhysicsObject bodyA, PhysicsObject bodyB, float axisX, float axisY, float axisZ);
-	
-	
+	public PhysicsHingeConstraint addHingeConstraint(int uid, PhysicsObject bodyA, PhysicsObject bodyB, float axisX,
+			float axisY, float axisZ);
+
 	/**
 	 * Removes the {@link PhysicsObject} with the specified UID from the
 	 * physics world, if it exists in the world.

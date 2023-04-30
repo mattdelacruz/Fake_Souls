@@ -10,6 +10,7 @@ import a3.ScriptManager;
 import a3.player.movement.PlayerMovementState;
 import a3.player.movement.PlayerRunMovementState;
 import a3.player.movement.PlayerSprintMovementState;
+import a3.player.stances.PlayerAttackStanceState;
 import a3.player.stances.PlayerGuardStanceState;
 import a3.player.stances.PlayerNormalStanceState;
 import a3.player.stances.PlayerStanceState;
@@ -27,11 +28,11 @@ public class Player extends AnimatedGameObject {
     private ScriptManager scriptManager;
     private PlayerStanceState stanceState;
     private PlayerMovementState movementState;
-    private PlayerSprintMovementState sprint = new PlayerSprintMovementState();
-    private PlayerRunMovementState run = new PlayerRunMovementState();
+    private PlayerAttackStanceState attackStance = new PlayerAttackStanceState();
     private PlayerGuardStanceState guardStance = new PlayerGuardStanceState();
     private PlayerNormalStanceState normalStance = new PlayerNormalStanceState();
-
+    private PlayerRunMovementState runMovement = new PlayerRunMovementState();
+    private PlayerSprintMovementState sprintMovement = new PlayerSprintMovementState();
     /*
      * player states --- if in the same state category, then it is mutually
      * exclusive :
@@ -57,10 +58,10 @@ public class Player extends AnimatedGameObject {
         setLocalScale(new Matrix4f().scaling(.2f));
         System.out.println(getLocalScale().get(1, 1));
         setLocalLocation(
-                new Vector3f((int) scriptManager.getValue("xPlayerPos"), 0,
+                new Vector3f((int) scriptManager.getValue("xPlayerPos"), (int) scriptManager.getValue("yPlayerPos"),
                         (int) scriptManager.getValue("zPlayerPos")));
         setStanceState(normalStance);
-        setMovementState(run);
+        setMovementState(runMovement);
         getRenderStates().setRenderHiddenFaces(true);
     }
 
@@ -75,17 +76,22 @@ public class Player extends AnimatedGameObject {
 
     /* to be called by keyboard/gamepad events only */
     public void attack() {
-        // swing weapon
-        // calculate damage
+        System.out.println("attacking..");
+        if (getMovementState().isSprinting()) {
+            setMovementState(runMovement);
+        }
+        setStanceState(attackStance);
+        handleAnimationSwitch(getStanceState().getAnimation());
     }
 
     /* to be called by keyboard/gamepad events only */
     public void guard() {
         // play guard animation, play some sound
-        if (getMovementState() == sprint) {
-            setMovementState(run);
+        if (getMovementState().isSprinting()) {
+            setMovementState(runMovement);
         }
         setStanceState(guardStance);
+        handleAnimationSwitch(getStanceState().getAnimation());
     }
 
     /* to be called by keyboard/gamepad events only */
@@ -95,12 +101,12 @@ public class Player extends AnimatedGameObject {
 
     /* to be called by keyboard/gamepad events only */
     public void sprint() {
-        setMovementState(sprint);
+        setMovementState(sprintMovement);
     }
 
     /* to be called by keyboard/gamepad events only */
     public void run() {
-        setMovementState(run);
+        setMovementState(runMovement);
     }
 
     @Override
@@ -120,6 +126,7 @@ public class Player extends AnimatedGameObject {
     @Override
     public void idle() {
         super.idle();
+        setStanceState(normalStance);
         weapon.idle();
     }
 
@@ -140,11 +147,11 @@ public class Player extends AnimatedGameObject {
     }
 
     public PlayerMovementState getMovementState() {
-        return movementState;
+        return this.movementState;
     }
 
     public PlayerStanceState getStanceState() {
-        return stanceState;
+        return this.stanceState;
     }
 
     public void addWeapon(AnimatedGameObject weapon) {

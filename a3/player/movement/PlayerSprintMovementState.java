@@ -8,6 +8,11 @@ public class PlayerSprintMovementState implements PlayerMovementState {
     }
 
     @Override
+    public boolean isSprinting() {
+        return true;
+    }
+
+    @Override
     public String getAnimation() {
         return "SPRINT";
     }

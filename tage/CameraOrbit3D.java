@@ -26,6 +26,7 @@ public class CameraOrbit3D extends Camera {
     private GameObject origin;
     private Vector3f lookAtTarget;
     private float phi, theta, pitchAngle, x_dist, y_dist, z_dist, xy_dist, newX, newY, newZ;
+    private float targetYaw;
 
     public CameraOrbit3D(GameObject target) {
         origin = target;
@@ -34,12 +35,14 @@ public class CameraOrbit3D extends Camera {
     }
 
     public void updateCameraLocation(float frameTime) {
+        targetYaw = origin.getYaw();
         adjustTheta(frameTime);
         adjustPhi(frameTime);
         findNewCameraLocation();
     }
 
     public void updateCameraAngles(float frameTime) {
+        targetYaw = origin.getYaw();
         x_dist = getLocation().z - origin.getLocalLocation().z;
         y_dist = getLocation().x - origin.getLocalLocation().x;
         z_dist = getLocation().y - origin.getLocalLocation().y;
@@ -53,7 +56,7 @@ public class CameraOrbit3D extends Camera {
     private void adjustTheta(float frameTime) {
         // azimuth
         float deltaTheta = frameTime * THETA_SPEED;
-        theta += deltaTheta;
+        // theta = targetYaw + (float) Math.PI;
 
         if (z_dist != 0) {
             theta = (float) Math.acos((z_dist / MAX_CAMERA_DIST));
@@ -80,6 +83,9 @@ public class CameraOrbit3D extends Camera {
         } else if (x_dist == 0 && y_dist < 0) {
             phi -= (float) (Math.PI / 2);
         }
+
+        // phi = (float) Math.toRadians(75);
+
     }
 
     private void findNewCameraLocation() {

@@ -26,6 +26,12 @@ public class PhysicsManager {
         return po;
     }
 
+    public PhysicsObject addCapsuleObject(int uid, float mass, double[] transform, float radius, float height) {
+        PhysicsObject po = physicsEngine.addCapsuleObject(uid, mass, transform, radius, height);
+
+        return po;
+    }
+
     public PhysicsObject addStaticPlaneObject(int uid, double[] transform, float[] up_vector, float plane_constant) {
         PhysicsObject po = physicsEngine.addStaticPlaneObject(uid, transform, up_vector, plane_constant);
         po.setBounciness(0.0f);

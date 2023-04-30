@@ -1,25 +1,25 @@
 package a3.player.stances;
 
-public class PlayerNormalStanceState implements PlayerStanceState {
+public class PlayerAttackStanceState implements PlayerStanceState {
 
     @Override
     public float getMoveValue() {
-        return 1;
+        return 1f;
     }
 
     @Override
     public float getGuardValue() {
-        return 1;
+        return 1f;
     }
 
     @Override
     public String getAnimation() {
-        return "IDLE";
+        return "ATTACK1";
     }
 
     @Override
     public boolean isAttacking() {
-        return false;
+        return true;
     }
 
     @Override
@@ -29,7 +29,7 @@ public class PlayerNormalStanceState implements PlayerStanceState {
 
     @Override
     public boolean isNormal() {
-        return true;
+        return false;
     }
 
 }

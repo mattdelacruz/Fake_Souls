@@ -8,23 +8,30 @@ public class MoveVerticalAction extends AbstractInputAction {
 
     @Override
     public void performAction(float time, Event evt) {
-        switch (evt.getComponent().getIdentifier().getName()) {
+        String key = evt.getComponent().getIdentifier().getName();
+
+        boolean isPressed = evt.getValue() == 1.0;
+
+        if (isPressed) {
+            MyGame.getGameInstance().addKeyToActiveKeys(key);
+        } else {
+            MyGame.getGameInstance().removeKeyFromActiveKeys(key);
+        }
+
+        switch (key) {
             case "W":
-                MyGame.getGameInstance().getControls().moveForward(MyGame.getGameInstance().getFrameTime());
-
-                return;
-
             case "S":
-                MyGame.getGameInstance().getControls().moveBackward(MyGame.getGameInstance().getFrameTime());
                 return;
         }
+
+        // gamepad controls
         if (evt.getValue() == -1.0) {
-            MyGame.getGameInstance().getControls().moveForward(MyGame.getGameInstance().getFrameTime());
+            MyGame.getGameInstance().getControls().moveNorth(MyGame.getGameInstance().getFrameTime());
             return;
         }
         if (evt.getValue() == 1.0) {
-            MyGame.getGameInstance().getControls().moveBackward(MyGame.getGameInstance().getFrameTime());
-            return;
+            // MyGame.getGameInstance().getControls().moveSouth(MyGame.getGameInstance().getFrameTime());
+            // return;
         }
     }
 }
