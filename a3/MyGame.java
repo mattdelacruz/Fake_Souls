@@ -28,41 +28,6 @@ import a3.player.Player;
 import a3.quadtree.*;
 
 public class MyGame extends VariableFrameRateGame {
-	private static final int WINDOW_WIDTH = 500;
-	private static final int WINDOW_HEIGHT = 500;
-	private static final int ENEMY_AMOUNT = 4;
-	private static final float PLAY_AREA_SIZE = 300f;
-	private static final Vector3f INITIAL_CAMERA_POS = new Vector3f(0f, 0f, 5f);
-	private static final String SKYBOX_NAME = "fluffyClouds";
-	private static final String PLAYER_TEXTURE = "player-texture.png";
-	private static final String GHOST_TEXTURE = "neptune.jpg";
-	private static final String ENEMY_TEXTURE = "knight-texture.png";
-	private static final String TERRAIN_MAP = "terrain-map.png";
-	private static final String TERRAIN_TEXTURE = "moon-craters.jpg";
-	private static final String KATANA_TEXTURE = "katana-texture.png";
-	private static final String PLAYER_RKM = "player-animations/player.rkm";
-	private static final String PLAYER_RKS = "player-animations/player.rks";
-	private static final String PLAYER_RUN_RKA = "player-animations/player-run.rka";
-	private static final String PLAYER_IDLE_RKA = "player-animations/player-idle.rka";
-	private static final String PLAYER_ATTACK_1_RKA = "player-animations/player-attack-1.rka";
-	private static final String PLAYER_GUARD_RKA = "player-animations/player-guard.rka";
-
-	// Katana animation file paths
-	private static final String KATANA_RKM = "player-animations/weapon-animations/katana.rkm";
-	private static final String KATANA_RKS = "player-animations/weapon-animations/katana.rks";
-	private static final String KATANA_RUN_RKA = "player-animations/weapon-animations/katana-run.rka";
-	private static final String KATANA_IDLE_RKA = "player-animations/weapon-animations/katana-idle.rka";
-	private static final String KATANA_ATTACK_1_RKA = "player-animations/weapon-animations/katana-attack-1.rka";
-	private static final String KATANA_GUARD_RKA = "player-animations/weapon-animations/katana-guard.rka";
-	// Enemy animation file paths
-	private static final String ENEMY_RKM = "enemy-animations/knight-enemy.rkm";
-	private static final String ENEMY_RKS = "enemy-animations/knight-enemy.rks";
-	private static final String ENEMY_RUN_RKA = "enemy-animations/knight-enemy-run.rka";
-	private static final String ENEMY_IDLE_RKA = "enemy-animations/knight-enemy-idle.rka";
-
-	final int WEAPON_COLLISION_GROUP = 1;
-	final int ENEMY_COLLISION_GROUP = 2;
-
 	private static Engine engine;
 	private static MyGame game;
 	private static PlayerControlMap playerControlMaps; // do not delete!!!
@@ -111,9 +76,7 @@ public class MyGame extends VariableFrameRateGame {
 	private Map<Integer, Enemy> enemyMap = new HashMap<Integer, Enemy>();
 	private Set<String> activeKeys = new HashSet<>();
 	private Set<String> activeOrientation = new HashSet<>();
-	private QuadTree quadTree = new QuadTree(
-			new QuadTreePoint(-PLAY_AREA_SIZE, PLAY_AREA_SIZE),
-			new QuadTreePoint(PLAY_AREA_SIZE, -PLAY_AREA_SIZE));
+	private static QuadTree quadTree;
 	private com.bulletphysics.dynamics.RigidBody object1, object2;
 
 	public MyGame(String serverAddress, int serverPort, String protocol) {
@@ -146,6 +109,11 @@ public class MyGame extends VariableFrameRateGame {
 		scriptManager = new ScriptManager();
 		scriptManager.loadScript("assets/scripts/LoadInitValues.js");
 		physicsManager = new PhysicsManager();
+
+		int playAreaSize = (int) scriptManager.getValue("PLAY_AREA_SIZE");
+		quadTree = new QuadTree(
+				new QuadTreePoint((float) playAreaSize, (float) playAreaSize),
+				new QuadTreePoint((float) playAreaSize, (float) -playAreaSize));
 		getGameInstance().initializeSystem();
 		getGameInstance().game_loop();
 	}
@@ -183,18 +151,19 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void loadTextures() {
-		playerTx = new TextureImage(PLAYER_TEXTURE);
-		ghostTx = new TextureImage(GHOST_TEXTURE);
-		enemyTx = new TextureImage(ENEMY_TEXTURE);
-		terrMap = new TextureImage(TERRAIN_MAP);
-		terrTx = new TextureImage(TERRAIN_TEXTURE);
-		katanaTx = new TextureImage(KATANA_TEXTURE);
+		playerTx = new TextureImage((String) scriptManager.getValue("PLAYER_TEXTURE"));
+		ghostTx = new TextureImage((String) scriptManager.getValue("GHOST_TEXTURE"));
+		enemyTx = new TextureImage((String) scriptManager.getValue("ENEMY_TEXTURE"));
+		terrMap = new TextureImage((String) scriptManager.getValue("TERRAIN_MAP"));
+		terrTx = new TextureImage((String) scriptManager.getValue("TERRAIN_TEXTURE"));
+		katanaTx = new TextureImage((String) scriptManager.getValue("KATANA_TEXTURE"));
 	}
 
 	@Override
 	public void loadSkyBoxes() {
 		engine.getSceneGraph().setSkyBoxEnabled(true);
-		engine.getSceneGraph().setActiveSkyBoxTexture(engine.getSceneGraph().loadCubeMap(SKYBOX_NAME));
+		engine.getSceneGraph().setActiveSkyBoxTexture(
+				engine.getSceneGraph().loadCubeMap((String) scriptManager.getValue("SKYBOX_NAME")));
 	}
 
 	@Override
@@ -217,7 +186,9 @@ public class MyGame extends VariableFrameRateGame {
 		lastHeightLoc = 0;
 		elapsTime = 0.0;
 
-		(engine.getRenderSystem()).setWindowDimensions(WINDOW_WIDTH, WINDOW_HEIGHT);
+		(engine.getRenderSystem()).setWindowDimensions(
+				(int) scriptManager.getValue("WINDOW_WIDTH"),
+				(int) scriptManager.getValue("WINDOW_HEIGHT"));
 
 		initializeControls();
 		updateFrameTime();
@@ -231,23 +202,44 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void initializePlayerAnimations() {
-		playerShape = new AnimatedShape(PLAYER_RKM, PLAYER_RKS);
-		playerShape.loadAnimation("RUN", PLAYER_RUN_RKA);
-		playerShape.loadAnimation("IDLE", PLAYER_IDLE_RKA);
-		playerShape.loadAnimation("ATTACK1", PLAYER_ATTACK_1_RKA);
-		playerShape.loadAnimation("GUARD", PLAYER_GUARD_RKA);
+		playerShape = new AnimatedShape(
+				(String) scriptManager.getValue("PLAYER_RKM"),
+				(String) scriptManager.getValue("PLAYER_RKS"));
+		playerShape.loadAnimation(
+				"RUN", (String) scriptManager.getValue("PLAYER_RUN_RKA"));
+		playerShape.loadAnimation(
+				"IDLE", (String) scriptManager.getValue("PLAYER_IDLE_RKA"));
+		playerShape.loadAnimation(
+				"ATTACK1", (String) scriptManager.getValue("PLAYER_ATTACK_1_RKA"));
+		playerShape.loadAnimation(
+				"GUARD", (String) scriptManager.getValue("PLAYER_GUARD_RKA"));
 
-		katanaShape = new AnimatedShape(KATANA_RKM, KATANA_RKS);
-		katanaShape.loadAnimation("RUN", KATANA_RUN_RKA);
-		katanaShape.loadAnimation("IDLE", KATANA_IDLE_RKA);
-		katanaShape.loadAnimation("ATTACK1", KATANA_ATTACK_1_RKA);
-		katanaShape.loadAnimation("GUARD", KATANA_GUARD_RKA);
+		katanaShape = new AnimatedShape(
+				(String) scriptManager.getValue("KATANA_RKM"),
+				(String) scriptManager.getValue("KATANA_RKS"));
+		katanaShape.loadAnimation(
+				"RUN", (String) scriptManager.getValue("KATANA_RUN_RKA"));
+		katanaShape.loadAnimation(
+				"IDLE",
+				(String) scriptManager.getValue("KATANA_IDLE_RKA"));
+		katanaShape.loadAnimation(
+				"ATTACK1",
+				(String) scriptManager.getValue("KATANA_ATTACK_1_RKA"));
+		katanaShape.loadAnimation(
+				"GUARD",
+				(String) scriptManager.getValue("KATANA_GUARD_RKA"));
 	}
 
 	private void initializeEnemyAnimations() {
-		enemyShape = new AnimatedShape(ENEMY_RKM, ENEMY_RKS);
-		enemyShape.loadAnimation("RUN", ENEMY_RUN_RKA);
-		enemyShape.loadAnimation("IDLE", ENEMY_IDLE_RKA);
+		enemyShape = new AnimatedShape(
+				(String) scriptManager.getValue("ENEMY_RKM"),
+				(String) scriptManager.getValue("ENEMY_RKS"));
+		enemyShape.loadAnimation(
+				"RUN",
+				(String) scriptManager.getValue("ENEMY_RUN_RKA"));
+		enemyShape.loadAnimation(
+				"IDLE",
+				(String) scriptManager.getValue("ENEMY_IDLE_RKA"));
 	}
 
 	private void initializeCameras() {
@@ -280,7 +272,9 @@ public class MyGame extends VariableFrameRateGame {
 		checkForCollisions();
 
 		targetCamera.setLookAtTarget(player.getLocalLocation());
-		updatePlayerTerrainLocation();
+		if (player.isMoving()) {
+			updatePlayerTerrainLocation();
+		}
 
 		updatePhysicsObjectLocation(player.getPhysicsObject(), player.getLocalTranslation());
 
@@ -344,17 +338,14 @@ public class MyGame extends VariableFrameRateGame {
 		Vector3f currLoc = player.getLocalLocation();
 		currHeightLoc = terrain.getHeight(currLoc.x, currLoc.z);
 
-		if (Math.abs(currHeightLoc - lastHeightLoc) > 0.1f) {
-			player.setLocalLocation(
-					new Vector3f(currLoc.x,
-							currHeightLoc + player.getLocalScale().m00(), currLoc.z()));
-			lastHeightLoc = currHeightLoc;
-			targetCamera.updateCameraLocation(frameTime);
-		} else {
-			player.setLocalLocation(
-					new Vector3f(currLoc.x(), lastHeightLoc +
-							player.getLocalScale().m00(), currLoc.z()));
-		}
+		float targetHeight = currHeightLoc + player.getLocalScale().m00();
+		double playerHeightSpeed = (double) scriptManager.getValue("PLAYER_HEIGHT_SPEED");
+		float alpha = frameTime * (float) playerHeightSpeed;
+		float newHeight = lerp(lastHeightLoc, targetHeight, alpha);
+
+		player.setLocalLocation(new Vector3f(currLoc.x(), newHeight, currLoc.z()));
+		lastHeightLoc = newHeight;
+		targetCamera.updateCameraLocation(frameTime);
 	}
 
 	private void updateFrameTime() {
@@ -372,7 +363,8 @@ public class MyGame extends VariableFrameRateGame {
 
 		terrain = new GameObject(GameObject.root(), terrS, terrTx);
 		terrain.setLocalLocation(new Vector3f(0, 0, 0));
-		terrain.setLocalScale((new Matrix4f().scaling(PLAY_AREA_SIZE)));
+		int playAreaSize = (int) scriptManager.getValue("PLAY_AREA_SIZE");
+		terrain.setLocalScale((new Matrix4f().scaling((float) playAreaSize)));
 		terrain.setHeightMap(terrMap);
 		terrain.getRenderStates().setTiling(1);
 
@@ -416,7 +408,7 @@ public class MyGame extends VariableFrameRateGame {
 		Matrix4f translation;
 		PhysicsObject enemyObject;
 
-		for (int i = 0; i < ENEMY_AMOUNT; i++) {
+		for (int i = 0; i < (int) scriptManager.getValue("ENEMY_AMOUNT"); i++) {
 			enemy = new Enemy(GameObject.root(), enemyShape, enemyTx, i);
 			enemyList.add(enemy);
 			translation = new Matrix4f(enemy.getLocalTranslation());
@@ -633,7 +625,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void buildTargetCamera() {
 		targetCamera = new TargetCamera(getPlayer());
-		targetCamera.setLocation(INITIAL_CAMERA_POS);
+		targetCamera.setLocation((Vector3f) scriptManager.getValue("INITIAL_CAMERA_POS"));
 		engine.getRenderSystem().getViewport("MAIN").setCamera(targetCamera);
 		targetCamera.setLookAtTarget(player.getLocalLocation());
 		targetCamera.setLocation(targetCamera.getLocation().mul(new Vector3f(1, 1, -1)));
@@ -683,6 +675,10 @@ public class MyGame extends VariableFrameRateGame {
 			ret[i] = (double) arr[i];
 		}
 		return ret;
+	}
+
+	private float lerp(float start, float end, float alpha) {
+		return start + alpha * (end - start);
 	}
 
 	public float getFrameTime() {
