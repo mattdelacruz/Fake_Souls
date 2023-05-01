@@ -1,7 +1,10 @@
 package a3.npcs;
 
+import javax.swing.event.SwingPropertyChangeSupport;
+
 import org.joml.Vector3f;
 
+import a3.MyGame;
 import a3.quadtree.QuadTree;
 import a3.quadtree.QuadTreeNode;
 import a3.quadtree.QuadTreePoint;
@@ -10,29 +13,29 @@ import tage.ai.behaviortrees.BTCondition;
 
 public class SeekTarget extends BTCondition {
     QuadTree pqt;
-    Vector3f curPos;
-    GameObject target;
+    Vector3f pos;
+    GameObject target, hunter;
 
-    public SeekTarget(QuadTree playerQuadTree, Vector3f position, GameObject target) {
+    public SeekTarget(QuadTree playerQuadTree, GameObject en, Vector3f pos) {
         super(false);
         pqt = playerQuadTree;
-        curPos = position;
-        this.target = target;
+        this.hunter = en;
+        this.pos = pos;
     }
 
     @Override
     protected boolean check() {
-        QuadTreePoint currPos = new QuadTreePoint(curPos.z(),
-                curPos.x());
+        QuadTreePoint currPos = new QuadTreePoint(pos.z(),
+                pos.x());
         QuadTreeNode prey;
         prey = pqt.findNearby(currPos, -1, null);
 
         if (prey != null) {
             target = (GameObject) prey.getData();
+            ((Enemy) hunter).setTarget(target);
             return true;
         }
         return false;
-
     }
 
 }

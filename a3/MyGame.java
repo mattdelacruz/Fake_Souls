@@ -296,9 +296,8 @@ public class MyGame extends VariableFrameRateGame {
 		updateMovementControls();
 		player.updateAnimation();
 		checkObjectMovement(player);
-		checkLocation(enemyList.get(0));
-		System.out.printf("player: ");
-		checkLocation(player);
+		// System.out.printf("player: ");
+		// checkLocation(player);
 
 		if (player.isLocked()) {
 			targetCamera.targetTo();
@@ -315,7 +314,8 @@ public class MyGame extends VariableFrameRateGame {
 		updatePhysicsObjectLocation(katana.getPhysicsObject(), katana.getWorldTranslation());
 
 		for (int i = 0; i < enemyList.size(); i++) {
-			updatePhysicsObjectLocation(enemyList.get(i).getPhysicsObject(), enemyList.get(i).getLocalTranslation());
+			updatePhysicsObjectLocation(enemyList.get(i).getPhysicsObject(),
+					enemyList.get(i).getLocalTranslation());
 		}
 
 		inputManager.update((float) elapsTime);
@@ -337,8 +337,8 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void checkObjectMovement(AnimatedGameObject obj) {
-		if (obj.getLocalLocation().x() == obj.getLastLocation(0)
-				&& obj.getLocalLocation().z() == obj.getLastLocation(2)) {
+		if (obj.getLocalLocation().x() == obj.getLastLocation().x()
+				&& obj.getLocalLocation().z() == obj.getLastLocation().z()) {
 			obj.setIsMoving(false);
 		} else {
 			obj.setIsMoving(true);
@@ -351,8 +351,7 @@ public class MyGame extends VariableFrameRateGame {
 				} else if (((Player) obj).getStanceState().isAttacking()) {
 					if (((Player) obj).getAnimationShape().isAnimPlaying()) {
 						obj.setLastLocation(
-								new float[] { obj.getLocalLocation().x(), obj.getLocalLocation().y(),
-										obj.getLocalLocation().z() });
+								obj.getLocalLocation());
 						return;
 					} else {
 						((Player) obj).idle();
@@ -362,20 +361,20 @@ public class MyGame extends VariableFrameRateGame {
 				obj.idle();
 			}
 		} else {
-			// if (obj instanceof Player) {
-			// playerQuadTree.update(
-			// new QuadTreePoint(obj.getLastLocation(2), obj.getLastLocation(0)),
-			// new QuadTreePoint(obj.getLocalLocation().z(), obj.getLocalLocation().x()),
-			// obj);
-			// } else if (obj instanceof Enemy) {
-			// enemyQuadTree.update(
-			// new QuadTreePoint(obj.getLastLocation(2), obj.getLastLocation(0)),
-			// new QuadTreePoint(obj.getLocalLocation().z(), obj.getLocalLocation().x()),
-			// obj);
-			// }
+			if (obj instanceof Player) {
+				playerQuadTree.update(
+						new QuadTreePoint(obj.getLastLocation().z(), obj.getLastLocation().x()),
+						new QuadTreePoint(obj.getLocalLocation().z(), obj.getLocalLocation().x()),
+						obj);
+			} else if (obj instanceof Enemy) {
+				enemyQuadTree.update(
+						new QuadTreePoint(obj.getLastLocation().z(), obj.getLastLocation().x()),
+						new QuadTreePoint(obj.getLocalLocation().z(), obj.getLocalLocation().x()),
+						obj);
+			}
 		}
 		obj.setLastLocation(
-				new float[] { obj.getLocalLocation().x(), obj.getLocalLocation().y(), obj.getLocalLocation().z() });
+				new Vector3f(obj.getLocalLocation().x(), obj.getLocalLocation().y(), obj.getLocalLocation().z()));
 	}
 
 	private void updatePlayerTerrainLocation() {
@@ -402,7 +401,7 @@ public class MyGame extends VariableFrameRateGame {
 	private void buildEnemyController() {
 		enemyController = new EnemyController();
 		getEngineInstance().getSceneGraph().addNodeController(enemyController);
-		// enemyController.enable();
+		enemyController.enable();
 	}
 
 	private void buildTerrainMap() {
@@ -462,7 +461,7 @@ public class MyGame extends VariableFrameRateGame {
 		PhysicsObject enemyObject;
 
 		for (int i = 0; i < (int) scriptManager.getValue("ENEMY_AMOUNT"); i++) {
-			enemy = new Enemy(GameObject.root(), enemyShape, enemyTx, playerQuadTree);
+			enemy = new Enemy(GameObject.root(), enemyShape, enemyTx, playerQuadTree, i);
 			enemyList.add(enemy);
 			translation = new Matrix4f(enemy.getLocalTranslation());
 			tempTransform = toDoubleArray(translation.get(vals));
@@ -513,7 +512,7 @@ public class MyGame extends VariableFrameRateGame {
 							// this is hitting for all 15 frames of the attack animation
 						} else if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
 								obj1.getUID() == player.getPhysicsObject().getUID()) {
-							// System.out.println("collided with enemy...");
+							System.out.println("collided with enemy...");
 							// obj2.applyForce(20, 0, 0, 0, 0, 0);
 							matchGameObjectwithPhysicsObject(player, obj1);
 							targetCamera.updateCameraLocation(getFrameTime());

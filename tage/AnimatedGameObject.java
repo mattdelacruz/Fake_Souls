@@ -7,7 +7,7 @@ import tage.shapes.AnimatedShape;
 public class AnimatedGameObject extends GameObject {
 	private AnimatedShape animatedShape;
 	private boolean isMoving = false;
-	private float[] lastLocation = new float[3];
+	private Vector3f lastLocation = new Vector3f();
 
 	public AnimatedGameObject(GameObject p, ObjShape s, TextureImage t) {
 		super(p, s, t);
@@ -17,23 +17,15 @@ public class AnimatedGameObject extends GameObject {
 	/**
 	 * Sets the last location of the object
 	 */
-	public void setLastLocation(float[] x) {
-		lastLocation = x;
+	public void setLastLocation(Vector3f pos) {
+		lastLocation = pos;
 	}
 
 	/**
-	 * Returns the last location of the object that is stored in an array of floats.
-	 * Pos 0 is the x pos, Pos 1 is the y pos, and Pos 2 is the z pos.
-	 */
-	public float getLastLocation(int i) {
-		return lastLocation[i];
-	}
-
-	/**
-	 * returns the last location of the object as a Vector3f
+	 * Returns the last location of the object
 	 */
 	public Vector3f getLastLocation() {
-		return new Vector3f(lastLocation[0], lastLocation[1], lastLocation[2]);
+		return lastLocation;
 	}
 
 	/**

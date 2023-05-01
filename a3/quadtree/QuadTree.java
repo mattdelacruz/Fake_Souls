@@ -100,9 +100,6 @@ public class QuadTree {
     public void update(QuadTreePoint oldPos, QuadTreePoint newPos, GameObject data) {
         if (remove(oldPos)) {
             insert(new QuadTreeNode(newPos, data));
-        } else {
-            throw new IllegalStateException(
-                    "Unable to update the QuadTree: GameObject not found at the specified position.");
         }
     }
 

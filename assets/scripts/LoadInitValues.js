@@ -42,8 +42,6 @@ with (JavaPackages) {
 	var PLAYER_HEIGHT_SPEED = 0.5;
 }
 
-
-
 var xPlayerPos = 70;
 var yPlayerPos = 0;
 var zPlayerPos = 124;
