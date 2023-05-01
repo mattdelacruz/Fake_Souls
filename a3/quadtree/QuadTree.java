@@ -1,5 +1,7 @@
 package a3.quadtree;
 
+import tage.GameObject;
+
 public class QuadTree {
     QuadTreePoint northWestCorner, southEastCorner;
     QuadTreeNode node;
@@ -75,6 +77,32 @@ public class QuadTree {
                 }
                 southEastTree.insert(n);
             }
+        }
+    }
+
+    public boolean remove(QuadTreePoint pos) {
+        if (!inBounds(pos)) {
+            return false;
+        }
+
+        if (node != null && node.getPosition().equals(pos)) {
+            node = null;
+            return true;
+        }
+
+        QuadTree childNode = getChildNode(pos);
+        if (childNode != null) {
+            return childNode.remove(pos);
+        }
+        return false;
+    }
+
+    public void update(QuadTreePoint oldPos, QuadTreePoint newPos, GameObject data) {
+        if (remove(oldPos)) {
+            insert(new QuadTreeNode(newPos, data));
+        } else {
+            throw new IllegalStateException(
+                    "Unable to update the QuadTree: GameObject not found at the specified position.");
         }
     }
 

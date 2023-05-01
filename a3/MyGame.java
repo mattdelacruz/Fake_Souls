@@ -1,8 +1,10 @@
 package a3;
 
 import tage.*;
+import tage.ai.behaviortrees.BehaviorTree;
 import tage.input.InputManager;
 import tage.networking.IGameConnection.ProtocolType;
+import tage.nodeControllers.EnemyController;
 import tage.physics.PhysicsObject;
 import tage.physics.JBullet.*;
 import tage.shapes.*;
@@ -28,15 +30,19 @@ import a3.player.Player;
 import a3.quadtree.*;
 
 public class MyGame extends VariableFrameRateGame {
+	private static final String SCRIPT_INIT_PATH = "assets/scripts/LoadInitValues.js";
 	private static Engine engine;
 	private static MyGame game;
 	private static PlayerControlMap playerControlMaps; // do not delete!!!
 	private static ScriptManager scriptManager;
+	private static PhysicsManager physicsManager;
+	private static GhostManager ghostManager;
 
 	private InputManager inputManager;
 	private TargetCamera targetCamera;
 	private OverheadCamera overheadCamera;
 	private PlayerControls controls;
+	private QuadTree enemyQuadTree, playerQuadTree;
 
 	private int serverPort;
 	private double lastFrameTime, currFrameTime, elapsTime;
@@ -49,9 +55,6 @@ public class MyGame extends VariableFrameRateGame {
 	private float[] vals = new float[16];
 
 	private GameObject terrain;
-
-	private GhostManager ghostManager;
-	private static PhysicsManager physicsManager;
 
 	private Enemy enemy;
 	private Player player;
@@ -67,17 +70,19 @@ public class MyGame extends VariableFrameRateGame {
 	private boolean hasMovedWest = false;
 	private boolean hasMovedEast = false;
 	private boolean hasMovedSouth = false;
+	private boolean isHingeSetup = false;
 
 	private ObjShape playerS, enemyS, ghostS, terrS;
 	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx, katanaTx;
 	private AnimatedShape playerShape, katanaShape, enemyShape;
+	private EnemyController enemyController;
 
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
+	private ArrayList<Player> playerList = new ArrayList<Player>();
 	private Map<Integer, Enemy> enemyMap = new HashMap<Integer, Enemy>();
 	private Set<String> activeKeys = new HashSet<>();
-	private Set<String> activeOrientation = new HashSet<>();
-	private static QuadTree quadTree;
 	private com.bulletphysics.dynamics.RigidBody object1, object2;
+	com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
 
 	public MyGame(String serverAddress, int serverPort, String protocol) {
 		super();
@@ -107,13 +112,9 @@ public class MyGame extends VariableFrameRateGame {
 		}
 		engine = new Engine(getGameInstance());
 		scriptManager = new ScriptManager();
-		scriptManager.loadScript("assets/scripts/LoadInitValues.js");
+		scriptManager.loadScript(SCRIPT_INIT_PATH);
 		physicsManager = new PhysicsManager();
 
-		int playAreaSize = (int) scriptManager.getValue("PLAY_AREA_SIZE");
-		quadTree = new QuadTree(
-				new QuadTreePoint((float) playAreaSize, (float) playAreaSize),
-				new QuadTreePoint((float) playAreaSize, (float) -playAreaSize));
 		getGameInstance().initializeSystem();
 		getGameInstance().game_loop();
 	}
@@ -168,8 +169,17 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void buildObjects() {
+		int playAreaSize = (int) scriptManager.getValue("PLAY_AREA_SIZE");
+		enemyQuadTree = new QuadTree(
+				new QuadTreePoint((float) -playAreaSize, (float) playAreaSize),
+				new QuadTreePoint((float) playAreaSize, (float) -playAreaSize));
+		playerQuadTree = new QuadTree(
+				new QuadTreePoint((float) -playAreaSize, (float) playAreaSize),
+				new QuadTreePoint((float) playAreaSize, (float) -playAreaSize));
 		buildTerrainMap();
 		buildPlayer();
+		buildPlayerQuadTree();
+		buildEnemyController();
 		buildEnemy();
 		buildEnemyQuadTree();
 	}
@@ -194,11 +204,33 @@ public class MyGame extends VariableFrameRateGame {
 		updateFrameTime();
 		initializeCameras();
 		setupNetworking();
-		initializePhysicsObjects();
 		controls = new PlayerControls();
 	}
 
 	private void initializePhysicsObjects() {
+		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
+		com.bulletphysics.collision.narrowphase.PersistentManifold manifold;
+		com.bulletphysics.collision.narrowphase.ManifoldPoint contactPoint;
+
+		dynamicsWorld = ((JBulletPhysicsEngine) physicsManager.getPhysicsEngine()).getDynamicsWorld();
+
+		dispatcher = dynamicsWorld.getDispatcher();
+		int manifoldCount = dispatcher.getNumManifolds();
+		System.out.println(manifoldCount);
+		for (int i = 0; i < manifoldCount; i++) {
+			manifold = dispatcher.getManifoldByIndexInternal(i);
+			object1 = (com.bulletphysics.dynamics.RigidBody) manifold.getBody0();
+			object2 = (com.bulletphysics.dynamics.RigidBody) manifold.getBody1();
+
+			JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
+			JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
+
+			if (obj1.getUID() == player.getPhysicsObject().getUID()
+					&& obj2.getUID() == katana.getPhysicsObject().getUID()) {
+				System.out.println("setting up hinge constraint");
+				setupHingeConstraint(obj1, obj2, dynamicsWorld);
+			}
+		}
 	}
 
 	private void initializePlayerAnimations() {
@@ -251,26 +283,28 @@ public class MyGame extends VariableFrameRateGame {
 		playerControlMaps = new PlayerControlMap(inputManager);
 	}
 
+	public void checkLocation(GameObject obj) {
+		System.out.printf(
+				"x: %.2f, y: %.2f, z: %.2f\n",
+				obj.getLocalLocation().x(), obj.getLocalLocation().y(),
+				obj.getLocalLocation().z());
+	}
+
 	@Override
 	public void update() {
 		updateFrameTime();
 		updateMovementControls();
 		player.updateAnimation();
 		checkObjectMovement(player);
-		// System.out.printf(
-		// "player x: %.2f, player y: %.2f, player z: %.2f\nkatana x: %.2f, katana y:
-		// %.2f, katana z: %.2f\n",
-		// player.getLocalLocation().x(), player.getLocalLocation().y(),
-		// player.getLocalLocation().z(),
-		// katana.getWorldLocation().x(),
-		// katana.getWorldLocation().y(),
-		// katana.getWorldLocation().z());
+		checkLocation(enemyList.get(0));
+		System.out.printf("player: ");
+		checkLocation(player);
 
 		if (player.isLocked()) {
 			targetCamera.targetTo();
 		}
-		checkForCollisions();
 
+		checkForCollisions();
 		targetCamera.setLookAtTarget(player.getLocalLocation());
 		if (player.isMoving()) {
 			updatePlayerTerrainLocation();
@@ -327,11 +361,21 @@ public class MyGame extends VariableFrameRateGame {
 			} else {
 				obj.idle();
 			}
+		} else {
+			// if (obj instanceof Player) {
+			// playerQuadTree.update(
+			// new QuadTreePoint(obj.getLastLocation(2), obj.getLastLocation(0)),
+			// new QuadTreePoint(obj.getLocalLocation().z(), obj.getLocalLocation().x()),
+			// obj);
+			// } else if (obj instanceof Enemy) {
+			// enemyQuadTree.update(
+			// new QuadTreePoint(obj.getLastLocation(2), obj.getLastLocation(0)),
+			// new QuadTreePoint(obj.getLocalLocation().z(), obj.getLocalLocation().x()),
+			// obj);
+			// }
 		}
-
 		obj.setLastLocation(
 				new float[] { obj.getLocalLocation().x(), obj.getLocalLocation().y(), obj.getLocalLocation().z() });
-
 	}
 
 	private void updatePlayerTerrainLocation() {
@@ -355,6 +399,12 @@ public class MyGame extends VariableFrameRateGame {
 		elapsTime += frameTime;
 	}
 
+	private void buildEnemyController() {
+		enemyController = new EnemyController();
+		getEngineInstance().getSceneGraph().addNodeController(enemyController);
+		// enemyController.enable();
+	}
+
 	private void buildTerrainMap() {
 		float up[] = { 0, 1, 0 };
 		double[] tempTransform;
@@ -376,7 +426,7 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void buildPlayer() {
-		float mass = 0.1f;
+		float mass = 5f;
 		double[] tempTransform;
 		float[] size = { 5f, 5f, 5f };
 		Matrix4f translation;
@@ -394,38 +444,39 @@ public class MyGame extends VariableFrameRateGame {
 				tempTransform, size);
 		player.setPhysicsObject(playerBody);
 
-		size = new float[] { 1f, 1f, 1f };
+		size = new float[] { 3f, 3f, 3f };
 		translation = new Matrix4f(player.getLocalTranslation());
+
 		tempTransform = toDoubleArray(translation.get(vals));
 		katanaBody = physicsManager.addBoxObject(physicsManager.nextUID(), mass, tempTransform, size);
 		katana.setPhysicsObject(katanaBody);
+
+		playerList.add(player);
+
 	}
 
 	private void buildEnemy() {
-		float mass = 0.1f;
+		float mass = 20f;
 		double[] tempTransform;
-		float[] size = new float[] { 0.5f, 0.5f, 0.5f };
 		Matrix4f translation;
 		PhysicsObject enemyObject;
 
 		for (int i = 0; i < (int) scriptManager.getValue("ENEMY_AMOUNT"); i++) {
-			enemy = new Enemy(GameObject.root(), enemyShape, enemyTx, i);
+			enemy = new Enemy(GameObject.root(), enemyShape, enemyTx, playerQuadTree);
 			enemyList.add(enemy);
 			translation = new Matrix4f(enemy.getLocalTranslation());
 			tempTransform = toDoubleArray(translation.get(vals));
-			enemyObject = physicsManager.addBoxObject(physicsManager.nextUID(),
-					mass, tempTransform, size);
+			enemyObject = physicsManager.addCapsuleObject(physicsManager.nextUID(), mass, tempTransform, 1, 5);
 			enemyMap.put(enemyObject.getUID(), enemy);
 			enemy.setPhysicsObject(enemyObject);
+			enemyController.addTarget(enemy);
 		}
 	}
 
 	private void checkForCollisions() {
-		com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
 		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
 		com.bulletphysics.collision.narrowphase.PersistentManifold manifold;
 		com.bulletphysics.collision.narrowphase.ManifoldPoint contactPoint;
-
 		dynamicsWorld = ((JBulletPhysicsEngine) physicsManager.getPhysicsEngine()).getDynamicsWorld();
 
 		dispatcher = dynamicsWorld.getDispatcher();
@@ -438,6 +489,14 @@ public class MyGame extends VariableFrameRateGame {
 			JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
 			JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
 
+			if (!isHingeSetup) {
+				if (obj1.getUID() == player.getPhysicsObject().getUID()
+						&& obj2.getUID() == katana.getPhysicsObject().getUID()) {
+					setupHingeConstraint(obj1, obj2, dynamicsWorld);
+					isHingeSetup = true;
+				}
+			}
+
 			for (int j = 0; j < manifold.getNumContacts(); j++) {
 				contactPoint = manifold.getContactPoint(j);
 				if (contactPoint.getDistance() < 0f) {
@@ -446,11 +505,16 @@ public class MyGame extends VariableFrameRateGame {
 								obj1.getUID() == katana.getPhysicsObject().getUID()
 								&& player.getStanceState().isAttacking()) {
 
-							System.out.println("hit!");
+							obj1.applyForce(0, 5, 0, 0, 0, 0);
+							// matchGameObjectwithPhysicsObject(katana, obj1);
+							updatePhysicsObjectLocation(obj2, katana.getLocalTranslation());
+							System.out.println("HIT");
+
+							// this is hitting for all 15 frames of the attack animation
 						} else if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
 								obj1.getUID() == player.getPhysicsObject().getUID()) {
-							System.out.println("collided with enemy...");
-							// obj2.applyForce(1, 0, 0, 0, 0, 0);
+							// System.out.println("collided with enemy...");
+							// obj2.applyForce(20, 0, 0, 0, 0, 0);
 							matchGameObjectwithPhysicsObject(player, obj1);
 							targetCamera.updateCameraLocation(getFrameTime());
 						}
@@ -458,6 +522,17 @@ public class MyGame extends VariableFrameRateGame {
 				}
 			}
 		}
+	}
+
+	private void setupHingeConstraint(JBulletPhysicsObject playerPhysicsObject,
+			JBulletPhysicsObject weaponPhysicsObject, com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld) {
+
+		JBulletHingeConstraint hinge = new JBulletHingeConstraint(
+				physicsManager.nextUID(),
+				playerPhysicsObject,
+				weaponPhysicsObject,
+				0f, 1f, 0);
+		dynamicsWorld.addConstraint(hinge.getConstraint());
 	}
 
 	private void updateMovementControls() {
@@ -619,7 +694,15 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void buildEnemyQuadTree() {
 		for (Enemy e : enemyList) {
-			quadTree.insert(new QuadTreeNode(new QuadTreePoint(e.getLocalLocation().z, e.getLocalLocation().x), e));
+			enemyQuadTree
+					.insert(new QuadTreeNode(new QuadTreePoint(e.getLocalLocation().z, e.getLocalLocation().x), e));
+		}
+	}
+
+	private void buildPlayerQuadTree() {
+		for (Player p : playerList) {
+			playerQuadTree
+					.insert(new QuadTreeNode(new QuadTreePoint(p.getLocalLocation().z, p.getLocalLocation().x), p));
 		}
 	}
 
@@ -646,7 +729,7 @@ public class MyGame extends VariableFrameRateGame {
 		QuadTreePoint playerPos = new QuadTreePoint(player.getLocalLocation().z,
 				player.getLocalLocation().x());
 		QuadTreeNode target;
-		target = quadTree.findNearby(playerPos, -1, null);
+		target = enemyQuadTree.findNearby(playerPos, -1, null);
 
 		if (target != null) {
 			return (GameObject) target.getData();
@@ -743,18 +826,5 @@ public class MyGame extends VariableFrameRateGame {
 
 	public boolean isKeyPressed(String key) {
 		return activeKeys.contains(key);
-	}
-
-	public void addOrientationToActiveOrientation(String orientation) {
-		activeOrientation.add(orientation);
-	}
-
-	public void removeKeyFromActiveOrientation(String orientation) {
-		activeOrientation.remove(orientation);
-	}
-
-	public boolean isCurrentOrientation(String orientation) {
-		return activeOrientation.contains(orientation);
-
 	}
 }
