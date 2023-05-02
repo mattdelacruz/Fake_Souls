@@ -1,10 +1,11 @@
-package a3.npcs;
+package a3.npcs.enemybehavior;
 
 import javax.swing.event.SwingPropertyChangeSupport;
 
 import org.joml.Vector3f;
 
 import a3.MyGame;
+import a3.npcs.Enemy;
 import a3.quadtree.QuadTree;
 import a3.quadtree.QuadTreeNode;
 import a3.quadtree.QuadTreePoint;
@@ -35,6 +36,7 @@ public class SeekTarget extends BTCondition {
             ((Enemy) hunter).setTarget(target);
             return true;
         }
+        System.out.println("no prey found...");
         return false;
     }
 

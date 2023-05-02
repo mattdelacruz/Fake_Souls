@@ -1,7 +1,13 @@
 package a3.npcs;
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
+import a3.MyGame;
+import a3.npcs.enemybehavior.HuntTarget;
+import a3.npcs.enemybehavior.SeekTarget;
+import a3.npcs.movement.EnemyMovementState;
+import a3.npcs.movement.EnemyRunMovementState;
 import a3.player.Player;
 import a3.quadtree.QuadTree;
 import tage.AnimatedGameObject;
@@ -18,6 +24,8 @@ public class Enemy extends AnimatedGameObject {
     private GameObject target;
     private long thinkStartTime, tickStartTime;
     private long lastThinkUpdateTime, lastTickUpdateTime;
+    private EnemyMovementState movementState;
+    private EnemyRunMovementState runMovement = new EnemyRunMovementState();
 
     public Enemy(GameObject p, ObjShape s, TextureImage t, QuadTree playerQuadTree, int id) {
         super(p, s, t);
@@ -27,6 +35,7 @@ public class Enemy extends AnimatedGameObject {
         setLocalScale((new Matrix4f()).scaling(0.5f));
         setLocalTranslation(new Matrix4f().translation(posX, 0.5f, posZ));
         setupBehaviorTree();
+        movementState = runMovement;
         thinkStartTime = System.nanoTime();
         tickStartTime = System.nanoTime();
         lastThinkUpdateTime = thinkStartTime;
@@ -38,6 +47,15 @@ public class Enemy extends AnimatedGameObject {
         super.idle();
     }
 
+    @Override
+    public void move(Vector3f vec, float frameTime) {
+        super.move(vec, (frameTime * getMovementState().getSpeed()));
+        handleAnimationSwitch(getMovementState().getAnimation());
+        if (MyGame.getGameInstance().getProtocolClient() != null) {
+            MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
+        }
+    }
+
     public void updateBehavior() {
         long currentTime = System.nanoTime();
         float elapsedThinkMilliSecs = (currentTime - lastThinkUpdateTime) / (1000000.0f);
@@ -47,7 +65,6 @@ public class Enemy extends AnimatedGameObject {
 
         lastThinkUpdateTime = currentTime;
         ebt.update(elapsedThinkMilliSecs);
-
     }
 
     private void setupBehaviorTree() {
@@ -62,5 +79,9 @@ public class Enemy extends AnimatedGameObject {
 
     public GameObject getTarget() {
         return this.target;
+    }
+
+    public EnemyMovementState getMovementState() {
+        return this.movementState;
     }
 }

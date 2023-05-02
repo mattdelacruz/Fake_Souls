@@ -20,20 +20,20 @@ public class PhysicsManager {
         physicsEngine.update(elapsTime);
     }
 
-    public PhysicsObject addBoxObject(int uid, float mass, double[] transform, float[] size) {
-        PhysicsObject po = physicsEngine.addBoxObject(uid, mass, transform, size);
+    public PhysicsObject addBoxObject(float mass, double[] transform, float[] size) {
+        PhysicsObject po = physicsEngine.addBoxObject(physicsEngine.nextUID(), mass, transform, size);
         po.setBounciness(0.0f);
         return po;
     }
 
-    public PhysicsObject addCapsuleObject(int uid, float mass, double[] transform, float radius, float height) {
-        PhysicsObject po = physicsEngine.addCapsuleObject(uid, mass, transform, radius, height);
+    public PhysicsObject addCapsuleObject(float mass, double[] transform, float radius, float height) {
+        PhysicsObject po = physicsEngine.addCapsuleObject(physicsEngine.nextUID(), mass, transform, radius, height);
 
         return po;
     }
 
-    public PhysicsObject addStaticPlaneObject(int uid, double[] transform, float[] up_vector, float plane_constant) {
-        PhysicsObject po = physicsEngine.addStaticPlaneObject(uid, transform, up_vector, plane_constant);
+    public PhysicsObject addStaticPlaneObject(double[] transform, float[] up_vector, float plane_constant) {
+        PhysicsObject po = physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), transform, up_vector, plane_constant);
         po.setBounciness(0.0f);
         return po;
     }

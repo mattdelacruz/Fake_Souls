@@ -4,6 +4,7 @@ import tage.*;
 import tage.ai.behaviortrees.BehaviorTree;
 import tage.input.InputManager;
 import tage.networking.IGameConnection.ProtocolType;
+import tage.nodeControllers.AnimationController;
 import tage.nodeControllers.EnemyController;
 import tage.physics.PhysicsObject;
 import tage.physics.JBullet.*;
@@ -20,6 +21,7 @@ import java.util.Set;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import a3.controls.PlayerControlMap;
 import a3.controls.PlayerControls;
@@ -76,6 +78,7 @@ public class MyGame extends VariableFrameRateGame {
 	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx, katanaTx;
 	private AnimatedShape playerShape, katanaShape, enemyShape;
 	private EnemyController enemyController;
+	private AnimationController animationController;
 
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 	private ArrayList<Player> playerList = new ArrayList<Player>();
@@ -177,12 +180,14 @@ public class MyGame extends VariableFrameRateGame {
 				new QuadTreePoint((float) -playAreaSize, (float) playAreaSize),
 				new QuadTreePoint((float) playAreaSize, (float) -playAreaSize));
 		buildTerrainMap();
+		buildControllers();
 		buildPlayer();
 		buildPlayerQuadTree();
-		buildEnemyController();
 		buildEnemy();
 		buildEnemyQuadTree();
 	}
+
+	
 
 	@Override
 	public void initializeLights() {
@@ -290,14 +295,22 @@ public class MyGame extends VariableFrameRateGame {
 				obj.getLocalLocation().z());
 	}
 
+	public void checkWorldLocation(GameObject obj) {
+		System.out.printf(
+				"x: %.2f, y: %.2f, z: %.2f\n",
+				obj.getWorldLocation().x(), obj.getWorldLocation().y(),
+				obj.getWorldLocation().z());
+	}
+
 	@Override
 	public void update() {
 		updateFrameTime();
 		updateMovementControls();
-		player.updateAnimation();
 		checkObjectMovement(player);
 		// System.out.printf("player: ");
 		// checkLocation(player);
+		// System.out.printf("katana: ");
+		// checkWorldLocation(katana);
 
 		if (player.isLocked()) {
 			targetCamera.targetTo();
@@ -381,7 +394,7 @@ public class MyGame extends VariableFrameRateGame {
 		Vector3f currLoc = player.getLocalLocation();
 		currHeightLoc = terrain.getHeight(currLoc.x, currLoc.z);
 
-		float targetHeight = currHeightLoc + player.getLocalScale().m00();
+		float targetHeight = currHeightLoc;
 		double playerHeightSpeed = (double) scriptManager.getValue("PLAYER_HEIGHT_SPEED");
 		float alpha = frameTime * (float) playerHeightSpeed;
 		float newHeight = lerp(lastHeightLoc, targetHeight, alpha);
@@ -398,10 +411,21 @@ public class MyGame extends VariableFrameRateGame {
 		elapsTime += frameTime;
 	}
 
+	private void buildControllers() {
+		buildEnemyController();
+		buildAnimationController();
+	}
+
 	private void buildEnemyController() {
 		enemyController = new EnemyController();
 		getEngineInstance().getSceneGraph().addNodeController(enemyController);
 		enemyController.enable();
+	}
+
+	private void buildAnimationController() {
+		animationController = new AnimationController();
+		getEngineInstance().getSceneGraph().addNodeController(animationController);
+		animationController.enable();
 	}
 
 	private void buildTerrainMap() {
@@ -409,27 +433,34 @@ public class MyGame extends VariableFrameRateGame {
 		double[] tempTransform;
 		PhysicsObject planeP;
 		Matrix4f translation;
+		int playAreaSize = (int) scriptManager.getValue("PLAY_AREA_SIZE");
 
 		terrain = new GameObject(GameObject.root(), terrS, terrTx);
 		terrain.setLocalLocation(new Vector3f(0, 0, 0));
-		int playAreaSize = (int) scriptManager.getValue("PLAY_AREA_SIZE");
 		terrain.setLocalScale((new Matrix4f().scaling((float) playAreaSize)));
 		terrain.setHeightMap(terrMap);
 		terrain.getRenderStates().setTiling(1);
 
 		translation = new Matrix4f(terrain.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
-		planeP = physicsManager.addStaticPlaneObject(
-				physicsManager.nextUID(), tempTransform, up, 0.0f);
+		planeP = physicsManager.addStaticPlaneObject(tempTransform, up, 0.0f);
 		terrain.setPhysicsObject(planeP);
 	}
 
 	private void buildPlayer() {
-		float mass = 5f;
+		float mass = 1f;
 		double[] tempTransform;
 		float[] size = { 5f, 5f, 5f };
 		Matrix4f translation;
 		PhysicsObject playerBody, katanaBody;
+		Player dumb;
+		Matrix4f katanaOffset = 
+		new Matrix4f(
+		5, 0, 0, 0,
+		0, 0, 0, 0,
+		0, 0, 0, 0,
+		0, 0, 0, 1
+		);
 
 		player = new Player(GameObject.root(), playerShape, playerTx);
 		katana = new AnimatedGameObject(player, katanaShape, katanaTx);
@@ -439,23 +470,25 @@ public class MyGame extends VariableFrameRateGame {
 
 		translation = new Matrix4f(player.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
-		playerBody = physicsManager.addBoxObject(physicsManager.nextUID(), mass,
-				tempTransform, size);
+		// playerBody = physicsManager.addBoxObject(physicsManager.nextUID(), mass,
+		// 		tempTransform, size);
+		playerBody = physicsManager.addCapsuleObject(mass, tempTransform, 0.1f, 5f);
 		player.setPhysicsObject(playerBody);
 
 		size = new float[] { 3f, 3f, 3f };
-		translation = new Matrix4f(player.getLocalTranslation());
-
+		
+		translation = player.getLocalTranslation();
+		translation.setColumn(0, new Vector4f(5, 0,0,0));
 		tempTransform = toDoubleArray(translation.get(vals));
-		katanaBody = physicsManager.addBoxObject(physicsManager.nextUID(), mass, tempTransform, size);
+		katanaBody = physicsManager.addBoxObject(mass, tempTransform, size);
 		katana.setPhysicsObject(katanaBody);
 
 		playerList.add(player);
-
+		animationController.addTarget(player);
 	}
 
 	private void buildEnemy() {
-		float mass = 20f;
+		float mass = 0f;
 		double[] tempTransform;
 		Matrix4f translation;
 		PhysicsObject enemyObject;
@@ -465,10 +498,11 @@ public class MyGame extends VariableFrameRateGame {
 			enemyList.add(enemy);
 			translation = new Matrix4f(enemy.getLocalTranslation());
 			tempTransform = toDoubleArray(translation.get(vals));
-			enemyObject = physicsManager.addCapsuleObject(physicsManager.nextUID(), mass, tempTransform, 1, 5);
+			enemyObject = physicsManager.addCapsuleObject(mass, tempTransform, 0.1f, 5);
 			enemyMap.put(enemyObject.getUID(), enemy);
 			enemy.setPhysicsObject(enemyObject);
 			enemyController.addTarget(enemy);
+			animationController.addTarget(enemy);
 		}
 	}
 
@@ -491,6 +525,7 @@ public class MyGame extends VariableFrameRateGame {
 			if (!isHingeSetup) {
 				if (obj1.getUID() == player.getPhysicsObject().getUID()
 						&& obj2.getUID() == katana.getPhysicsObject().getUID()) {
+							System.out.println("setting up hinge");
 					setupHingeConstraint(obj1, obj2, dynamicsWorld);
 					isHingeSetup = true;
 				}
@@ -505,17 +540,20 @@ public class MyGame extends VariableFrameRateGame {
 								&& player.getStanceState().isAttacking()) {
 
 							obj1.applyForce(0, 5, 0, 0, 0, 0);
-							// matchGameObjectwithPhysicsObject(katana, obj1);
+							//matchGameObjectwithPhysicsObject(katana, obj1);
 							updatePhysicsObjectLocation(obj2, katana.getLocalTranslation());
 							System.out.println("HIT");
 
 							// this is hitting for all 15 frames of the attack animation
-						} else if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
+						} 
+						else if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
 								obj1.getUID() == player.getPhysicsObject().getUID()) {
 							System.out.println("collided with enemy...");
 							// obj2.applyForce(20, 0, 0, 0, 0, 0);
 							matchGameObjectwithPhysicsObject(player, obj1);
+							updatePhysicsObjectLocation(player.getPhysicsObject(), player.getLocalTranslation());
 							targetCamera.updateCameraLocation(getFrameTime());
+							
 						}
 					}
 				}

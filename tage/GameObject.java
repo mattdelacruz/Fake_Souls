@@ -548,22 +548,6 @@ public class GameObject {
 		time = t;
 	}
 
-	/**
-	 * returns the current position of the GameObject within a NodeController target
-	 * list
-	 */
-	public float getControllerPosition() {
-		return position;
-	}
-
-	/**
-	 * sets the current position of the GameObject within a NodeController target
-	 * list
-	 */
-	public void setControllerPosition(float pos) {
-		position = pos;
-	}
-
 	/** rotate the GameObject about the world-Y axis */
 	public void yaw(float frameTime, float angle) {
 		setLocalRotation((new Matrix4f()).rotation(Math.toRadians(angle), getLocalUpVector().x, getWorldUpVector().y,
