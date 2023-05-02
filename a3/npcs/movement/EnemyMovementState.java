@@ -7,6 +7,4 @@ public interface EnemyMovementState {
 
     public String getAnimation();
 
-
-    
 }

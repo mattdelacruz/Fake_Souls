@@ -68,7 +68,7 @@ public class Player extends AnimatedGameObject {
     @Override
     public void move(Vector3f vec, float frameTime) {
         super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
-        handleAnimationSwitch(getMovementState().getAnimation());
+        this.handleAnimationSwitch(getMovementState().getAnimation());
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
         }
@@ -91,7 +91,7 @@ public class Player extends AnimatedGameObject {
             setMovementState(runMovement);
         }
         setStanceState(guardStance);
-        handleAnimationSwitch(getStanceState().getAnimation());
+        this.handleAnimationSwitch(getStanceState().getAnimation());
     }
 
     /* to be called by keyboard/gamepad events only */
@@ -113,14 +113,6 @@ public class Player extends AnimatedGameObject {
     public void updateAnimation() {
         super.updateAnimation();
         weapon.updateAnimation();
-    }
-
-    @Override
-    public void handleAnimationSwitch(String animation) {
-        super.handleAnimationSwitch(animation);
-        if (weapon.getAnimationShape().getAnimation(animation) != null) {
-            weapon.handleAnimationSwitch(animation);
-        }
     }
 
     @Override

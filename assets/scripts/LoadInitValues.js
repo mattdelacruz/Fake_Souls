@@ -8,8 +8,8 @@ with (JavaPackages) {
     Light.setGlobalAmbient(0.5, 0.5, 0.5);
 	light.setLocation(new Vector3f(5.0, 0.0, 2.0));
 
-    var WINDOW_WIDTH = 500;
-	var WINDOW_HEIGHT = 500;
+    var WINDOW_WIDTH = 1920;
+	var WINDOW_HEIGHT = 1080;
 	var ENEMY_AMOUNT = 4;
 	var PLAY_AREA_SIZE = 300;
 	var INITIAL_CAMERA_POS = new Vector3f(0, 0, 5);
@@ -20,6 +20,7 @@ with (JavaPackages) {
 	var TERRAIN_MAP = "terrain-map.png";
 	var TERRAIN_TEXTURE = "moon-craters.jpg";
 	var KATANA_TEXTURE = "katana-texture.png";
+	var SPEAR_TEXTURE = "longinus-texture.png";
 	var PLAYER_RKM = "player-animations/player.rkm";
 	var PLAYER_RKS = "player-animations/player.rks";
 	var PLAYER_RUN_RKA = "player-animations/player-run.rka";
@@ -40,6 +41,11 @@ with (JavaPackages) {
 	var ENEMY_RUN_RKA = "enemy-animations/knight-enemy-run.rka";
 	var ENEMY_IDLE_RKA = "enemy-animations/knight-enemy-idle.rka";
 	var PLAYER_HEIGHT_SPEED = 0.5;
+	// Spear animation file paths
+	var SPEAR_RKM = "enemy-animations/weapon-animations/longinus.rkm";
+	var SPEAR_RKS = "enemy-animations/weapon-animations/longinus.rks";
+	var SPEAR_RUN_RKA = "enemy-animations/weapon-animations/longinus-run.rka";
+
 }
 
 var xPlayerPos = 70;

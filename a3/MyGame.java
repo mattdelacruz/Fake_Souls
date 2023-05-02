@@ -60,7 +60,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private Enemy enemy;
 	private Player player;
-	private AnimatedGameObject katana;
+	private AnimatedGameObject katana, longinus;
 	private ProtocolType serverProtocol;
 	private ProtocolClient protocolClient;
 	private boolean isClientConnected = false;
@@ -74,9 +74,9 @@ public class MyGame extends VariableFrameRateGame {
 	private boolean hasMovedSouth = false;
 	private boolean isHingeSetup = false;
 
-	private ObjShape playerS, enemyS, ghostS, terrS;
-	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx, katanaTx;
-	private AnimatedShape playerShape, katanaShape, enemyShape;
+	private ObjShape ghostS, terrS;
+	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx, katanaTx, spearTx;
+	private AnimatedShape playerShape, katanaShape, enemyShape, spearShape;
 	private EnemyController enemyController;
 	private AnimationController animationController;
 
@@ -161,6 +161,7 @@ public class MyGame extends VariableFrameRateGame {
 		terrMap = new TextureImage((String) scriptManager.getValue("TERRAIN_MAP"));
 		terrTx = new TextureImage((String) scriptManager.getValue("TERRAIN_TEXTURE"));
 		katanaTx = new TextureImage((String) scriptManager.getValue("KATANA_TEXTURE"));
+		spearTx = new TextureImage((String) scriptManager.getValue("SPEAR_TEXTURE"));
 	}
 
 	@Override
@@ -275,6 +276,12 @@ public class MyGame extends VariableFrameRateGame {
 		enemyShape.loadAnimation(
 				"IDLE",
 				(String) scriptManager.getValue("ENEMY_IDLE_RKA"));
+		spearShape = new AnimatedShape(
+				(String) scriptManager.getValue("SPEAR_RKM"),
+				(String) scriptManager.getValue("SPEAR_RKS"));
+		spearShape.loadAnimation("RUN",
+				(String) scriptManager.getValue("SPEAR_RUN_RKA"));
+
 	}
 
 	private void initializeCameras() {
@@ -448,7 +455,7 @@ public class MyGame extends VariableFrameRateGame {
 	private void buildPlayer() {
 		float mass = 1f;
 		double[] tempTransform;
-		float[] size = { 5f, 5f, 5f };
+		float[] size;
 		Matrix4f translation;
 		PhysicsObject playerBody, katanaBody;
 
@@ -458,16 +465,14 @@ public class MyGame extends VariableFrameRateGame {
 		player.idle();
 		katana.propagateTranslation(true);
 
-		translation = new Matrix4f(player.getLocalTranslation());
+		translation = player.getLocalTranslation();
 		tempTransform = toDoubleArray(translation.get(vals));
-		
+
 		playerBody = physicsManager.addCapsuleObject(mass, tempTransform, 0.1f, 5f);
 		player.setPhysicsObject(playerBody);
 
 		size = new float[] { 3f, 3f, 3f };
-		
-		translation = player.getLocalTranslation();
-		tempTransform = toDoubleArray(translation.get(vals));
+
 		katanaBody = physicsManager.addBoxObject(mass, tempTransform, size);
 		katana.setPhysicsObject(katanaBody);
 
@@ -477,18 +482,27 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void buildEnemy() {
 		float mass = 0f;
+		float[] size;
 		double[] tempTransform;
 		Matrix4f translation;
-		PhysicsObject enemyObject;
+		PhysicsObject enemyObject, spearBody;
 
 		for (int i = 0; i < (int) scriptManager.getValue("ENEMY_AMOUNT"); i++) {
 			enemy = new Enemy(GameObject.root(), enemyShape, enemyTx, playerQuadTree, i);
-			enemyList.add(enemy);
-			translation = new Matrix4f(enemy.getLocalTranslation());
+			longinus = new AnimatedGameObject(enemy, spearShape, spearTx);
+			enemy.addWeapon(longinus);
+			longinus.propagateTranslation(true);
+			translation = enemy.getLocalTranslation();
 			tempTransform = toDoubleArray(translation.get(vals));
 			enemyObject = physicsManager.addCapsuleObject(mass, tempTransform, 0.1f, 5);
 			enemyMap.put(enemyObject.getUID(), enemy);
 			enemy.setPhysicsObject(enemyObject);
+
+			size = new float[] { 5f, 5f, 5f };
+			spearBody = physicsManager.addBoxObject(mass, tempTransform, size);
+			longinus.setPhysicsObject(spearBody);
+
+			enemyList.add(enemy);
 			enemyController.addTarget(enemy);
 			animationController.addTarget(enemy);
 		}
@@ -513,7 +527,7 @@ public class MyGame extends VariableFrameRateGame {
 			if (!isHingeSetup) {
 				if (obj1.getUID() == player.getPhysicsObject().getUID()
 						&& obj2.getUID() == katana.getPhysicsObject().getUID()) {
-							System.out.println("setting up hinge");
+					System.out.println("setting up hinge");
 					setupHingeConstraint(obj1, obj2, dynamicsWorld);
 					isHingeSetup = true;
 				}
@@ -528,20 +542,19 @@ public class MyGame extends VariableFrameRateGame {
 								&& player.getStanceState().isAttacking()) {
 
 							obj1.applyForce(0, 5, 0, 0, 0, 0);
-							//matchGameObjectwithPhysicsObject(katana, obj1);
+							// matchGameObjectwithPhysicsObject(katana, obj1);
 							updatePhysicsObjectLocation(obj2, katana.getLocalTranslation());
 							System.out.println("HIT");
 
 							// this is hitting for all 15 frames of the attack animation
-						} 
-						else if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
+						} else if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
 								obj1.getUID() == player.getPhysicsObject().getUID()) {
 							System.out.println("collided with enemy...");
 							// obj2.applyForce(20, 0, 0, 0, 0, 0);
 							matchGameObjectwithPhysicsObject(player, obj1);
 							updatePhysicsObjectLocation(player.getPhysicsObject(), player.getLocalTranslation());
 							targetCamera.updateCameraLocation(getFrameTime());
-							
+
 						}
 					}
 				}

@@ -18,8 +18,10 @@ public class HuntTarget extends BTCondition {
     @Override
     protected boolean check() {
         if (hunter.getTarget() != null) {
-            if (hunter.getTarget().getLocalLocation().distance(hunter.getLocalLocation()) <= HUNTING_DISTANCE) {
+            float distanceToPrey = hunter.getTarget().getLocalLocation().distance(hunter.getLocalLocation());
+            if (distanceToPrey <= HUNTING_DISTANCE && distanceToPrey >= hunter.getAttackRange()) {
                 hunter.lookAt(hunter.getTarget());
+                System.out.println("moving to target...");
                 hunter.move(hunter.getLocalForwardVector(), MyGame.getGameInstance().getFrameTime());
                 return true;
             }

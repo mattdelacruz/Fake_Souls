@@ -5,6 +5,7 @@ import org.joml.Vector3f;
 
 import a3.MyGame;
 import a3.npcs.enemybehavior.HuntTarget;
+import a3.npcs.enemybehavior.KillTarget;
 import a3.npcs.enemybehavior.SeekTarget;
 import a3.npcs.movement.EnemyMovementState;
 import a3.npcs.movement.EnemyRunMovementState;
@@ -19,9 +20,11 @@ import tage.ai.behaviortrees.BTSequence;
 import tage.ai.behaviortrees.BehaviorTree;
 
 public class Enemy extends AnimatedGameObject {
+    private static final float ATTACK_RANGE = 2f;
     private BehaviorTree ebt = new BehaviorTree(BTCompositeType.SEQUENCE);
     private QuadTree pqt;
     private GameObject target;
+    private AnimatedGameObject weapon;
     private long thinkStartTime, tickStartTime;
     private long lastThinkUpdateTime, lastTickUpdateTime;
     private EnemyMovementState movementState;
@@ -43,8 +46,23 @@ public class Enemy extends AnimatedGameObject {
     }
 
     @Override
+    public void updateAnimation() {
+        super.updateAnimation();
+        weapon.updateAnimation();
+    }
+
+    @Override
+    public void handleAnimationSwitch(String animation) {
+        super.handleAnimationSwitch(animation);
+        if (weapon.getAnimationShape().getAnimation(animation) != null) {
+            weapon.handleAnimationSwitch(animation);
+        }
+    }
+
+    @Override
     public void idle() {
         super.idle();
+        weapon.idle();
     }
 
     @Override
@@ -71,6 +89,7 @@ public class Enemy extends AnimatedGameObject {
         ebt.insertAtRoot(new BTSequence(10));
         ebt.insert(10, new SeekTarget(pqt, this, this.getLocalLocation()));
         ebt.insert(10, new HuntTarget(this));
+        ebt.insert(10, new KillTarget(this));
     }
 
     public void setTarget(GameObject target) {
@@ -84,4 +103,13 @@ public class Enemy extends AnimatedGameObject {
     public EnemyMovementState getMovementState() {
         return this.movementState;
     }
+
+    public float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    public void addWeapon(AnimatedGameObject weapon) {
+        this.weapon = weapon;
+    }
+
 }
