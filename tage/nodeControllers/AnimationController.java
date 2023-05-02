@@ -15,6 +15,5 @@ public class AnimationController extends NodeController {
         if (go instanceof AnimatedGameObject) {
             ((AnimatedGameObject) go).updateAnimation();
         }
-
     }
 }

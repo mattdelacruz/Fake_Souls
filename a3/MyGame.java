@@ -187,8 +187,6 @@ public class MyGame extends VariableFrameRateGame {
 		buildEnemyQuadTree();
 	}
 
-	
-
 	@Override
 	public void initializeLights() {
 		(engine.getSceneGraph()).addLight((Light) scriptManager.getValue("light"));
@@ -453,14 +451,6 @@ public class MyGame extends VariableFrameRateGame {
 		float[] size = { 5f, 5f, 5f };
 		Matrix4f translation;
 		PhysicsObject playerBody, katanaBody;
-		Player dumb;
-		Matrix4f katanaOffset = 
-		new Matrix4f(
-		5, 0, 0, 0,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		0, 0, 0, 1
-		);
 
 		player = new Player(GameObject.root(), playerShape, playerTx);
 		katana = new AnimatedGameObject(player, katanaShape, katanaTx);
@@ -470,15 +460,13 @@ public class MyGame extends VariableFrameRateGame {
 
 		translation = new Matrix4f(player.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
-		// playerBody = physicsManager.addBoxObject(physicsManager.nextUID(), mass,
-		// 		tempTransform, size);
+		
 		playerBody = physicsManager.addCapsuleObject(mass, tempTransform, 0.1f, 5f);
 		player.setPhysicsObject(playerBody);
 
 		size = new float[] { 3f, 3f, 3f };
 		
 		translation = player.getLocalTranslation();
-		translation.setColumn(0, new Vector4f(5, 0,0,0));
 		tempTransform = toDoubleArray(translation.get(vals));
 		katanaBody = physicsManager.addBoxObject(mass, tempTransform, size);
 		katana.setPhysicsObject(katanaBody);
