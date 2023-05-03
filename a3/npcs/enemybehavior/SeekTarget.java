@@ -17,10 +17,10 @@ public class SeekTarget extends BTCondition {
     Vector3f pos;
     GameObject target, hunter;
 
-    public SeekTarget(QuadTree playerQuadTree, GameObject en, Vector3f pos) {
+    public SeekTarget(QuadTree playerQuadTree, GameObject hunter, Vector3f pos) {
         super(false);
         pqt = playerQuadTree;
-        this.hunter = en;
+        this.hunter = hunter;
         this.pos = pos;
     }
 
@@ -36,7 +36,7 @@ public class SeekTarget extends BTCondition {
             ((Enemy) hunter).setTarget(target);
             return true;
         }
-        System.out.println("no prey found...");
+        // System.out.println("no prey found...");
         return false;
     }
 

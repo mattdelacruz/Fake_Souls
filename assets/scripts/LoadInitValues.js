@@ -40,11 +40,15 @@ with (JavaPackages) {
 	var ENEMY_RKS = "enemy-animations/knight-enemy.rks";
 	var ENEMY_RUN_RKA = "enemy-animations/knight-enemy-run.rka";
 	var ENEMY_IDLE_RKA = "enemy-animations/knight-enemy-idle.rka";
+	var ENEMY_ATTACK_RKA = "enemy-animations/knight-enemy-attack.rka";
 	var PLAYER_HEIGHT_SPEED = 0.5;
 	// Spear animation file paths
 	var SPEAR_RKM = "enemy-animations/weapon-animations/longinus.rkm";
 	var SPEAR_RKS = "enemy-animations/weapon-animations/longinus.rks";
+	var SPEAR_IDLE_RKA = "enemy-animations/weapon-animations/longinus-idle.rka";
 	var SPEAR_RUN_RKA = "enemy-animations/weapon-animations/longinus-run.rka";
+	var SPEAR_ATTACK_RKA = "enemy-animations/weapon-animations/longinus-attack.rka";
+
 
 	var BACKGROUND_MUSIC = "assets/sounds/background-music.wav";
 	var STEP1 = "assets/sounds/step1.wav";

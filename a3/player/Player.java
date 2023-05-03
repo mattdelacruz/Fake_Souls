@@ -19,6 +19,7 @@ import tage.AnimatedGameObject;
 import tage.GameObject;
 import tage.ObjShape;
 import tage.TextureImage;
+import tage.audio.SoundType;
 import tage.shapes.AnimatedShape;
 
 public class Player extends AnimatedGameObject {
@@ -27,7 +28,7 @@ public class Player extends AnimatedGameObject {
     private boolean isLocked = false;
     private boolean step1isPlayed = false;
     private boolean step2isPlayed = false;
-    private ScriptManager scriptManager;
+
     private PlayerStanceState stanceState;
     private PlayerMovementState movementState;
     private PlayerAttackStanceState attackStance = new PlayerAttackStanceState();
@@ -55,31 +56,43 @@ public class Player extends AnimatedGameObject {
 
     public Player(GameObject p, ObjShape s, TextureImage t) {
         super(p, s, t);
-        scriptManager = MyGame.getGameInstance().getScriptManager();
-        scriptManager.loadScript("assets/scripts/LoadInitValues.js");
         setLocalScale(new Matrix4f().scaling(.2f));
-        System.out.println(getLocalScale().get(1, 1));
         setLocalLocation(
-                new Vector3f((int) scriptManager.getValue("xPlayerPos"), (int) scriptManager.getValue("yPlayerPos"),
-                        (int) scriptManager.getValue("zPlayerPos")));
+                new Vector3f((int) getScriptManager().getValue("xPlayerPos"),
+                        (int) getScriptManager().getValue("yPlayerPos"),
+                        (int) getScriptManager().getValue("zPlayerPos")));
         setStanceState(normalStance);
         setMovementState(runMovement);
-        getRenderStates().setRenderHiddenFaces(true);
+        // initializeSounds();
+    }
+
+    private void initializeSounds() {
+        int backgroundMusicRange = (int) getScriptManager().getValue("PLAY_AREA_SIZE");
+
+        getSoundManager().addSound(
+                "STEP1", (String) getScriptManager().getValue("STEP1"), 5, false, (float) backgroundMusicRange, 0, 0,
+                getLocalLocation(), SoundType.SOUND_EFFECT);
+        getSoundManager().addSound(
+                "STEP2", (String) getScriptManager().getValue("STEP1"), 5, false, (float) backgroundMusicRange, 0, 0,
+                getLocalLocation(), SoundType.SOUND_EFFECT);
+
     }
 
     @Override
     public void move(Vector3f vec, float frameTime) {
         super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
-        if (!step1isPlayed && !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")){
-            MyGame.getGameInstance().getSoundManager().playSound("STEP1");
-            step2isPlayed = false;
-            step1isPlayed = true;
-        } else if (!step2isPlayed && !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")){
-            MyGame.getGameInstance().getSoundManager().playSound("STEP2");
-            step1isPlayed = false;
-            step2isPlayed = true;
-        }
-        this.handleAnimationSwitch(getMovementState().getAnimation());
+        // if (!step1isPlayed &&
+        // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
+        // MyGame.getGameInstance().getSoundManager().playSound("STEP1");
+        // step2isPlayed = false;
+        // step1isPlayed = true;
+        // } else if (!step2isPlayed &&
+        // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
+        // MyGame.getGameInstance().getSoundManager().playSound("STEP2");
+        // step1isPlayed = false;
+        // step2isPlayed = true;
+        // }
+        handleAnimationSwitch(getMovementState().getAnimation(), 1f);
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
         }
@@ -92,17 +105,18 @@ public class Player extends AnimatedGameObject {
             setMovementState(runMovement);
         }
         setStanceState(attackStance);
-        handleAnimationSwitch(getStanceState().getAnimation(), 0.25f);
+        handleAnimationSwitch(getStanceState().getAnimation(), 0.5f);
     }
 
     /* to be called by keyboard/gamepad events only */
     public void guard() {
+
         // play guard animation, play some sound
         if (getMovementState().isSprinting()) {
             setMovementState(runMovement);
         }
         setStanceState(guardStance);
-        this.handleAnimationSwitch(getStanceState().getAnimation());
+        handleAnimationSwitch(getStanceState().getAnimation(), 1f);
     }
 
     /* to be called by keyboard/gamepad events only */
@@ -128,9 +142,9 @@ public class Player extends AnimatedGameObject {
 
     @Override
     public void handleAnimationSwitch(String animation, float speed) {
-        super.handleAnimationSwitch(animation);
+        super.handleAnimationSwitch(animation, speed);
         if (weapon.getAnimationShape().getAnimation(animation) != null) {
-            weapon.handleAnimationSwitch(animation);
+            weapon.handleAnimationSwitch(animation, speed);
         }
     }
 

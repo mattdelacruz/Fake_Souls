@@ -186,6 +186,7 @@ public class MyGame extends VariableFrameRateGame {
 		playerQuadTree = new QuadTree(
 				new QuadTreePoint((float) -playAreaSize, (float) playAreaSize),
 				new QuadTreePoint((float) playAreaSize, (float) -playAreaSize));
+		initializeAudio();
 		buildTerrainMap();
 		buildControllers();
 		buildPlayer();
@@ -214,7 +215,6 @@ public class MyGame extends VariableFrameRateGame {
 		updateFrameTime();
 		initializeCameras();
 		setupNetworking();
-		initializeAudio();
 		controls = new PlayerControls();
 	}
 
@@ -246,14 +246,15 @@ public class MyGame extends VariableFrameRateGame {
 
 	public void initializeAudio() {
 		soundManager = new SoundManager();
-		/*String soundName, String soundPath, int volume, boolean toLoop, float maxDistance, float minDistance, float rollOff, Vector3f soundLocation */
-		int backgroundMusicRange = (int)scriptManager.getValue("PLAY_AREA_SIZE");
+		/*
+		 * String soundName, String soundPath, int volume, boolean toLoop, float
+		 * maxDistance, float minDistance, float rollOff, Vector3f soundLocation
+		 */
+		int backgroundMusicRange = (int) scriptManager.getValue("PLAY_AREA_SIZE");
 		soundManager.addSound(
-			"BACKGROUND_MUSIC", (String) scriptManager.getValue("BACKGROUND_MUSIC"), 50, true, (float) backgroundMusicRange, 0, 0, player.getLocalLocation(), SoundType.SOUND_MUSIC);
-		soundManager.addSound(
-			"STEP1", (String) scriptManager.getValue("STEP1"), 5, false, (float) backgroundMusicRange, 0, 0, player.getLocalLocation(), SoundType.SOUND_EFFECT);
-		soundManager.addSound(
-			"STEP2", (String) scriptManager.getValue("STEP1"), 5, false, (float) backgroundMusicRange, 0, 0, player.getLocalLocation(), SoundType.SOUND_EFFECT);
+				"BACKGROUND_MUSIC", (String) scriptManager.getValue("BACKGROUND_MUSIC"), 50, true,
+				(float) backgroundMusicRange, 0, 0, new Vector3f(0, 0, 0), SoundType.SOUND_MUSIC);
+
 		soundManager.playSound("BACKGROUND_MUSIC");
 	}
 
@@ -296,11 +297,18 @@ public class MyGame extends VariableFrameRateGame {
 		enemyShape.loadAnimation(
 				"IDLE",
 				(String) scriptManager.getValue("ENEMY_IDLE_RKA"));
+		enemyShape.loadAnimation("ATTACK",
+				(String) scriptManager.getValue("ENEMY_ATTACK_RKA"));
+
 		spearShape = new AnimatedShape(
 				(String) scriptManager.getValue("SPEAR_RKM"),
 				(String) scriptManager.getValue("SPEAR_RKS"));
+		spearShape.loadAnimation("IDLE",
+				(String) scriptManager.getValue("SPEAR_IDLE_RKA"));
 		spearShape.loadAnimation("RUN",
 				(String) scriptManager.getValue("SPEAR_RUN_RKA"));
+		spearShape.loadAnimation("ATTACK",
+				(String) scriptManager.getValue("SPEAR_ATTACK_RKA"));
 	}
 
 	private void initializeCameras() {
@@ -328,9 +336,17 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void update() {
+		soundManager.setEarParameters(getTargetCamera(), player.getWorldLocation(), player.getLocalForwardVector(),
+				player.getLocalUpVector());
 		updateFrameTime();
 		updateMovementControls();
 		checkObjectMovement(player);
+		for (int i = 0; i < enemyList.size(); i++) {
+			checkObjectMovement(enemyList.get(i));
+			updatePhysicsObjectLocation(enemyList.get(i).getPhysicsObject(),
+					enemyList.get(i).getLocalTranslation());
+		}
+
 		// System.out.printf("player: ");
 		// checkLocation(player);
 		// System.out.printf("katana: ");
@@ -349,11 +365,6 @@ public class MyGame extends VariableFrameRateGame {
 		updatePhysicsObjectLocation(player.getPhysicsObject(), player.getLocalTranslation());
 
 		updatePhysicsObjectLocation(katana.getPhysicsObject(), katana.getWorldTranslation());
-
-		for (int i = 0; i < enemyList.size(); i++) {
-			updatePhysicsObjectLocation(enemyList.get(i).getPhysicsObject(),
-					enemyList.get(i).getLocalTranslation());
-		}
 
 		inputManager.update((float) elapsTime);
 		physicsManager.update((float) elapsTime);
@@ -546,7 +557,6 @@ public class MyGame extends VariableFrameRateGame {
 			if (!isHingeSetup) {
 				if (obj1.getUID() == player.getPhysicsObject().getUID()
 						&& obj2.getUID() == katana.getPhysicsObject().getUID()) {
-					System.out.println("setting up hinge");
 					setupHingeConstraint(obj1, obj2, dynamicsWorld);
 					isHingeSetup = true;
 				}
@@ -561,7 +571,6 @@ public class MyGame extends VariableFrameRateGame {
 								&& player.getStanceState().isAttacking()) {
 
 							obj2.applyForce(0, 5, 0, 0, 0, 0);
-							// matchGameObjectwithPhysicsObject(katana, obj1);
 							updatePhysicsObjectLocation(obj1, katana.getLocalTranslation());
 							System.out.println("HIT");
 
@@ -569,7 +578,6 @@ public class MyGame extends VariableFrameRateGame {
 						} else if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
 								obj1.getUID() == player.getPhysicsObject().getUID()) {
 							System.out.println("collided with enemy...");
-							// obj2.applyForce(20, 0, 0, 0, 0, 0);
 							matchGameObjectwithPhysicsObject(player, obj1);
 							updatePhysicsObjectLocation(player.getPhysicsObject(), player.getLocalTranslation());
 							targetCamera.updateCameraLocation(getFrameTime());

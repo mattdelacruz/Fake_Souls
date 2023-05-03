@@ -13,15 +13,11 @@ public class KillTarget extends BTCondition {
 
     @Override
     protected boolean check() {
-        if (hunter.getTarget() != null) {
-            float distanceToPrey = hunter.getTarget().getLocalLocation().distance(hunter.getLocalLocation());
-            if (distanceToPrey <= hunter.getAttackRange()) {
-                System.out.println("attacking... add animation later");
-                return true;
-            }
-
+        float distanceToPrey = hunter.getTarget().getLocalLocation().distance(hunter.getLocalLocation());
+        if (distanceToPrey <= hunter.getAttackRange()) {
+            System.out.println("attacking...");
+            hunter.attack();
         }
-        System.out.println("not close enough...");
         return false;
     }
 

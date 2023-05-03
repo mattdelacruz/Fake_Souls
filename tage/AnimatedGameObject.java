@@ -2,12 +2,17 @@ package tage;
 
 import org.joml.Vector3f;
 
+import a3.MyGame;
+import a3.managers.ScriptManager;
+import a3.managers.SoundManager;
 import tage.shapes.AnimatedShape;
 
 public class AnimatedGameObject extends GameObject {
 	private AnimatedShape animatedShape;
 	private boolean isMoving = false;
 	private Vector3f lastLocation = new Vector3f();
+	private ScriptManager scriptManager = MyGame.getGameInstance().getScriptManager();
+	private SoundManager soundManager = MyGame.getGameInstance().getSoundManager();
 
 	public AnimatedGameObject(GameObject p, ObjShape s, TextureImage t) {
 		super(p, s, t);
@@ -114,5 +119,19 @@ public class AnimatedGameObject extends GameObject {
 
 	public void updateAnimation() {
 		getAnimationShape().updateAnimation();
+	}
+
+	public SoundManager getSoundManager() {
+		if (soundManager == null) {
+			soundManager = MyGame.getGameInstance().getSoundManager();
+		}
+		return soundManager;
+	}
+
+	public ScriptManager getScriptManager() {
+		if (scriptManager == null) {
+			scriptManager = MyGame.getGameInstance().getScriptManager();
+		}
+		return scriptManager;
 	}
 }

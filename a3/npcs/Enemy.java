@@ -4,6 +4,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import a3.MyGame;
+import a3.managers.ScriptManager;
+import a3.managers.SoundManager;
 import a3.npcs.enemybehavior.HuntTarget;
 import a3.npcs.enemybehavior.KillTarget;
 import a3.npcs.enemybehavior.SeekTarget;
@@ -18,9 +20,11 @@ import tage.TextureImage;
 import tage.ai.behaviortrees.BTCompositeType;
 import tage.ai.behaviortrees.BTSequence;
 import tage.ai.behaviortrees.BehaviorTree;
+import tage.audio.SoundType;
 
 public class Enemy extends AnimatedGameObject {
     private static final float ATTACK_RANGE = 5f;
+
     private BehaviorTree ebt = new BehaviorTree(BTCompositeType.SEQUENCE);
     private QuadTree pqt;
     private GameObject target;
@@ -29,20 +33,35 @@ public class Enemy extends AnimatedGameObject {
     private long lastThinkUpdateTime, lastTickUpdateTime;
     private EnemyMovementState movementState;
     private EnemyRunMovementState runMovement = new EnemyRunMovementState();
+    private boolean step1isPlayed = false;
+    private boolean step2isPlayed = false;
 
     public Enemy(GameObject p, ObjShape s, TextureImage t, QuadTree playerQuadTree, int id) {
         super(p, s, t);
         float posX = (float) 50f;
         float posZ = (float) 124f + (5 * id);
         pqt = playerQuadTree;
+
         setLocalScale((new Matrix4f()).scaling(0.5f));
         setLocalTranslation(new Matrix4f().translation(posX, 0.5f, posZ));
         setupBehaviorTree();
+        initializeSounds();
         movementState = runMovement;
         thinkStartTime = System.nanoTime();
         tickStartTime = System.nanoTime();
         lastThinkUpdateTime = thinkStartTime;
         lastTickUpdateTime = tickStartTime;
+    }
+
+    private void initializeSounds() {
+        int backgroundMusicRange = (int) getScriptManager().getValue("PLAY_AREA_SIZE");
+
+        getSoundManager().addSound(
+                "STEP1", (String) getScriptManager().getValue("STEP1"), 20, false, (float) 20f, 0, 5.0f,
+                getLocalLocation(), SoundType.SOUND_EFFECT);
+        getSoundManager().addSound(
+                "STEP2", (String) getScriptManager().getValue("STEP1"), 20, false, (float) 20f, 0, 5.0f,
+                getLocalLocation(), SoundType.SOUND_EFFECT);
     }
 
     @Override
@@ -65,10 +84,24 @@ public class Enemy extends AnimatedGameObject {
         weapon.idle();
     }
 
+    public void attack() {
+        handleAnimationSwitch("ATTACK");
+        weapon.handleAnimationSwitch("ATTACK");
+    }
+
     @Override
     public void move(Vector3f vec, float frameTime) {
         super.move(vec, (frameTime * getMovementState().getSpeed()));
         handleAnimationSwitch(getMovementState().getAnimation());
+        if (!step1isPlayed && !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
+            MyGame.getGameInstance().getSoundManager().playSound("STEP1");
+            step2isPlayed = false;
+            step1isPlayed = true;
+        } else if (!step2isPlayed && !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
+            MyGame.getGameInstance().getSoundManager().playSound("STEP2");
+            step1isPlayed = false;
+            step2isPlayed = true;
+        }
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
         }
@@ -82,7 +115,8 @@ public class Enemy extends AnimatedGameObject {
         lastTickUpdateTime = currentTime;
 
         lastThinkUpdateTime = currentTime;
-        //ebt.update(elapsedThinkMilliSecs);
+        ebt.update(elapsedThinkMilliSecs);
+
     }
 
     private void setupBehaviorTree() {

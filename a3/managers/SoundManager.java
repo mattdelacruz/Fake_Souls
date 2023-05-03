@@ -19,14 +19,15 @@ public class SoundManager {
 
     public SoundManager() {
         audioManager = AudioManagerFactory.createAudioManager(
-            "tage.audio.joal.JOALAudioManager");
+                "tage.audio.joal.JOALAudioManager");
         if (!audioManager.initialize()) {
             System.out.println("Sound manager has failed to initalize!");
             return;
         }
     }
 
-    public void addSound(String soundName, String soundPath, int volume, boolean toLoop, float maxDistance, float minDistance, float rollOff, Vector3f soundLocation, SoundType type) {
+    public void addSound(String soundName, String soundPath, int volume, boolean toLoop, float maxDistance,
+            float minDistance, float rollOff, Vector3f soundLocation, SoundType type) {
         AudioResource resource = audioManager.createAudioResource(soundPath, AudioResourceType.AUDIO_SAMPLE);
 
         Sound sound = new Sound(resource, type, volume, toLoop);
