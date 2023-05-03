@@ -8,8 +8,8 @@ with (JavaPackages) {
     Light.setGlobalAmbient(0.5, 0.5, 0.5);
 	light.setLocation(new Vector3f(5.0, 0.0, 2.0));
 
-    var WINDOW_WIDTH = 1920;
-	var WINDOW_HEIGHT = 1080;
+    var WINDOW_WIDTH = 600;
+	var WINDOW_HEIGHT = 600;
 	var ENEMY_AMOUNT = 4;
 	var PLAY_AREA_SIZE = 300;
 	var INITIAL_CAMERA_POS = new Vector3f(0, 0, 5);
@@ -45,6 +45,11 @@ with (JavaPackages) {
 	var SPEAR_RKM = "enemy-animations/weapon-animations/longinus.rkm";
 	var SPEAR_RKS = "enemy-animations/weapon-animations/longinus.rks";
 	var SPEAR_RUN_RKA = "enemy-animations/weapon-animations/longinus-run.rka";
+
+	var BACKGROUND_MUSIC = "assets/sounds/background-music.wav";
+	var STEP1 = "assets/sounds/step1.wav";
+	var STEP2 = "assets/sounds/step2.wav";
+
 
 }
 

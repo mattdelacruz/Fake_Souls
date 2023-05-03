@@ -6,7 +6,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import a3.MyGame;
-import a3.ScriptManager;
+import a3.managers.ScriptManager;
+import a3.managers.SoundManager;
 import a3.player.movement.PlayerMovementState;
 import a3.player.movement.PlayerRunMovementState;
 import a3.player.movement.PlayerSprintMovementState;
@@ -21,10 +22,11 @@ import tage.TextureImage;
 import tage.shapes.AnimatedShape;
 
 public class Player extends AnimatedGameObject {
-    private AnimatedShape playerShape;
     private AnimatedGameObject weapon;
     public int currFrame = 0;
     private boolean isLocked = false;
+    private boolean step1isPlayed = false;
+    private boolean step2isPlayed = false;
     private ScriptManager scriptManager;
     private PlayerStanceState stanceState;
     private PlayerMovementState movementState;
@@ -68,6 +70,15 @@ public class Player extends AnimatedGameObject {
     @Override
     public void move(Vector3f vec, float frameTime) {
         super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
+        if (!step1isPlayed && !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")){
+            MyGame.getGameInstance().getSoundManager().playSound("STEP1");
+            step2isPlayed = false;
+            step1isPlayed = true;
+        } else if (!step2isPlayed && !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")){
+            MyGame.getGameInstance().getSoundManager().playSound("STEP2");
+            step1isPlayed = false;
+            step2isPlayed = true;
+        }
         this.handleAnimationSwitch(getMovementState().getAnimation());
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());

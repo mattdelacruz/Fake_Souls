@@ -20,7 +20,7 @@ import tage.ai.behaviortrees.BTSequence;
 import tage.ai.behaviortrees.BehaviorTree;
 
 public class Enemy extends AnimatedGameObject {
-    private static final float ATTACK_RANGE = 2f;
+    private static final float ATTACK_RANGE = 5f;
     private BehaviorTree ebt = new BehaviorTree(BTCompositeType.SEQUENCE);
     private QuadTree pqt;
     private GameObject target;
@@ -82,7 +82,7 @@ public class Enemy extends AnimatedGameObject {
         lastTickUpdateTime = currentTime;
 
         lastThinkUpdateTime = currentTime;
-        ebt.update(elapsedThinkMilliSecs);
+        //ebt.update(elapsedThinkMilliSecs);
     }
 
     private void setupBehaviorTree() {

@@ -2,6 +2,8 @@ package a3;
 
 import tage.*;
 import tage.ai.behaviortrees.BehaviorTree;
+import tage.audio.AudioResource;
+import tage.audio.SoundType;
 import tage.input.InputManager;
 import tage.networking.IGameConnection.ProtocolType;
 import tage.nodeControllers.AnimationController;
@@ -25,6 +27,9 @@ import org.joml.Vector4f;
 
 import a3.controls.PlayerControlMap;
 import a3.controls.PlayerControls;
+import a3.managers.PhysicsManager;
+import a3.managers.ScriptManager;
+import a3.managers.SoundManager;
 import a3.network.GhostManager;
 import a3.network.ProtocolClient;
 import a3.npcs.Enemy;
@@ -39,6 +44,7 @@ public class MyGame extends VariableFrameRateGame {
 	private static ScriptManager scriptManager;
 	private static PhysicsManager physicsManager;
 	private static GhostManager ghostManager;
+	private static SoundManager soundManager;
 
 	private InputManager inputManager;
 	private TargetCamera targetCamera;
@@ -208,6 +214,7 @@ public class MyGame extends VariableFrameRateGame {
 		updateFrameTime();
 		initializeCameras();
 		setupNetworking();
+		initializeAudio();
 		controls = new PlayerControls();
 	}
 
@@ -235,6 +242,19 @@ public class MyGame extends VariableFrameRateGame {
 				setupHingeConstraint(obj1, obj2, dynamicsWorld);
 			}
 		}
+	}
+
+	public void initializeAudio() {
+		soundManager = new SoundManager();
+		/*String soundName, String soundPath, int volume, boolean toLoop, float maxDistance, float minDistance, float rollOff, Vector3f soundLocation */
+		int backgroundMusicRange = (int)scriptManager.getValue("PLAY_AREA_SIZE");
+		soundManager.addSound(
+			"BACKGROUND_MUSIC", (String) scriptManager.getValue("BACKGROUND_MUSIC"), 50, true, (float) backgroundMusicRange, 0, 0, player.getLocalLocation(), SoundType.SOUND_MUSIC);
+		soundManager.addSound(
+			"STEP1", (String) scriptManager.getValue("STEP1"), 5, false, (float) backgroundMusicRange, 0, 0, player.getLocalLocation(), SoundType.SOUND_EFFECT);
+		soundManager.addSound(
+			"STEP2", (String) scriptManager.getValue("STEP1"), 5, false, (float) backgroundMusicRange, 0, 0, player.getLocalLocation(), SoundType.SOUND_EFFECT);
+		soundManager.playSound("BACKGROUND_MUSIC");
 	}
 
 	private void initializePlayerAnimations() {
@@ -281,7 +301,6 @@ public class MyGame extends VariableFrameRateGame {
 				(String) scriptManager.getValue("SPEAR_RKS"));
 		spearShape.loadAnimation("RUN",
 				(String) scriptManager.getValue("SPEAR_RUN_RKA"));
-
 	}
 
 	private void initializeCameras() {
@@ -453,7 +472,7 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void buildPlayer() {
-		float mass = 1f;
+		float mass = 20f;
 		double[] tempTransform;
 		float[] size;
 		Matrix4f translation;
@@ -541,9 +560,9 @@ public class MyGame extends VariableFrameRateGame {
 								obj1.getUID() == katana.getPhysicsObject().getUID()
 								&& player.getStanceState().isAttacking()) {
 
-							obj1.applyForce(0, 5, 0, 0, 0, 0);
+							obj2.applyForce(0, 5, 0, 0, 0, 0);
 							// matchGameObjectwithPhysicsObject(katana, obj1);
-							updatePhysicsObjectLocation(obj2, katana.getLocalTranslation());
+							updatePhysicsObjectLocation(obj1, katana.getLocalTranslation());
 							System.out.println("HIT");
 
 							// this is hitting for all 15 frames of the attack animation
@@ -554,7 +573,6 @@ public class MyGame extends VariableFrameRateGame {
 							matchGameObjectwithPhysicsObject(player, obj1);
 							updatePhysicsObjectLocation(player.getPhysicsObject(), player.getLocalTranslation());
 							targetCamera.updateCameraLocation(getFrameTime());
-
 						}
 					}
 				}
@@ -852,6 +870,10 @@ public class MyGame extends VariableFrameRateGame {
 
 	public ScriptManager getScriptManager() {
 		return scriptManager;
+	}
+
+	public SoundManager getSoundManager() {
+		return soundManager;
 	}
 
 	public void addKeyToActiveKeys(String key) {

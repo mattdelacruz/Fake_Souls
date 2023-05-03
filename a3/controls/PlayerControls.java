@@ -20,13 +20,13 @@ public class PlayerControls {
 	}
 
 	public void moveNorth(float frameTime) {
-		player.move(player.getLocalForwardVector(), frameTime);
+		player.move(player.getWorldForwardVector(), frameTime);
 		cam.updateCameraLocation(frameTime);
 		cam.lookAt(player);
 	}
 
 	public void moveEast(float frameTime) {
-		player.move(player.getLocalRightVector(), frameTime);
+		player.move(player.getWorldRightVector(), frameTime);
 		cam.updateCameraLocation(frameTime);
 		cam.lookAt(player);
 	}
@@ -53,6 +53,7 @@ public class PlayerControls {
 		GameObject target = MyGame.getGameInstance().findTarget();
 		if (target != null && target instanceof Enemy) {
 			game.getTargetCamera().setTarget((Enemy) target);
+			game.getTargetCamera().setLookAtTarget(target.getLocalLocation());
 			player.setLock(true);
 		}
 		return;
