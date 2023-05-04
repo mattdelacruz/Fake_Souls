@@ -15,8 +15,8 @@ public class KillTarget extends BTCondition {
     protected boolean check() {
         float distanceToPrey = hunter.getTarget().getLocalLocation().distance(hunter.getLocalLocation());
         if (distanceToPrey <= hunter.getAttackRange()) {
-            System.out.println("attacking...");
             hunter.attack();
+            return true;
         }
         return false;
     }

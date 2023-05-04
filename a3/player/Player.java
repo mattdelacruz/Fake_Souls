@@ -105,7 +105,7 @@ public class Player extends AnimatedGameObject {
             setMovementState(runMovement);
         }
         setStanceState(attackStance);
-        handleAnimationSwitch(getStanceState().getAnimation(), 0.5f);
+        handleAnimationSwitch(getStanceState().getAnimation(), 1f);
     }
 
     /* to be called by keyboard/gamepad events only */

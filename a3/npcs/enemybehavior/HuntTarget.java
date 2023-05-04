@@ -22,8 +22,15 @@ public class HuntTarget extends BTCondition {
             if (distanceToPrey <= HUNTING_DISTANCE && distanceToPrey >= hunter.getAttackRange()) {
                 hunter.lookAt(hunter.getTarget());
                 hunter.move(hunter.getLocalForwardVector(), MyGame.getGameInstance().getFrameTime());
+            }
+
+            distanceToPrey = hunter.getTarget().getLocalLocation().distance(hunter.getLocalLocation());
+
+            if (distanceToPrey <= hunter.getAttackRange()) {
+                hunter.attack();
                 return true;
             }
+            
         }
         return false;
     }

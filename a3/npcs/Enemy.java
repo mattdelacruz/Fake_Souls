@@ -35,6 +35,7 @@ public class Enemy extends AnimatedGameObject {
     private EnemyRunMovementState runMovement = new EnemyRunMovementState();
     private boolean step1isPlayed = false;
     private boolean step2isPlayed = false;
+    private float elapsedThinkMilliSecs;
 
     public Enemy(GameObject p, ObjShape s, TextureImage t, QuadTree playerQuadTree, int id) {
         super(p, s, t);
@@ -85,8 +86,11 @@ public class Enemy extends AnimatedGameObject {
     }
 
     public void attack() {
-        handleAnimationSwitch("ATTACK");
-        weapon.handleAnimationSwitch("ATTACK");
+        if (elapsedThinkMilliSecs >= 1000f) {
+            System.out.println("attacking...");
+            handleAnimationSwitch("ATTACK");
+            elapsedThinkMilliSecs = 0f;
+        }
     }
 
     @Override
@@ -109,13 +113,13 @@ public class Enemy extends AnimatedGameObject {
 
     public void updateBehavior() {
         long currentTime = System.nanoTime();
-        float elapsedThinkMilliSecs = (currentTime - lastThinkUpdateTime) / (1000000.0f);
+        elapsedThinkMilliSecs += (currentTime - lastThinkUpdateTime) / (1000000.0f);
         float elapsedTickMilliSecs = (currentTime - lastTickUpdateTime) / (1000000.0f);
 
         lastTickUpdateTime = currentTime;
 
         lastThinkUpdateTime = currentTime;
-        ebt.update(elapsedThinkMilliSecs);
+        //ebt.update(elapsedThinkMilliSecs);
 
     }
 
@@ -123,7 +127,7 @@ public class Enemy extends AnimatedGameObject {
         ebt.insertAtRoot(new BTSequence(10));
         ebt.insert(10, new SeekTarget(pqt, this, this.getLocalLocation()));
         ebt.insert(10, new HuntTarget(this));
-        ebt.insert(10, new KillTarget(this));
+        //ebt.insert(10, new KillTarget(this));
     }
 
     public void setTarget(GameObject target) {
