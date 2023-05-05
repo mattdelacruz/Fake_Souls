@@ -336,8 +336,8 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void update() {
-		soundManager.setEarParameters(getTargetCamera(), player.getWorldLocation(), player.getLocalForwardVector(),
-				player.getLocalUpVector());
+		soundManager.setEarParameters(getTargetCamera(), player.getWorldLocation(), getTargetCamera().getN(),
+				new Vector3f(0, 1f, 0));
 		updateFrameTime();
 		updateMovementControls();
 		checkObjectMovement(player);
@@ -429,12 +429,18 @@ public class MyGame extends VariableFrameRateGame {
 		Vector3f currLoc = player.getLocalLocation();
 		currHeightLoc = terrain.getHeight(currLoc.x, currLoc.z);
 
-		float targetHeight = currHeightLoc;
+		if (currHeightLoc > 1.2f) {
+			player.setLocalLocation(player.getLastValidLocation());
+			targetCamera.updateCameraLocation(frameTime);
+			return;
+		}
 		double playerHeightSpeed = (double) scriptManager.getValue("PLAYER_HEIGHT_SPEED");
 		float alpha = frameTime * (float) playerHeightSpeed;
-		float newHeight = lerp(lastHeightLoc, targetHeight, alpha);
+		float newHeight = lerp(lastHeightLoc, currHeightLoc, alpha);
 
-		player.setLocalLocation(new Vector3f(currLoc.x(), newHeight, currLoc.z()));
+		Vector3f newLocation = new Vector3f(currLoc.x(), newHeight, currLoc.z());
+		player.setLocalLocation(newLocation);
+		player.setLastValidLocation(newLocation);
 		lastHeightLoc = newHeight;
 		targetCamera.updateCameraLocation(frameTime);
 	}

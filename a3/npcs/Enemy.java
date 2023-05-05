@@ -119,7 +119,7 @@ public class Enemy extends AnimatedGameObject {
         lastTickUpdateTime = currentTime;
 
         lastThinkUpdateTime = currentTime;
-        //ebt.update(elapsedThinkMilliSecs);
+        ebt.update(elapsedThinkMilliSecs);
 
     }
 
@@ -127,7 +127,7 @@ public class Enemy extends AnimatedGameObject {
         ebt.insertAtRoot(new BTSequence(10));
         ebt.insert(10, new SeekTarget(pqt, this, this.getLocalLocation()));
         ebt.insert(10, new HuntTarget(this));
-        //ebt.insert(10, new KillTarget(this));
+        ebt.insert(10, new KillTarget(this));
     }
 
     public void setTarget(GameObject target) {

@@ -36,6 +36,7 @@ public class Player extends AnimatedGameObject {
     private PlayerNormalStanceState normalStance = new PlayerNormalStanceState();
     private PlayerRunMovementState runMovement = new PlayerRunMovementState();
     private PlayerSprintMovementState sprintMovement = new PlayerSprintMovementState();
+    private Vector3f validLocation;
     /*
      * player states --- if in the same state category, then it is mutually
      * exclusive :
@@ -181,5 +182,13 @@ public class Player extends AnimatedGameObject {
 
     public void addWeapon(AnimatedGameObject weapon) {
         this.weapon = weapon;
+    }
+
+    public void setLastValidLocation(Vector3f newLocation) {
+        validLocation = newLocation;
+    }
+
+    public Vector3f getLastValidLocation() {
+        return validLocation;
     }
 }
