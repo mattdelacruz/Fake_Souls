@@ -28,7 +28,7 @@ public class Player extends AnimatedGameObject {
     private boolean isLocked = false;
     private boolean step1isPlayed = false;
     private boolean step2isPlayed = false;
-
+    private boolean canMove = true;
     private PlayerStanceState stanceState;
     private PlayerMovementState movementState;
     private PlayerAttackStanceState attackStance = new PlayerAttackStanceState();
@@ -36,6 +36,7 @@ public class Player extends AnimatedGameObject {
     private PlayerNormalStanceState normalStance = new PlayerNormalStanceState();
     private PlayerRunMovementState runMovement = new PlayerRunMovementState();
     private PlayerSprintMovementState sprintMovement = new PlayerSprintMovementState();
+    
     private Vector3f validLocation;
     /*
      * player states --- if in the same state category, then it is mutually
@@ -81,32 +82,46 @@ public class Player extends AnimatedGameObject {
 
     @Override
     public void move(Vector3f vec, float frameTime) {
-        super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
-        // if (!step1isPlayed &&
-        // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
-        // MyGame.getGameInstance().getSoundManager().playSound("STEP1");
-        // step2isPlayed = false;
-        // step1isPlayed = true;
-        // } else if (!step2isPlayed &&
-        // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
-        // MyGame.getGameInstance().getSoundManager().playSound("STEP2");
-        // step1isPlayed = false;
-        // step2isPlayed = true;
-        // }
-        handleAnimationSwitch(getMovementState().getAnimation(), 1f);
-        if (MyGame.getGameInstance().getProtocolClient() != null) {
-            MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
+        if (stanceState == normalStance) {
+            canMove = true;
+        }
+        if (canMove) {
+            super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
+            // if (!step1isPlayed &&
+            // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
+            // MyGame.getGameInstance().getSoundManager().playSound("STEP1");
+            // step2isPlayed = false;
+            // step1isPlayed = true;
+            // } else if (!step2isPlayed &&
+            // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
+            // MyGame.getGameInstance().getSoundManager().playSound("STEP2");
+            // step1isPlayed = false;
+            // step2isPlayed = true;
+            // }
+            handleAnimationSwitch(getMovementState().getAnimation(), 1f);
+            if (MyGame.getGameInstance().getProtocolClient() != null) {
+                MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
+            }
         }
     }
 
     /* to be called by keyboard/gamepad events only */
     public void attack() {
-        System.out.println("attacking..");
+        setLastValidLocation(getLocalLocation());
         if (getMovementState().isSprinting()) {
             setMovementState(runMovement);
         }
+        
+        if (isMoving()) {
+            canMove = false;
+        }
+        
         setStanceState(attackStance);
         handleAnimationSwitch(getStanceState().getAnimation(), 1f);
+        
+        if (!getAnimationShape().isAnimPlaying()) {
+            setStanceState(normalStance);
+        }
     }
 
     /* to be called by keyboard/gamepad events only */
@@ -117,6 +132,7 @@ public class Player extends AnimatedGameObject {
             setMovementState(runMovement);
         }
         setStanceState(guardStance);
+        //setMovementState(guardMovement);
         handleAnimationSwitch(getStanceState().getAnimation(), 1f);
     }
 

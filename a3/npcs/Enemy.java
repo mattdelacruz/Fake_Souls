@@ -11,7 +11,8 @@ import a3.npcs.enemybehavior.KillTarget;
 import a3.npcs.enemybehavior.SeekTarget;
 import a3.npcs.movement.EnemyMovementState;
 import a3.npcs.movement.EnemyRunMovementState;
-import a3.player.Player;
+import a3.npcs.stance.EnemyAttackStance;
+import a3.npcs.stance.EnemyStanceState;
 import a3.quadtree.QuadTree;
 import tage.AnimatedGameObject;
 import tage.GameObject;
@@ -33,6 +34,8 @@ public class Enemy extends AnimatedGameObject {
     private long lastThinkUpdateTime, lastTickUpdateTime;
     private EnemyMovementState movementState;
     private EnemyRunMovementState runMovement = new EnemyRunMovementState();
+    private EnemyStanceState stanceState;
+    private EnemyAttackStance attackStance = new EnemyAttackStance();
     private boolean step1isPlayed = false;
     private boolean step2isPlayed = false;
     private float elapsedThinkMilliSecs;
@@ -55,8 +58,6 @@ public class Enemy extends AnimatedGameObject {
     }
 
     private void initializeSounds() {
-        int backgroundMusicRange = (int) getScriptManager().getValue("PLAY_AREA_SIZE");
-
         getSoundManager().addSound(
                 "STEP1", (String) getScriptManager().getValue("STEP1"), 20, false, (float) 20f, 0, 5.0f,
                 getLocalLocation(), SoundType.SOUND_EFFECT);
@@ -88,7 +89,8 @@ public class Enemy extends AnimatedGameObject {
     public void attack() {
         if (elapsedThinkMilliSecs >= 1000f) {
             System.out.println("attacking...");
-            handleAnimationSwitch("ATTACK");
+            setStanceState(attackStance);
+            handleAnimationSwitch(getStanceState().getAnimation());
             elapsedThinkMilliSecs = 0f;
         }
     }
@@ -113,14 +115,13 @@ public class Enemy extends AnimatedGameObject {
 
     public void updateBehavior() {
         long currentTime = System.nanoTime();
-        elapsedThinkMilliSecs += (currentTime - lastThinkUpdateTime) / (1000000.0f);
+        elapsedThinkMilliSecs += (currentTime - lastThinkUpdateTime) / 
+        (1000000.0f);
         float elapsedTickMilliSecs = (currentTime - lastTickUpdateTime) / (1000000.0f);
 
         lastTickUpdateTime = currentTime;
-
         lastThinkUpdateTime = currentTime;
         ebt.update(elapsedThinkMilliSecs);
-
     }
 
     private void setupBehaviorTree() {
@@ -146,8 +147,15 @@ public class Enemy extends AnimatedGameObject {
         return ATTACK_RANGE;
     }
 
+    public EnemyStanceState getStanceState() {
+        return stanceState;
+    }
+
+    public void setStanceState(EnemyStanceState s) {
+        stanceState = s;
+    }
+
     public void addWeapon(AnimatedGameObject weapon) {
         this.weapon = weapon;
     }
-
 }
