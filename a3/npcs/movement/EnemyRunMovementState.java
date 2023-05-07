@@ -4,7 +4,7 @@ public class EnemyRunMovementState implements EnemyMovementState {
 
     @Override
     public float getSpeed() {
-        return 1f;
+        return 0.5f;
     }
 
     @Override
@@ -16,5 +16,5 @@ public class EnemyRunMovementState implements EnemyMovementState {
     public String getAnimation() {
         return "RUN";
     }
-    
+
 }

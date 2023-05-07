@@ -78,7 +78,6 @@ public class MyGame extends VariableFrameRateGame {
 	private boolean hasMovedWest = false;
 	private boolean hasMovedEast = false;
 	private boolean hasMovedSouth = false;
-	private boolean isHingeSetup = false;
 
 	private ObjShape ghostS, terrS;
 	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx, katanaTx, spearTx;
@@ -218,32 +217,6 @@ public class MyGame extends VariableFrameRateGame {
 		controls = new PlayerControls();
 	}
 
-	private void initializePhysicsObjects() {
-		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
-		com.bulletphysics.collision.narrowphase.PersistentManifold manifold;
-		com.bulletphysics.collision.narrowphase.ManifoldPoint contactPoint;
-
-		dynamicsWorld = ((JBulletPhysicsEngine) physicsManager.getPhysicsEngine()).getDynamicsWorld();
-
-		dispatcher = dynamicsWorld.getDispatcher();
-		int manifoldCount = dispatcher.getNumManifolds();
-		System.out.println(manifoldCount);
-		for (int i = 0; i < manifoldCount; i++) {
-			manifold = dispatcher.getManifoldByIndexInternal(i);
-			object1 = (com.bulletphysics.dynamics.RigidBody) manifold.getBody0();
-			object2 = (com.bulletphysics.dynamics.RigidBody) manifold.getBody1();
-
-			JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
-			JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
-
-			if (obj1.getUID() == player.getPhysicsObject().getUID()
-					&& obj2.getUID() == katana.getPhysicsObject().getUID()) {
-				System.out.println("setting up hinge constraint");
-				setupHingeConstraint(obj1, obj2, dynamicsWorld);
-			}
-		}
-	}
-
 	public void initializeAudio() {
 		soundManager = new SoundManager();
 		/*
@@ -343,45 +316,36 @@ public class MyGame extends VariableFrameRateGame {
 		checkObjectMovement(player);
 		for (int i = 0; i < enemyList.size(); i++) {
 			checkObjectMovement(enemyList.get(i));
-			updatePhysicsObjectLocation(enemyList.get(i).getPhysicsObject(),
-					enemyList.get(i).getLocalTranslation());
-		}
+			enemyList.get(i).setPhysicsObject(updatePhysicsObjectLocation(enemyList.get(i).getPhysicsObject(),
+					enemyList.get(i).getLocalTranslation()));
 
-		// System.out.printf("player: ");
-		// checkLocation(player);
-		// System.out.printf("katana: ");
-		// checkWorldLocation(katana);
+		}
 
 		if (player.isLocked()) {
 			targetCamera.targetTo();
 		}
-
 		checkForCollisions();
 		targetCamera.setLookAtTarget(player.getLocalLocation());
 		if (player.isMoving()) {
 			updatePlayerTerrainLocation();
 		}
 
-		updatePhysicsObjectLocation(player.getPhysicsObject(), player.getLocalTranslation());
+		player.setPhysicsObject(updatePhysicsObjectLocation(player.getPhysicsObject(), player.getLocalTranslation()));
 
-		updatePhysicsObjectLocation(katana.getPhysicsObject(), katana.getWorldTranslation());
+		katana.setPhysicsObject(updatePhysicsObjectLocation(katana.getPhysicsObject(), katana.getWorldTranslation()));
 
 		inputManager.update((float) elapsTime);
 		physicsManager.update((float) elapsTime);
 		processNetworking((float) elapsTime);
 	}
 
-	private void updatePhysicsObjectLocation(PhysicsObject po, Matrix4f localTranslation) {
+	private PhysicsObject updatePhysicsObjectLocation(PhysicsObject po, Matrix4f localTranslation) {
 		Matrix4f translation = new Matrix4f();
 		double[] tempTransform;
 		translation = new Matrix4f(localTranslation);
 		tempTransform = toDoubleArray(translation.get(vals));
 		po.setTransform(tempTransform);
-	}
-
-	private void matchGameObjectwithPhysicsObject(GameObject go, PhysicsObject po) {
-		Matrix4f translation = new Matrix4f().set(toFloatArray(po.getTransform()));
-		go.setLocalTranslation(translation);
+		return po;
 	}
 
 	private void checkObjectMovement(AnimatedGameObject obj) {
@@ -405,8 +369,17 @@ public class MyGame extends VariableFrameRateGame {
 						((Player) obj).idle();
 					}
 				}
-			} else {
-				obj.idle();
+			} else if (obj instanceof Enemy) {
+				if (((Enemy) obj).getStanceState().isNormal()) {
+					((Enemy) obj).idle();
+				} else if (((Enemy) obj).getStanceState().isAttacking()) {
+					if (((Enemy) obj).getAnimationShape().isAnimPlaying()) {
+						obj.setLastLocation(obj.getLocalLocation());
+						return;
+					} else {
+						((Enemy) obj).idle();
+					}
+				}
 			}
 		} else {
 			if (obj instanceof Player) {
@@ -489,7 +462,7 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void buildPlayer() {
-		float mass = 20f;
+		float mass = 1f;
 		double[] tempTransform;
 		float[] size;
 		Matrix4f translation;
@@ -517,7 +490,7 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void buildEnemy() {
-		float mass = 0f;
+		float mass = 1f;
 		float[] size;
 		double[] tempTransform;
 		Matrix4f translation;
@@ -530,7 +503,9 @@ public class MyGame extends VariableFrameRateGame {
 			longinus.propagateTranslation(true);
 			translation = enemy.getLocalTranslation();
 			tempTransform = toDoubleArray(translation.get(vals));
-			enemyObject = physicsManager.addCapsuleObject(mass, tempTransform, 0.1f, 5);
+			// enemyObject = physicsManager.addCapsuleObject(mass, tempTransform, 0.1f, 5);
+			size = new float[] { 3f, 5f, 3f };
+			enemyObject = physicsManager.addBoxObject(mass, tempTransform, size);
 			enemyMap.put(enemyObject.getUID(), enemy);
 			enemy.setPhysicsObject(enemyObject);
 
@@ -560,14 +535,6 @@ public class MyGame extends VariableFrameRateGame {
 			JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
 			JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
 
-			if (!isHingeSetup) {
-				if (obj1.getUID() == player.getPhysicsObject().getUID()
-						&& obj2.getUID() == katana.getPhysicsObject().getUID()) {
-					setupHingeConstraint(obj1, obj2, dynamicsWorld);
-					isHingeSetup = true;
-				}
-			}
-
 			for (int j = 0; j < manifold.getNumContacts(); j++) {
 				contactPoint = manifold.getContactPoint(j);
 				if (contactPoint.getDistance() < 0f) {
@@ -576,15 +543,13 @@ public class MyGame extends VariableFrameRateGame {
 								obj1.getUID() == katana.getPhysicsObject().getUID()
 								&& player.getStanceState().isAttacking()) {
 
-							obj2.applyForce(0, 5, 0, 0, 0, 0);
-							updatePhysicsObjectLocation(obj1, katana.getLocalTranslation());
 							System.out.println("HIT");
 
 							// this is hitting for all 15 frames of the attack animation
-						} else if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
+						}
+						if (obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
 								obj1.getUID() == player.getPhysicsObject().getUID()) {
 							System.out.println("collided with enemy...");
-							matchGameObjectwithPhysicsObject(player, obj1);
 							updatePhysicsObjectLocation(player.getPhysicsObject(), player.getLocalTranslation());
 							targetCamera.updateCameraLocation(getFrameTime());
 						}
@@ -592,17 +557,6 @@ public class MyGame extends VariableFrameRateGame {
 				}
 			}
 		}
-	}
-
-	private void setupHingeConstraint(JBulletPhysicsObject playerPhysicsObject,
-			JBulletPhysicsObject weaponPhysicsObject, com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld) {
-
-		JBulletHingeConstraint hinge = new JBulletHingeConstraint(
-				physicsManager.nextUID(),
-				playerPhysicsObject,
-				weaponPhysicsObject,
-				0f, 1f, 0);
-		dynamicsWorld.addConstraint(hinge.getConstraint());
 	}
 
 	private void updateMovementControls() {

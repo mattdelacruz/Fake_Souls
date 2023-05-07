@@ -1,6 +1,7 @@
 package a3.npcs.enemybehavior;
 
 import a3.npcs.Enemy;
+import a3.npcs.stance.EnemyAttackStance;
 import tage.ai.behaviortrees.BTCondition;
 
 public class KillTarget extends BTCondition {
@@ -15,9 +16,11 @@ public class KillTarget extends BTCondition {
     protected boolean check() {
         float distanceToPrey = hunter.getTarget().getLocalLocation().distance(hunter.getLocalLocation());
         if (distanceToPrey <= hunter.getAttackRange()) {
-            hunter.attack();
+            if (!hunter.getStanceState().isAttacking())
+                hunter.setStanceState(new EnemyAttackStance());
             return true;
         }
+        System.out.println("not in attack range...");
         return false;
     }
 

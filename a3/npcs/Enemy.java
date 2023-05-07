@@ -12,6 +12,8 @@ import a3.npcs.enemybehavior.SeekTarget;
 import a3.npcs.movement.EnemyMovementState;
 import a3.npcs.movement.EnemyRunMovementState;
 import a3.npcs.stance.EnemyAttackStance;
+import a3.npcs.stance.EnemyHuntStance;
+import a3.npcs.stance.EnemyNormalStance;
 import a3.npcs.stance.EnemyStanceState;
 import a3.quadtree.QuadTree;
 import tage.AnimatedGameObject;
@@ -36,6 +38,8 @@ public class Enemy extends AnimatedGameObject {
     private EnemyRunMovementState runMovement = new EnemyRunMovementState();
     private EnemyStanceState stanceState;
     private EnemyAttackStance attackStance = new EnemyAttackStance();
+    private EnemyNormalStance normalStance = new EnemyNormalStance();
+    private EnemyHuntStance huntStance = new EnemyHuntStance();
     private boolean step1isPlayed = false;
     private boolean step2isPlayed = false;
     private float elapsedThinkMilliSecs;
@@ -51,7 +55,7 @@ public class Enemy extends AnimatedGameObject {
         setupBehaviorTree();
         initializeSounds();
         movementState = runMovement;
-        thinkStartTime = System.nanoTime();
+        stanceState = normalStance;
         tickStartTime = System.nanoTime();
         lastThinkUpdateTime = thinkStartTime;
         lastTickUpdateTime = tickStartTime;
@@ -73,10 +77,10 @@ public class Enemy extends AnimatedGameObject {
     }
 
     @Override
-    public void handleAnimationSwitch(String animation) {
-        super.handleAnimationSwitch(animation);
+    public void handleAnimationSwitch(String animation, float speed) {
+        super.handleAnimationSwitch(animation, speed);
         if (weapon.getAnimationShape().getAnimation(animation) != null) {
-            weapon.handleAnimationSwitch(animation);
+            weapon.handleAnimationSwitch(animation, speed);
         }
     }
 
@@ -87,18 +91,17 @@ public class Enemy extends AnimatedGameObject {
     }
 
     public void attack() {
-        if (elapsedThinkMilliSecs >= 1000f) {
-            System.out.println("attacking...");
-            setStanceState(attackStance);
-            handleAnimationSwitch(getStanceState().getAnimation());
-            elapsedThinkMilliSecs = 0f;
-        }
+        System.out.println("attacking...");
+        setStanceState(attackStance);
+        handleAnimationSwitch(getStanceState().getAnimation(), .5f);
+        elapsedThinkMilliSecs = 0f;
+
     }
 
     @Override
     public void move(Vector3f vec, float frameTime) {
         super.move(vec, (frameTime * getMovementState().getSpeed()));
-        handleAnimationSwitch(getMovementState().getAnimation());
+        handleAnimationSwitch(getMovementState().getAnimation(), 1f);
         if (!step1isPlayed && !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
             MyGame.getGameInstance().getSoundManager().playSound("STEP1");
             step2isPlayed = false;
@@ -114,14 +117,21 @@ public class Enemy extends AnimatedGameObject {
     }
 
     public void updateBehavior() {
+        if (getStanceState().isHunting()) {
+            move(getLocalForwardVector(), MyGame.getGameInstance().getFrameTime());
+        }
         long currentTime = System.nanoTime();
-        elapsedThinkMilliSecs += (currentTime - lastThinkUpdateTime) / 
-        (1000000.0f);
+        elapsedThinkMilliSecs = (currentTime - lastThinkUpdateTime) /
+                (1000000.0f);
         float elapsedTickMilliSecs = (currentTime - lastTickUpdateTime) / (1000000.0f);
 
-        lastTickUpdateTime = currentTime;
-        lastThinkUpdateTime = currentTime;
-        ebt.update(elapsedThinkMilliSecs);
+        if (elapsedThinkMilliSecs >= 500) {
+            if (getStanceState().isAttacking()) {
+                attack();
+            }
+            lastThinkUpdateTime = currentTime;
+            ebt.update(elapsedThinkMilliSecs);
+        }
     }
 
     private void setupBehaviorTree() {

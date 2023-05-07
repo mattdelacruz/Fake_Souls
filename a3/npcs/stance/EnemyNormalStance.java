@@ -1,25 +1,25 @@
 package a3.npcs.stance;
 
-public class EnemyAttackStance implements EnemyStanceState {
-
-    @Override
-    public String getAnimation() {
-        return "ATTACK";
-    }
+public class EnemyNormalStance implements EnemyStanceState {
 
     @Override
     public float getMoveValue() {
-        return 0f;
+        return 0.5f;
+    }
+
+    @Override
+    public String getAnimation() {
+        return "IDLE";
     }
 
     @Override
     public boolean isAttacking() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean isNormal() {
-        return false;
+        return true;
     }
 
     @Override

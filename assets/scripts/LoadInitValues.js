@@ -10,7 +10,7 @@ with (JavaPackages) {
 	//----------------------------------------------------------------
     var WINDOW_WIDTH = 600;
 	var WINDOW_HEIGHT = 600;
-	var ENEMY_AMOUNT = 4;
+	var ENEMY_AMOUNT = 1;
 	var PLAY_AREA_SIZE = 300;
 	var INITIAL_CAMERA_POS = new Vector3f(0, 0, 5);
 	var SKYBOX_NAME = "fluffyClouds";

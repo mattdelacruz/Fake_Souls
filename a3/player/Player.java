@@ -36,7 +36,7 @@ public class Player extends AnimatedGameObject {
     private PlayerNormalStanceState normalStance = new PlayerNormalStanceState();
     private PlayerRunMovementState runMovement = new PlayerRunMovementState();
     private PlayerSprintMovementState sprintMovement = new PlayerSprintMovementState();
-    
+
     private Vector3f validLocation;
     /*
      * player states --- if in the same state category, then it is mutually
@@ -111,14 +111,16 @@ public class Player extends AnimatedGameObject {
         if (getMovementState().isSprinting()) {
             setMovementState(runMovement);
         }
-        
+
         if (isMoving()) {
             canMove = false;
         }
-        
-        setStanceState(attackStance);
+
+        if (!getStanceState().isAttacking()) {
+            setStanceState(attackStance);
+        }
         handleAnimationSwitch(getStanceState().getAnimation(), 1f);
-        
+
         if (!getAnimationShape().isAnimPlaying()) {
             setStanceState(normalStance);
         }
@@ -132,7 +134,7 @@ public class Player extends AnimatedGameObject {
             setMovementState(runMovement);
         }
         setStanceState(guardStance);
-        //setMovementState(guardMovement);
+        // setMovementState(guardMovement);
         handleAnimationSwitch(getStanceState().getAnimation(), 1f);
     }
 
