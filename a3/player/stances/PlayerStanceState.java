@@ -1,15 +1,11 @@
 package a3.player.stances;
 
-public interface PlayerStanceState {
-    public float getMoveValue();
+import tage.ActiveEntityStanceState;
+
+public interface PlayerStanceState extends ActiveEntityStanceState {
 
     public float getGuardValue();
 
-    public String getAnimation();
-
-    public boolean isAttacking();
-
     public boolean isGuarding();
 
-    public boolean isNormal();
 }

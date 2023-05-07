@@ -1,9 +1,8 @@
 package a3.player.movement;
 
-public interface PlayerMovementState {
-    public float getSpeed();
+import tage.ActiveEntityMovementState;
 
+public interface PlayerMovementState extends ActiveEntityMovementState {
     public boolean isSprinting();
 
-    public String getAnimation();
 }

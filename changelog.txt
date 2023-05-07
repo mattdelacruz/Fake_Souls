@@ -2,3 +2,6 @@
 -add isAnimPlaying in AnimatedShape class
 -add getCurrentAnimation in AnimatedShape class
 -created AnimatedGameObject class in TAGE
+-created ActiveEntityObject class in TAGE
+-created ActiveEntityStanceState interface in TAGE
+-created ActiveEntityMovementState interface in TAGE

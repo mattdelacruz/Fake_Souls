@@ -33,7 +33,8 @@ public class PhysicsManager {
     }
 
     public PhysicsObject addStaticPlaneObject(double[] transform, float[] up_vector, float plane_constant) {
-        PhysicsObject po = physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), transform, up_vector, plane_constant);
+        PhysicsObject po = physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), transform, up_vector,
+                plane_constant);
         po.setBounciness(0.0f);
         return po;
     }

@@ -27,4 +27,9 @@ public class EnemyAttackStance implements EnemyStanceState {
         return false;
     }
 
+    @Override
+    public boolean isDead() {
+        return false;
+    }
+
 }

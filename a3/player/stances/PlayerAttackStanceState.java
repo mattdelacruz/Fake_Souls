@@ -32,4 +32,9 @@ public class PlayerAttackStanceState implements PlayerStanceState {
         return false;
     }
 
+    @Override
+    public boolean isDead() {
+        return false;
+    }
+
 }

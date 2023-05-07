@@ -2,6 +2,8 @@ package a3.npcs.enemybehavior;
 
 import a3.npcs.Enemy;
 import a3.npcs.stance.EnemyAttackStance;
+import a3.npcs.stance.EnemyHuntStance;
+import a3.npcs.stance.EnemyNormalStance;
 import tage.ai.behaviortrees.BTCondition;
 
 public class KillTarget extends BTCondition {
@@ -20,7 +22,7 @@ public class KillTarget extends BTCondition {
                 hunter.setStanceState(new EnemyAttackStance());
             return true;
         }
-        System.out.println("not in attack range...");
+        hunter.setStanceState(new EnemyNormalStance());
         return false;
     }
 

@@ -12,9 +12,11 @@ import a3.player.movement.PlayerMovementState;
 import a3.player.movement.PlayerRunMovementState;
 import a3.player.movement.PlayerSprintMovementState;
 import a3.player.stances.PlayerAttackStanceState;
+import a3.player.stances.PlayerDeadStance;
 import a3.player.stances.PlayerGuardStanceState;
 import a3.player.stances.PlayerNormalStanceState;
 import a3.player.stances.PlayerStanceState;
+import tage.ActiveEntityObject;
 import tage.AnimatedGameObject;
 import tage.GameObject;
 import tage.ObjShape;
@@ -22,8 +24,8 @@ import tage.TextureImage;
 import tage.audio.SoundType;
 import tage.shapes.AnimatedShape;
 
-public class Player extends AnimatedGameObject {
-    private AnimatedGameObject weapon;
+public class Player extends ActiveEntityObject {
+    private PlayerWeapon weapon;
     public int currFrame = 0;
     private boolean isLocked = false;
     private boolean step1isPlayed = false;
@@ -57,7 +59,7 @@ public class Player extends AnimatedGameObject {
      */
 
     public Player(GameObject p, ObjShape s, TextureImage t) {
-        super(p, s, t);
+        super(p, s, t, 100);
         setLocalScale(new Matrix4f().scaling(.2f));
         setLocalLocation(
                 new Vector3f((int) getScriptManager().getValue("xPlayerPos"),
@@ -198,8 +200,12 @@ public class Player extends AnimatedGameObject {
         return this.stanceState;
     }
 
-    public void addWeapon(AnimatedGameObject weapon) {
+    public void addWeapon(PlayerWeapon weapon) {
         this.weapon = weapon;
+    }
+
+    public PlayerWeapon getWeapon() {
+        return this.weapon;
     }
 
     public void setLastValidLocation(Vector3f newLocation) {
@@ -209,4 +215,11 @@ public class Player extends AnimatedGameObject {
     public Vector3f getLastValidLocation() {
         return validLocation;
     }
+
+    public void checkIfDead() {
+        if (getHealth() <= 0) {
+            setStanceState(new PlayerDeadStance());
+        }
+    }
+
 }

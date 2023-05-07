@@ -32,4 +32,9 @@ public class PlayerNormalStanceState implements PlayerStanceState {
         return true;
     }
 
+    @Override
+    public boolean isDead() {
+        return false;
+    }
+
 }

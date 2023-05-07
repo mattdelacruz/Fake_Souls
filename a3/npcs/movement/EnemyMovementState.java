@@ -1,6 +1,8 @@
 package a3.npcs.movement;
 
-public interface EnemyMovementState {
+import tage.ActiveEntityMovementState;
+
+public interface EnemyMovementState extends ActiveEntityMovementState {
     public float getSpeed();
 
     public boolean isRunning();

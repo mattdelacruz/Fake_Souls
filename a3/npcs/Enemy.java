@@ -12,11 +12,12 @@ import a3.npcs.enemybehavior.SeekTarget;
 import a3.npcs.movement.EnemyMovementState;
 import a3.npcs.movement.EnemyRunMovementState;
 import a3.npcs.stance.EnemyAttackStance;
+import a3.npcs.stance.EnemyDeadStance;
 import a3.npcs.stance.EnemyHuntStance;
 import a3.npcs.stance.EnemyNormalStance;
 import a3.npcs.stance.EnemyStanceState;
 import a3.quadtree.QuadTree;
-import tage.AnimatedGameObject;
+import tage.ActiveEntityObject;
 import tage.GameObject;
 import tage.ObjShape;
 import tage.TextureImage;
@@ -25,13 +26,14 @@ import tage.ai.behaviortrees.BTSequence;
 import tage.ai.behaviortrees.BehaviorTree;
 import tage.audio.SoundType;
 
-public class Enemy extends AnimatedGameObject {
+public class Enemy extends ActiveEntityObject {
     private static final float ATTACK_RANGE = 5f;
+    private static final float ATTACK_CONE = (float) Math.toRadians(30f);
 
     private BehaviorTree ebt = new BehaviorTree(BTCompositeType.SEQUENCE);
     private QuadTree pqt;
     private GameObject target;
-    private AnimatedGameObject weapon;
+    private EnemyWeapon weapon;
     private long thinkStartTime, tickStartTime;
     private long lastThinkUpdateTime, lastTickUpdateTime;
     private EnemyMovementState movementState;
@@ -39,13 +41,12 @@ public class Enemy extends AnimatedGameObject {
     private EnemyStanceState stanceState;
     private EnemyAttackStance attackStance = new EnemyAttackStance();
     private EnemyNormalStance normalStance = new EnemyNormalStance();
-    private EnemyHuntStance huntStance = new EnemyHuntStance();
     private boolean step1isPlayed = false;
     private boolean step2isPlayed = false;
     private float elapsedThinkMilliSecs;
 
     public Enemy(GameObject p, ObjShape s, TextureImage t, QuadTree playerQuadTree, int id) {
-        super(p, s, t);
+        super(p, s, t, 100);
         float posX = (float) 50f;
         float posZ = (float) 124f + (5 * id);
         pqt = playerQuadTree;
@@ -91,11 +92,9 @@ public class Enemy extends AnimatedGameObject {
     }
 
     public void attack() {
-        System.out.println("attacking...");
         setStanceState(attackStance);
         handleAnimationSwitch(getStanceState().getAnimation(), .5f);
         elapsedThinkMilliSecs = 0f;
-
     }
 
     @Override
@@ -117,20 +116,22 @@ public class Enemy extends AnimatedGameObject {
     }
 
     public void updateBehavior() {
-        if (getStanceState().isHunting()) {
-            move(getLocalForwardVector(), MyGame.getGameInstance().getFrameTime());
-        }
-        long currentTime = System.nanoTime();
-        elapsedThinkMilliSecs = (currentTime - lastThinkUpdateTime) /
-                (1000000.0f);
-        float elapsedTickMilliSecs = (currentTime - lastTickUpdateTime) / (1000000.0f);
-
-        if (elapsedThinkMilliSecs >= 500) {
-            if (getStanceState().isAttacking()) {
-                attack();
+        if (!getStanceState().isDead()) {
+            if (getStanceState().isHunting()) {
+                move(getLocalForwardVector(), MyGame.getGameInstance().getFrameTime());
             }
-            lastThinkUpdateTime = currentTime;
-            ebt.update(elapsedThinkMilliSecs);
+            long currentTime = System.nanoTime();
+            elapsedThinkMilliSecs = (currentTime - lastThinkUpdateTime) /
+                    (1000000.0f);
+            float elapsedTickMilliSecs = (currentTime - lastTickUpdateTime) / (1000000.0f);
+
+            if (elapsedThinkMilliSecs >= 500) {
+                if (getStanceState().isAttacking()) {
+                    attack();
+                }
+                lastThinkUpdateTime = currentTime;
+                ebt.update(elapsedThinkMilliSecs);
+            }
         }
     }
 
@@ -165,7 +166,25 @@ public class Enemy extends AnimatedGameObject {
         stanceState = s;
     }
 
-    public void addWeapon(AnimatedGameObject weapon) {
+    public void addWeapon(EnemyWeapon weapon) {
         this.weapon = weapon;
+    }
+
+    public EnemyWeapon getWeapon() {
+        return this.weapon;
+    }
+
+    public float getAttackCone() {
+        return ATTACK_CONE;
+    }
+
+    public boolean checkIfDead() {
+        if (getHealth() <= 0) {
+            setStanceState(new EnemyDeadStance());
+            handleAnimationSwitch(getStanceState().getAnimation(), 1f);
+            MyGame.getGameInstance().getEnemyController().removeTarget(this);
+            return true;
+        }
+        return false;
     }
 }

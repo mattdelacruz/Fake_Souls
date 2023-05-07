@@ -13,6 +13,7 @@ public class AnimatedGameObject extends GameObject {
 	private Vector3f lastLocation = new Vector3f();
 	private ScriptManager scriptManager = MyGame.getGameInstance().getScriptManager();
 	private SoundManager soundManager = MyGame.getGameInstance().getSoundManager();
+	private int frameCount = 0;
 
 	public AnimatedGameObject(GameObject p, ObjShape s, TextureImage t) {
 		super(p, s, t);
@@ -133,5 +134,17 @@ public class AnimatedGameObject extends GameObject {
 			scriptManager = MyGame.getGameInstance().getScriptManager();
 		}
 		return scriptManager;
+	}
+
+	public void addFrameCount() {
+		frameCount++;
+	}
+
+	public int getFrameCount() {
+		return frameCount;
+	}
+
+	public void resetFrameCount() {
+		frameCount = 0;
 	}
 }
