@@ -53,7 +53,6 @@ public class PlayerControls {
 		GameObject target = MyGame.getGameInstance().findTarget();
 		if (target != null && target instanceof Enemy) {
 			game.getTargetCamera().setTarget((Enemy) target);
-			game.getTargetCamera().setLookAtTarget(target.getLocalLocation());
 			player.setLock(true);
 		}
 		return;

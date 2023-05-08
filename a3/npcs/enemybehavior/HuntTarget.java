@@ -20,16 +20,15 @@ public class HuntTarget extends BTCondition {
     @Override
     protected boolean check() {
         if (hunter.getTarget() != null) {
-            float distanceToPrey = hunter.getTarget().getLocalLocation().distance(hunter.getLocalLocation());
+            float distanceToPrey = hunter.getTarget().getLocalLocation()
+                    .distance(hunter.getLocalLocation());
             if (distanceToPrey <= HUNTING_DISTANCE) {
                 hunter.lookAt(hunter.getTarget());
-                if (!hunter.getStanceState().isHunting())
-                    hunter.setStanceState(new EnemyHuntStance());
+                hunter.setStanceState(new EnemyHuntStance());
                 return true;
             }
 
         }
-        hunter.setStanceState(new EnemyNormalStance());
         return false;
     }
 

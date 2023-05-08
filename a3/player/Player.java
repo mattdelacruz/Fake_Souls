@@ -222,4 +222,17 @@ public class Player extends ActiveEntityObject {
         }
     }
 
+    public void reset() {
+        setHealth(100);
+        setLocalLocation(new Vector3f((int) getScriptManager().getValue("xPlayerPos"),
+                (int) getScriptManager().getValue("yPlayerPos"),
+                (int) getScriptManager().getValue("zPlayerPos")));
+        setStanceState(normalStance);
+        setMovementState(runMovement);
+        isLocked = false;
+        step1isPlayed = false;
+        step2isPlayed = false;
+        canMove = true;
+    }
+
 }

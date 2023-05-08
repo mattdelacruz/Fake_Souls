@@ -7,6 +7,7 @@ import tage.TextureImage;
 
 public class EnemyWeapon extends AnimatedGameObject {
     private Enemy owner;
+    private int damage = 10;
 
     public EnemyWeapon(GameObject p, ObjShape s, TextureImage t) {
         super(p, s, t);
@@ -20,4 +21,7 @@ public class EnemyWeapon extends AnimatedGameObject {
         return this.owner;
     }
 
+    public int getDamage() {
+        return damage;
+    }
 }

@@ -28,14 +28,14 @@ import tage.audio.SoundType;
 
 public class Enemy extends ActiveEntityObject {
     private static final float ATTACK_RANGE = 5f;
-    private static final float ATTACK_CONE = (float) Math.toRadians(30f);
+    private static final float ATTACK_CONE = (float) Math.toRadians(45f);
 
     private BehaviorTree ebt = new BehaviorTree(BTCompositeType.SEQUENCE);
     private QuadTree pqt;
     private GameObject target;
     private EnemyWeapon weapon;
     private long thinkStartTime, tickStartTime;
-    private long lastThinkUpdateTime, lastTickUpdateTime;
+    private long lastThinkUpdateTime;
     private EnemyMovementState movementState;
     private EnemyRunMovementState runMovement = new EnemyRunMovementState();
     private EnemyStanceState stanceState;
@@ -59,7 +59,6 @@ public class Enemy extends ActiveEntityObject {
         stanceState = normalStance;
         tickStartTime = System.nanoTime();
         lastThinkUpdateTime = thinkStartTime;
-        lastTickUpdateTime = tickStartTime;
     }
 
     private void initializeSounds() {
@@ -123,9 +122,8 @@ public class Enemy extends ActiveEntityObject {
             long currentTime = System.nanoTime();
             elapsedThinkMilliSecs = (currentTime - lastThinkUpdateTime) /
                     (1000000.0f);
-            float elapsedTickMilliSecs = (currentTime - lastTickUpdateTime) / (1000000.0f);
 
-            if (elapsedThinkMilliSecs >= 500) {
+            if (elapsedThinkMilliSecs >= 750f) {
                 if (getStanceState().isAttacking()) {
                     attack();
                 }

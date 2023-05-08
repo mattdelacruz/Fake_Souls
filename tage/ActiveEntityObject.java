@@ -38,4 +38,8 @@ public class ActiveEntityObject extends AnimatedGameObject {
         return health;
     }
 
+    public void setHealth(int h) {
+        health = h;
+    }
+
 }

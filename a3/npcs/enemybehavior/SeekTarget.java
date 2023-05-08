@@ -36,7 +36,6 @@ public class SeekTarget extends BTCondition {
             ((Enemy) hunter).setTarget(target);
             return true;
         }
-        // System.out.println("no prey found...");
         return false;
     }
 

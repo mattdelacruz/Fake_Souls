@@ -5,3 +5,4 @@
 -created ActiveEntityObject class in TAGE
 -created ActiveEntityStanceState interface in TAGE
 -created ActiveEntityMovementState interface in TAGE
+-add HUDCamera class in TAGE

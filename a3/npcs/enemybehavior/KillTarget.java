@@ -22,7 +22,6 @@ public class KillTarget extends BTCondition {
                 hunter.setStanceState(new EnemyAttackStance());
             return true;
         }
-        hunter.setStanceState(new EnemyNormalStance());
         return false;
     }
 

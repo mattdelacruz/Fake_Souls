@@ -15,5 +15,4 @@ public class PlayerWeapon extends AnimatedGameObject {
     public int getDamage() {
         return DAMAGE;
     }
-
 }
