@@ -31,6 +31,7 @@ public class Player extends ActiveEntityObject {
     private boolean step1isPlayed = false;
     private boolean step2isPlayed = false;
     private boolean canMove = true;
+    private boolean isContact = false;
     private PlayerStanceState stanceState;
     private PlayerMovementState movementState;
     private PlayerAttackStanceState attackStance = new PlayerAttackStanceState();
@@ -60,6 +61,7 @@ public class Player extends ActiveEntityObject {
 
     public Player(GameObject p, ObjShape s, TextureImage t) {
         super(p, s, t, 100);
+        initializeSounds();
         setLocalScale(new Matrix4f().scaling(.2f));
         setLocalLocation(
                 new Vector3f((int) getScriptManager().getValue("xPlayerPos"),
@@ -79,15 +81,20 @@ public class Player extends ActiveEntityObject {
         getSoundManager().addSound(
                 "STEP2", (String) getScriptManager().getValue("STEP1"), 5, false, (float) backgroundMusicRange, 0, 0,
                 getLocalLocation(), SoundType.SOUND_EFFECT);
+        getSoundManager().addSound(
+                "KATANA_WHIFF", (String) getScriptManager().getValue("KATANA_WHIFF_SOUND"), 10, false,
+                (float) backgroundMusicRange, 0, 0, getLocalLocation(), SoundType.SOUND_EFFECT);
+        getSoundManager().addSound(
+                "KATANA_HIT", (String) getScriptManager().getValue("KATANA_HIT_SOUND"), 10, false,
+                (float) backgroundMusicRange, 0, 0, getLocalLocation(), SoundType.SOUND_EFFECT);
 
     }
 
-    @Override
-    public void move(Vector3f vec, float frameTime) {
+    public void moveNorth(Vector3f vec, float frameTime) {
         if (stanceState == normalStance) {
             canMove = true;
         }
-        if (canMove) {
+        if (canMove && !getStanceState().isGuarding()) {
             super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
             // if (!step1isPlayed &&
             // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
@@ -107,11 +114,55 @@ public class Player extends ActiveEntityObject {
         }
     }
 
+    public void moveEast(Vector3f vec, float frameTime) {
+        if (stanceState == normalStance) {
+            canMove = true;
+        }
+        if (canMove && !getStanceState().isGuarding()) {
+            super.move(
+                    vec, (frameTime * (getStanceState().getMoveValue() / 1.5f) * getMovementState().getSpeed()));
+            // if (!step1isPlayed &&
+            // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
+            // MyGame.getGameInstance().getSoundManager().playSound("STEP1");
+            // step2isPlayed = false;
+            // step1isPlayed = true;
+            // } else if (!step2isPlayed &&
+            // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
+            // MyGame.getGameInstance().getSoundManager().playSound("STEP2");
+            // step1isPlayed = false;
+            // step2isPlayed = true;
+            // }
+            handleAnimationSwitch("STRAFE", 1f);
+            if (MyGame.getGameInstance().getProtocolClient() != null) {
+                MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
+            }
+        }
+    }
+
     /* to be called by keyboard/gamepad events only */
     public void attack() {
         setLastValidLocation(getLocalLocation());
         if (getMovementState().isSprinting()) {
             setMovementState(runMovement);
+        }
+
+        if (isContact) {
+            // play bloody sound
+            if (getSoundManager().isPlaying("KATANA_WHIFF")) {
+                getSoundManager().stopSound("KATANA_WHIFF");
+            }
+            if (getSoundManager().isPlaying("KATANA_HIT")) {
+                getSoundManager().stopSound("KATANA_HIT");
+            }
+            getSoundManager().playSound("KATANA_HIT");
+        } else {
+            if (getSoundManager().isPlaying("KATANA_WHIFF")) {
+                getSoundManager().stopSound("KATANA_WHIFF");
+            }
+            if (getSoundManager().isPlaying("KATANA_HIT")) {
+                getSoundManager().stopSound("KATANA_HIT");
+            }
+            getSoundManager().playSound("KATANA_WHIFF");
         }
 
         if (isMoving()) {
@@ -233,6 +284,10 @@ public class Player extends ActiveEntityObject {
         step1isPlayed = false;
         step2isPlayed = false;
         canMove = true;
+    }
+
+    public void makeContact(boolean contact) {
+        isContact = contact;
     }
 
 }

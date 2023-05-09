@@ -27,9 +27,8 @@ public class HuntTarget extends BTCondition {
                 hunter.setStanceState(new EnemyHuntStance());
                 return true;
             }
-
         }
+        hunter.setStanceState(new EnemyNormalStance());
         return false;
     }
-
 }

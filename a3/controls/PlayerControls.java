@@ -20,13 +20,13 @@ public class PlayerControls {
 	}
 
 	public void moveNorth(float frameTime) {
-		player.move(player.getWorldForwardVector(), frameTime);
+		player.moveNorth(player.getWorldForwardVector(), frameTime);
 		cam.updateCameraLocation(frameTime);
 		cam.lookAt(player);
 	}
 
 	public void moveEast(float frameTime) {
-		player.move(player.getWorldRightVector(), frameTime);
+		player.moveEast(player.getWorldRightVector(), frameTime);
 		cam.updateCameraLocation(frameTime);
 		cam.lookAt(player);
 	}

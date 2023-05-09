@@ -31,6 +31,8 @@ with (JavaPackages) {
 	var PLAYER_IDLE_RKA = "player-animations/player-idle.rka";
 	var PLAYER_ATTACK_1_RKA = "player-animations/player-attack-1.rka";
 	var PLAYER_GUARD_RKA = "player-animations/player-guard.rka";
+	var PLAYER_STRAFE_RKA = "player-animations/player-strafe.rka";
+
 	//----------------------------------------------------------------
 	// Katana animation file paths
 	//----------------------------------------------------------------
@@ -40,6 +42,7 @@ with (JavaPackages) {
 	var KATANA_IDLE_RKA = "player-animations/weapon-animations/katana-idle.rka";
 	var KATANA_ATTACK_1_RKA = "player-animations/weapon-animations/katana-attack-1.rka";
 	var KATANA_GUARD_RKA = "player-animations/weapon-animations/katana-guard.rka";
+	var KATANA_STRAFE_RKA = "player-animations/weapon-animations/katana-strafe.rka";
 	//----------------------------------------------------------------	
 	// Enemy animation file paths
 	//----------------------------------------------------------------
@@ -62,12 +65,15 @@ with (JavaPackages) {
 	// Music file paths
 	//----------------------------------------------------------------
 	var BACKGROUND_MUSIC = "assets/sounds/background-music.wav";
+	var KATANA_WHIFF_SOUND = "assets/sounds/katana-slash-whiff.wav";
+	var KATANA_HIT_SOUND = "assets/sounds/katana-slash-hit.wav";
+	var BOSS_MUSIC = "assets/sounds/"
+
 	var STEP1 = "assets/sounds/step1.wav";
 	var STEP2 = "assets/sounds/step2.wav";
-
-
 }
 
 var xPlayerPos = 70;
 var yPlayerPos = 0;
 var zPlayerPos = 124;
+var pushBackDistance = 0.1;

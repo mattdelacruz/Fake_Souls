@@ -53,6 +53,7 @@ public class MyGame extends VariableFrameRateGame {
 	private QuadTree enemyQuadTree, playerQuadTree;
 
 	private int serverPort;
+	private int HUDViewportX, HUDViewportY;
 	private double lastFrameTime, currFrameTime, elapsTime;
 	private float lastHeightLoc, currHeightLoc;
 
@@ -62,9 +63,9 @@ public class MyGame extends VariableFrameRateGame {
 	private float currentRotation = 0;
 	private float[] vals = new float[16];
 	int count = 0;
+	int hudTimer = 0;
 
-	private GameObject terrain, hpBar;
-	private Cube hpBarShape;
+	private GameObject terrain;
 	private Enemy enemy;
 	private Player player;
 	private PlayerWeapon katana;
@@ -80,13 +81,15 @@ public class MyGame extends VariableFrameRateGame {
 	private boolean hasMovedWest = false;
 	private boolean hasMovedEast = false;
 	private boolean hasMovedSouth = false;
+	private boolean isEnemyHit = false;
 
 	private ObjShape ghostS, terrS;
-	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx, katanaTx, spearTx, hpBarTx;
+	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx, katanaTx, spearTx;
 	private AnimatedShape playerShape, katanaShape, enemyShape, spearShape;
 	private EnemyController enemyController;
 	private AnimationController animationController;
 	private Viewport HUDViewport;
+	private Enemy damagedEnemy;
 
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 	private ArrayList<Player> playerList = new ArrayList<Player>();
@@ -172,7 +175,6 @@ public class MyGame extends VariableFrameRateGame {
 		terrTx = new TextureImage((String) scriptManager.getValue("TERRAIN_TEXTURE"));
 		katanaTx = new TextureImage((String) scriptManager.getValue("KATANA_TEXTURE"));
 		spearTx = new TextureImage((String) scriptManager.getValue("SPEAR_TEXTURE"));
-		hpBarTx = new TextureImage("burger.png");
 	}
 
 	@Override
@@ -198,9 +200,6 @@ public class MyGame extends VariableFrameRateGame {
 		buildPlayerQuadTree();
 		buildEnemy();
 		buildEnemyQuadTree();
-		hpBarShape = new Cube();
-		hpBar = new GameObject(GameObject.root(), hpBarShape, hpBarTx);
-		hpBar.setLocalLocation(player.getLocalLocation());
 	}
 
 	@Override
@@ -247,6 +246,8 @@ public class MyGame extends VariableFrameRateGame {
 		playerShape.loadAnimation(
 				"RUN", (String) scriptManager.getValue("PLAYER_RUN_RKA"));
 		playerShape.loadAnimation(
+				"STRAFE", (String) scriptManager.getValue("PLAYER_STRAFE_RKA"));
+		playerShape.loadAnimation(
 				"IDLE", (String) scriptManager.getValue("PLAYER_IDLE_RKA"));
 		playerShape.loadAnimation(
 				"ATTACK1", (String) scriptManager.getValue("PLAYER_ATTACK_1_RKA"));
@@ -258,6 +259,8 @@ public class MyGame extends VariableFrameRateGame {
 				(String) scriptManager.getValue("KATANA_RKS"));
 		katanaShape.loadAnimation(
 				"RUN", (String) scriptManager.getValue("KATANA_RUN_RKA"));
+		katanaShape.loadAnimation(
+				"STRAFE", (String) scriptManager.getValue("KATANA_STRAFE_RKA"));
 		katanaShape.loadAnimation(
 				"IDLE",
 				(String) scriptManager.getValue("KATANA_IDLE_RKA"));
@@ -315,12 +318,10 @@ public class MyGame extends VariableFrameRateGame {
 		updateMovementControls();
 		updatePlayer();
 		updateKatana();
+		updateLonginus();
 		updateEnemies();
 		checkForCollisions();
 		updateTargeting();
-
-		updatePhysicsObjectLocation(
-				longinus.getPhysicsObject(), longinus.getWorldTranslation());
 
 		inputManager.update((float) elapsTime);
 		physicsManager.update((float) elapsTime);
@@ -337,11 +338,18 @@ public class MyGame extends VariableFrameRateGame {
 		if (player.isMoving()) {
 			updatePlayerTerrainLocation();
 		}
-		updatePhysicsObjectLocation(player.getPhysicsObject(), player.getWorldTranslation());
+		updatePhysicsObjectLocation(
+				player.getPhysicsObject(), player.getWorldTranslation());
 	}
 
 	private void updateKatana() {
-		katana.setPhysicsObject(updatePhysicsObjectLocation(katana.getPhysicsObject(), katana.getWorldTranslation()));
+		updatePhysicsObjectLocation(
+				katana.getPhysicsObject(), katana.getWorldTranslation());
+	}
+
+	private void updateLonginus() {
+		updatePhysicsObjectLocation(
+				longinus.getPhysicsObject(), longinus.getWorldTranslation());
 	}
 
 	private void updateEnemies() {
@@ -379,46 +387,30 @@ public class MyGame extends VariableFrameRateGame {
 		go.setLocalTranslation(translation);
 	}
 
-	private void checkObjectMovement(AnimatedGameObject obj) {
+	private void checkObjectMovement(ActiveEntityObject obj) {
 		updateIsMoving(obj);
 		if (!obj.isMoving()) {
-			handleNotMoving(obj);
+			handleObjectNotMoving(obj);
 		} else {
 			handleMoving(obj);
 		}
 		updateLastLocation(obj);
 	}
 
-	private void updateIsMoving(AnimatedGameObject obj) {
+	private void updateIsMoving(ActiveEntityObject obj) {
 		obj.setIsMoving(obj.getLocalLocation().x() != obj.getLastLocation().x()
 				|| obj.getLocalLocation().z() != obj.getLastLocation().z());
 	}
 
-	private void handleNotMoving(AnimatedGameObject obj) {
-		if (obj instanceof Player) {
-			handlePlayerNotMoving((Player) obj);
-		} else if (obj instanceof Enemy) {
-			handleEnemyNotMoving((Enemy) obj);
+	private void handleObjectNotMoving(ActiveEntityObject obj) {
+		if (obj.getStanceState().isNormal()) {
+			obj.idle();
+		} else if (obj.getStanceState().isAttacking() && !obj.getAnimationShape().isAnimPlaying()) {
+			obj.idle();
 		}
 	}
 
-	private void handlePlayerNotMoving(Player player) {
-		if (player.getStanceState().isNormal()) {
-			player.idle();
-		} else if (player.getStanceState().isAttacking() && !player.getAnimationShape().isAnimPlaying()) {
-			player.idle();
-		}
-	}
-
-	private void handleEnemyNotMoving(Enemy enemy) {
-		if (enemy.getStanceState().isNormal()) {
-			enemy.idle();
-		} else if (enemy.getStanceState().isAttacking() && !enemy.getAnimationShape().isAnimPlaying()) {
-			enemy.idle();
-		}
-	}
-
-	private void handleMoving(AnimatedGameObject obj) {
+	private void handleMoving(ActiveEntityObject obj) {
 		if (obj instanceof Player) {
 			updatePlayerQuadTree((Player) obj);
 		} else if (obj instanceof Enemy) {
@@ -440,7 +432,7 @@ public class MyGame extends VariableFrameRateGame {
 				enemy);
 	}
 
-	private void updateLastLocation(AnimatedGameObject obj) {
+	private void updateLastLocation(ActiveEntityObject obj) {
 		obj.setLastLocation(
 				new Vector3f(obj.getLocalLocation().x(), obj.getLocalLocation().y(), obj.getLocalLocation().z()));
 	}
@@ -536,10 +528,21 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void updateHUD() {
+		hudTimer++;
+		handlePlayerHUD();
+		handleEnemyHUD();
+	}
+
+	private void handlePlayerHUD() {
+		updatePlayerHealthHUD();
+		// updatePlayerStaminaHUD();
+	}
+
+	private void updatePlayerHealthHUD() {
 		String dispStr1 = "Health: " + player.getHealth();
 
-		int HUDViewportX = (int) ((HUDViewport.getRelativeLeft() * getEngineInstance().getRenderSystem().getWidth()));
-		int HUDViewportY = (int) (((HUDViewport.getRelativeBottom()
+		HUDViewportX = (int) ((HUDViewport.getRelativeLeft() * getEngineInstance().getRenderSystem().getWidth()));
+		HUDViewportY = (int) (((HUDViewport.getRelativeBottom()
 				* getEngineInstance().getRenderSystem().getHeight()))
 				- (HUDViewport.getActualHeight()) / 2);
 		Vector3f hpColor = new Vector3f(1, 0, 0);
@@ -547,8 +550,37 @@ public class MyGame extends VariableFrameRateGame {
 		getEngineInstance().getHUDmanager().setHUD1(dispStr1, hpColor, HUDViewportX, HUDViewportY);
 	}
 
+	private void handleEnemyHUD() {
+		if (isEnemyHit && damagedEnemy != null) {
+			updateEnemyHealthHUD(damagedEnemy);
+		}
+
+		if (hudTimer >= 2500) {
+			removeEnemyHealthHUD();
+			damagedEnemy = null;
+			isEnemyHit = false;
+		}
+	}
+
+	private void updateEnemyHealthHUD(ActiveEntityObject obj) {
+		String dispStr2 = "Enemy Health: " + obj.getHealth();
+
+		HUDViewportX = (int) ((HUDViewport.getRelativeLeft() * getEngineInstance().getRenderSystem().getWidth())) + 150;
+		HUDViewportY = (int) ((HUDViewport.getRelativeBottom()
+				* getEngineInstance().getRenderSystem().getHeight()) - (HUDViewport.getActualHeight()) / 2);
+		Vector3f hpColor = new Vector3f(1, 0, 0);
+		getEngineInstance().getHUDmanager().setHUD2(dispStr2, hpColor, HUDViewportX, HUDViewportY);
+	}
+
+	private void removeEnemyHealthHUD() {
+		String dispStr2 = "";
+
+		Vector3f hpColor = new Vector3f(1, 0, 0);
+		getEngineInstance().getHUDmanager().setHUD2(dispStr2, hpColor, HUDViewportX, HUDViewportY);
+	}
+
 	private void buildEnemy() {
-		float mass = 1f;
+		float mass = 20f;
 		float[] size;
 		double[] tempTransform;
 		Matrix4f translation;
@@ -617,12 +649,18 @@ public class MyGame extends VariableFrameRateGame {
 		// obj1 is player weapon, obj2 is enemy
 		if (isEnemyHitByPlayerWeapon(obj1, obj2)) {
 			if (isAttackAnimationMidpoint(player.getWeapon())) {
-				System.out.println("player hit");
+				updateEnemyHealthHUD(enemy);
+				isEnemyHit = true;
+				soundManager.stopSound("KATANA_WHIFF");
+				soundManager.playSound("KATANA_HIT");
+				damagedEnemy = enemy;
+				hudTimer = 0;
 				enemyMap.get(obj2.getUID()).reduceHealth(player.getWeapon().getDamage());
 				player.getWeapon().resetFrameCount();
 			}
 			player.getWeapon().addFrameCount();
 		}
+
 	}
 
 	private boolean isEnemyHitByPlayerWeapon(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
@@ -633,7 +671,11 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void handlePlayerCollision(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
 		if (isPlayerCollidedWithEnemy(obj1, obj2)) {
-			updateGameObjectwithPhysicsObject(player, player.getPhysicsObject());
+			float pushBackDistance = 0.1f;
+			Vector3f enemyToPlayer = player.getLocalLocation().sub(enemy.getLocalLocation());
+			Vector3f pushBackVector = enemyToPlayer.normalize().mul((float) pushBackDistance);
+			player.setLocalLocation(player.getLocalLocation().add(pushBackVector));
+
 			targetCamera.updateCameraLocation(getFrameTime());
 		}
 	}
@@ -644,6 +686,7 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void handleEnemyHit(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
+		// obj1 == player, obj2 == enemyWeapon
 		if (isPlayerHitByEnemyWeapon(obj1, obj2)) {
 			Enemy enemy = enemyWeaponMap.get(obj2.getUID()).getOwner();
 			Vector3f enemyToPlayer = player.getLocalLocation().sub(enemy.getLocalLocation()).normalize();
@@ -651,8 +694,13 @@ public class MyGame extends VariableFrameRateGame {
 
 			if (angle <= enemy.getAttackCone()) {
 				if (isAttackAnimationMidpoint(enemy)) {
-					System.out.println("enemy hit");
-					player.reduceHealth(enemy.getWeapon().getDamage());
+					updateGameObjectwithPhysicsObject(player, player.getPhysicsObject());
+					if (player.getStanceState().isGuarding()) {
+						player.reduceHealth(enemy.getWeapon().getDamage() / 2);
+
+					} else {
+						player.reduceHealth(enemy.getWeapon().getDamage());
+					}
 					enemy.resetFrameCount();
 				}
 				enemy.addFrameCount();
@@ -663,8 +711,7 @@ public class MyGame extends VariableFrameRateGame {
 	private boolean isPlayerHitByEnemyWeapon(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
 		return obj1.getUID() == player.getPhysicsObject().getUID()
 				&& obj2 == enemyWeaponMap.get(obj2.getUID()).getPhysicsObject()
-				&& enemyWeaponMap.get(obj2.getUID()).getOwner().getStanceState().isAttacking()
-				&& enemyWeaponMap.get(obj2.getUID()).getOwner().getAnimationShape().isAnimPlaying();
+				&& enemyWeaponMap.get(obj2.getUID()).getOwner().isAttacking();
 	}
 
 	private boolean isAttackAnimationMidpoint(AnimatedGameObject obj) {

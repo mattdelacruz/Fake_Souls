@@ -56,4 +56,8 @@ public class SoundManager {
     public boolean isPlaying(String soundName) {
         return soundMap.get(soundName).getIsPlaying();
     }
+
+    public void stopSound(String soundName) {
+        soundMap.get(soundName).stop();
+    }
 }

@@ -43,6 +43,7 @@ public class Enemy extends ActiveEntityObject {
     private EnemyNormalStance normalStance = new EnemyNormalStance();
     private boolean step1isPlayed = false;
     private boolean step2isPlayed = false;
+    private boolean isAttacking = false;
     private float elapsedThinkMilliSecs;
 
     public Enemy(GameObject p, ObjShape s, TextureImage t, QuadTree playerQuadTree, int id) {
@@ -116,6 +117,7 @@ public class Enemy extends ActiveEntityObject {
 
     public void updateBehavior() {
         if (!getStanceState().isDead()) {
+            isAttacking = checkIfAttacking();
             if (getStanceState().isHunting()) {
                 move(getLocalForwardVector(), MyGame.getGameInstance().getFrameTime());
             }
@@ -123,7 +125,7 @@ public class Enemy extends ActiveEntityObject {
             elapsedThinkMilliSecs = (currentTime - lastThinkUpdateTime) /
                     (1000000.0f);
 
-            if (elapsedThinkMilliSecs >= 750f) {
+            if (elapsedThinkMilliSecs >= 1500f) {
                 if (getStanceState().isAttacking()) {
                     attack();
                 }
@@ -131,6 +133,11 @@ public class Enemy extends ActiveEntityObject {
                 ebt.update(elapsedThinkMilliSecs);
             }
         }
+    }
+
+    private boolean checkIfAttacking() {
+        return (getAnimationShape().isAnimPlaying() &&
+                getAnimationShape().getCurrentAnimation().equals(getAnimationShape().getAnimation("ATTACK")));
     }
 
     private void setupBehaviorTree() {
@@ -184,5 +191,13 @@ public class Enemy extends ActiveEntityObject {
             return true;
         }
         return false;
+    }
+
+    public void damageSound() {
+
+    }
+
+    public boolean isAttacking() {
+        return isAttacking;
     }
 }
