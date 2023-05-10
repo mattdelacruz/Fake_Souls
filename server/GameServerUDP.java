@@ -2,6 +2,7 @@ package server;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.sql.ClientInfoStatus;
 import java.util.UUID;
 
 import tage.networking.server.GameConnectionServer;
@@ -60,6 +61,20 @@ public class GameServerUDP extends GameConnectionServer<UUID> {
                 sendMoveMessages(clientID, pos);
             }
 
+            // case where server receives an ANIMATION message
+            if (msgTokens[0].compareTo("animation") == 0) {
+                UUID clientID = UUID.fromString(msgTokens[1]);
+                String animation = msgTokens[2];
+                sendAnimationMessage(clientID, animation);
+            }
+
+            // case where server receives an YAW message
+            if (msgTokens[0].compareTo("yaw") == 0) {
+                UUID clientID = UUID.fromString(msgTokens[1]);
+                String rotation = msgTokens[2];
+                sendYawMessage(clientID, rotation);
+            }
+
         }
     }
 
@@ -81,6 +96,26 @@ public class GameServerUDP extends GameConnectionServer<UUID> {
             message += "," + pos[0];
             message += "," + pos[1];
             message += "," + pos[2];
+            forwardPacketToAll(message, clientID);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendAnimationMessage(UUID clientID, String animation) {
+        try {
+            String message = new String("animation," + clientID.toString());
+            message += "," + animation;
+            forwardPacketToAll(message, clientID);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendYawMessage(UUID clientID, String rotation) {
+        try {
+            String message = new String("yaw," + clientID.toString());
+            message += "," + rotation;
             forwardPacketToAll(message, clientID);
         } catch (IOException e) {
             e.printStackTrace();

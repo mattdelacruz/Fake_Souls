@@ -110,6 +110,7 @@ public class Player extends ActiveEntityObject {
             handleAnimationSwitch(getMovementState().getAnimation(), 1f);
             if (MyGame.getGameInstance().getProtocolClient() != null) {
                 MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
+                MyGame.getGameInstance().getProtocolClient().sendAnimationMessage(getMovementState().getAnimation());
             }
         }
     }
@@ -135,6 +136,7 @@ public class Player extends ActiveEntityObject {
             handleAnimationSwitch("STRAFE", 1f);
             if (MyGame.getGameInstance().getProtocolClient() != null) {
                 MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
+                MyGame.getGameInstance().getProtocolClient().sendAnimationMessage("STRAFE");
             }
         }
     }
@@ -173,9 +175,15 @@ public class Player extends ActiveEntityObject {
             setStanceState(attackStance);
         }
         handleAnimationSwitch(getStanceState().getAnimation(), 1f);
+        if (MyGame.getGameInstance().getProtocolClient() != null) {
+            MyGame.getGameInstance().getProtocolClient().sendAnimationMessage(getStanceState().getAnimation());
+        }
 
         if (!getAnimationShape().isAnimPlaying()) {
             setStanceState(normalStance);
+            if (MyGame.getGameInstance().getProtocolClient() != null) {
+                MyGame.getGameInstance().getProtocolClient().sendAnimationMessage(getStanceState().getAnimation());
+            }
         }
     }
 
@@ -189,6 +197,9 @@ public class Player extends ActiveEntityObject {
         setStanceState(guardStance);
         // setMovementState(guardMovement);
         handleAnimationSwitch(getStanceState().getAnimation(), 1f);
+        if (MyGame.getGameInstance().getProtocolClient() != null) {
+            MyGame.getGameInstance().getProtocolClient().sendAnimationMessage(getStanceState().getAnimation());
+        }
     }
 
     /* to be called by keyboard/gamepad events only */
@@ -225,6 +236,9 @@ public class Player extends ActiveEntityObject {
         super.idle();
         setStanceState(normalStance);
         weapon.idle();
+        if (MyGame.getGameInstance().getProtocolClient() != null) {
+            MyGame.getGameInstance().getProtocolClient().sendAnimationMessage("IDLE");
+        }
     }
 
     public void setLock(boolean lock) {

@@ -28,6 +28,7 @@ import a3.controls.PlayerControls;
 import a3.managers.PhysicsManager;
 import a3.managers.ScriptManager;
 import a3.managers.SoundManager;
+import a3.network.GhostAvatar;
 import a3.network.GhostManager;
 import a3.network.ProtocolClient;
 import a3.npcs.Enemy;
@@ -68,6 +69,7 @@ public class MyGame extends VariableFrameRateGame {
 	private GameObject terrain;
 	private Enemy enemy;
 	private Player player;
+	private GhostAvatar ghost;
 	private PlayerWeapon katana;
 	private EnemyWeapon longinus;
 	private ProtocolType serverProtocol;
@@ -83,9 +85,9 @@ public class MyGame extends VariableFrameRateGame {
 	private boolean hasMovedSouth = false;
 	private boolean isEnemyHit = false;
 
-	private ObjShape ghostS, terrS;
+	private ObjShape terrS;
 	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx, katanaTx, spearTx;
-	private AnimatedShape playerShape, katanaShape, enemyShape, spearShape;
+	private AnimatedShape playerShape, ghostShape, katanaShape, ghostKatanaShape, enemyShape, spearShape;
 	private EnemyController enemyController;
 	private AnimationController animationController;
 	private Viewport HUDViewport;
@@ -160,9 +162,9 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void loadShapes() {
-		ghostS = new Sphere();
 		terrS = new TerrainPlane(150);
 		initializePlayerAnimations();
+		initializeGhostAnimations();
 		initializeEnemyAnimations();
 	}
 
@@ -268,6 +270,39 @@ public class MyGame extends VariableFrameRateGame {
 				"ATTACK1",
 				(String) scriptManager.getValue("KATANA_ATTACK_1_RKA"));
 		katanaShape.loadAnimation(
+				"GUARD",
+				(String) scriptManager.getValue("KATANA_GUARD_RKA"));
+	}
+
+	private void initializeGhostAnimations() {
+		ghostShape = new AnimatedShape(
+				(String) scriptManager.getValue("PLAYER_RKM"),
+				(String) scriptManager.getValue("PLAYER_RKS"));
+		ghostShape.loadAnimation(
+				"RUN", (String) scriptManager.getValue("PLAYER_RUN_RKA"));
+		ghostShape.loadAnimation(
+				"STRAFE", (String) scriptManager.getValue("PLAYER_STRAFE_RKA"));
+		ghostShape.loadAnimation(
+				"IDLE", (String) scriptManager.getValue("PLAYER_IDLE_RKA"));
+		ghostShape.loadAnimation(
+				"ATTACK1", (String) scriptManager.getValue("PLAYER_ATTACK_1_RKA"));
+		ghostShape.loadAnimation(
+				"GUARD", (String) scriptManager.getValue("PLAYER_GUARD_RKA"));
+
+		ghostKatanaShape = new AnimatedShape(
+				(String) scriptManager.getValue("KATANA_RKM"),
+				(String) scriptManager.getValue("KATANA_RKS"));
+		ghostKatanaShape.loadAnimation(
+				"RUN", (String) scriptManager.getValue("KATANA_RUN_RKA"));
+		ghostKatanaShape.loadAnimation(
+				"STRAFE", (String) scriptManager.getValue("KATANA_STRAFE_RKA"));
+		ghostKatanaShape.loadAnimation(
+				"IDLE",
+				(String) scriptManager.getValue("KATANA_IDLE_RKA"));
+		ghostKatanaShape.loadAnimation(
+				"ATTACK1",
+				(String) scriptManager.getValue("KATANA_ATTACK_1_RKA"));
+		ghostKatanaShape.loadAnimation(
 				"GUARD",
 				(String) scriptManager.getValue("KATANA_GUARD_RKA"));
 	}
@@ -740,6 +775,9 @@ public class MyGame extends VariableFrameRateGame {
 				if (!hasRotated) {
 					currentRotation += 45f;
 					player.yaw(getFrameTime(), currentRotation);
+					if (getProtocolClient() != null) {
+						getProtocolClient().sendYawMessage(currentRotation);
+					}
 					hasRotated = true;
 				}
 				hasMovedNorthWest = true;
@@ -757,6 +795,9 @@ public class MyGame extends VariableFrameRateGame {
 				if (!hasRotated) {
 					currentRotation += -45f;
 					player.yaw(getFrameTime(), currentRotation);
+					if (getProtocolClient() != null) {
+						getProtocolClient().sendYawMessage(currentRotation);
+					}
 					hasRotated = true;
 				}
 				hasMovedNorthWest = false;
@@ -774,6 +815,9 @@ public class MyGame extends VariableFrameRateGame {
 				if (!hasRotated) {
 					currentRotation += 135f;
 					player.yaw(getFrameTime(), currentRotation);
+					if (getProtocolClient() != null) {
+						getProtocolClient().sendYawMessage(currentRotation);
+					}
 					hasRotated = true;
 				}
 				hasMovedNorthWest = false;
@@ -790,6 +834,9 @@ public class MyGame extends VariableFrameRateGame {
 				if (!hasRotated) {
 					currentRotation += -135f;
 					player.yaw(getFrameTime(), currentRotation);
+					if (getProtocolClient() != null) {
+						getProtocolClient().sendYawMessage(currentRotation);
+					}
 					hasRotated = true;
 				}
 				hasMovedNorthWest = false;
@@ -809,6 +856,9 @@ public class MyGame extends VariableFrameRateGame {
 			if (!hasMovedSouth) {
 				if (!hasRotated) {
 					player.yaw(getFrameTime(), currentRotation);
+					if (getProtocolClient() != null) {
+						getProtocolClient().sendYawMessage(currentRotation);
+					}
 					hasRotated = true;
 				}
 				hasMovedNorthWest = false;
@@ -829,6 +879,9 @@ public class MyGame extends VariableFrameRateGame {
 				if (!hasRotated) {
 					currentRotation += 90f;
 					player.yaw(getFrameTime(), currentRotation);
+					if (getProtocolClient() != null) {
+						getProtocolClient().sendYawMessage(currentRotation);
+					}
 					hasRotated = true;
 				}
 				hasMovedNorthWest = false;
@@ -850,6 +903,9 @@ public class MyGame extends VariableFrameRateGame {
 				if (!hasRotated) {
 					currentRotation += -90f;
 					player.yaw(getFrameTime(), currentRotation);
+					if (getProtocolClient() != null) {
+						getProtocolClient().sendYawMessage(currentRotation);
+					}
 					hasRotated = true;
 				}
 				hasMovedNorthWest = false;
@@ -986,12 +1042,20 @@ public class MyGame extends VariableFrameRateGame {
 		return ghostManager;
 	}
 
-	public ObjShape getGhostShape() {
-		return ghostS;
+	public AnimatedShape getGhostShape() {
+		return ghostShape;
 	}
 
 	public TextureImage getGhostTexture() {
-		return ghostTx;
+		return playerTx;
+	}
+
+	public TextureImage getGhostKatanaTexture() {
+		return katanaTx;
+	}
+
+	public AnimatedShape getGhostKatanaShape() {
+		return ghostKatanaShape;
 	}
 
 	public ProtocolClient getProtocolClient() {
@@ -1020,5 +1084,9 @@ public class MyGame extends VariableFrameRateGame {
 
 	public EnemyController getEnemyController() {
 		return enemyController;
+	}
+
+	public AnimationController getAnimationController() {
+		return animationController;
 	}
 }

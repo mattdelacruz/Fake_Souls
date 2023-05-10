@@ -17,8 +17,9 @@ import java.util.Collection;
  * 
  * @author Kyle Matz
  * 
- * Modified from the SAGE Networking package for the RAGE game engine by Juan E. Ruiz.
- * Ported to TAGE by Scott Gordon.
+ *         Modified from the SAGE Networking package for the RAGE game engine by
+ *         Juan E. Ruiz.
+ *         Ported to TAGE by Scott Gordon.
  * 
  */
 public class GameConnectionClient extends AbstractGameConnectionClient {
@@ -34,20 +35,20 @@ public class GameConnectionClient extends AbstractGameConnectionClient {
 	 * client and start the thread to receive packets.
 	 * 
 	 * @param protocolType
-	 *            the protocol type to be used.
+	 *                     the protocol type to be used.
 	 * @throws IOException
 	 */
 	public GameConnectionClient(ProtocolType protocolType) throws IOException {
 		switch (protocolType) {
-		case UDP:
-			clientSocket = new UDPClientSocket();
-			break;
-		case TCP:
-			clientSocket = new TCPClientSocket();
-			break;
-		default:
-			throw new IllegalArgumentException(
-					"Error in creating GameConnectionClient. Invalid protocol type.");
+			case UDP:
+				clientSocket = new UDPClientSocket();
+				break;
+			case TCP:
+				clientSocket = new TCPClientSocket();
+				break;
+			default:
+				throw new IllegalArgumentException(
+						"Error in creating GameConnectionClient. Invalid protocol type.");
 		}
 	}
 
@@ -57,25 +58,25 @@ public class GameConnectionClient extends AbstractGameConnectionClient {
 	 * the client and starts the thread to receive packets.
 	 * 
 	 * @param remoteAddr
-	 *            remote address to connect to.
+	 *                     remote address to connect to.
 	 * @param remotePort
-	 *            remote port to connect to.
+	 *                     remote port to connect to.
 	 * @param protocolType
-	 *            the protocol type to be used.
+	 *                     the protocol type to be used.
 	 * @throws IOException
 	 */
 	public GameConnectionClient(InetAddress remoteAddr, int remotePort,
 			ProtocolType protocolType) throws IOException {
 		switch (protocolType) {
-		case UDP:
-			clientSocket = new UDPClientSocket(remoteAddr, remotePort);
-			break;
-		case TCP:
-			clientSocket = new TCPClientSocket(remoteAddr, remotePort);
-			break;
-		default:
-			throw new IllegalArgumentException(
-					"Error in creating GameConnectionClient. Invalid protocol type.");
+			case UDP:
+				clientSocket = new UDPClientSocket(remoteAddr, remotePort);
+				break;
+			case TCP:
+				clientSocket = new TCPClientSocket(remoteAddr, remotePort);
+				break;
+			default:
+				throw new IllegalArgumentException(
+						"Error in creating GameConnectionClient. Invalid protocol type.");
 		}
 
 		initClient();
@@ -88,32 +89,32 @@ public class GameConnectionClient extends AbstractGameConnectionClient {
 	 * the thread to receive packets.
 	 * 
 	 * @param remoteAddr
-	 *            remote address to connect to.
+	 *                     remote address to connect to.
 	 * @param remotePort
-	 *            remote port to connect to.
+	 *                     remote port to connect to.
 	 * @param localAddr
-	 *            local address to bind to.
+	 *                     local address to bind to.
 	 * @param localPort
-	 *            local port to bind to.
+	 *                     local port to bind to.
 	 * @param protocolType
-	 *            the protocol type to be used.
+	 *                     the protocol type to be used.
 	 * @throws IOException
 	 */
 	public GameConnectionClient(InetAddress remoteAddr, int remotePort,
 			InetAddress localAddr, int localPort, ProtocolType protocolType)
 			throws IOException {
 		switch (protocolType) {
-		case UDP:
-			clientSocket = new UDPClientSocket(remoteAddr, remotePort,
-					localAddr, localPort);
-			break;
-		case TCP:
-			clientSocket = new TCPClientSocket(remoteAddr, remotePort,
-					localAddr, localPort);
-			break;
-		default:
-			throw new IllegalArgumentException(
-					"Error in creating GameConnectionClient. Invalid protocol type.");
+			case UDP:
+				clientSocket = new UDPClientSocket(remoteAddr, remotePort,
+						localAddr, localPort);
+				break;
+			case TCP:
+				clientSocket = new TCPClientSocket(remoteAddr, remotePort,
+						localAddr, localPort);
+				break;
+			default:
+				throw new IllegalArgumentException(
+						"Error in creating GameConnectionClient. Invalid protocol type.");
 		}
 
 		initClient();

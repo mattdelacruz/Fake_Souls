@@ -12,6 +12,7 @@ import a3.MyGame;
 import tage.ObjShape;
 import tage.TextureImage;
 import tage.VariableFrameRateGame;
+import tage.shapes.AnimatedShape;
 
 public class GhostManager {
     private MyGame game;
@@ -33,11 +34,15 @@ public class GhostManager {
 
     public void createGhostAvatar(UUID id, Vector3f pos) throws IOException {
         System.out.println("adding ghost with ID --> " + id);
-        ObjShape s = game.getGhostShape();
+        AnimatedShape s = game.getGhostShape();
         TextureImage t = game.getGhostTexture();
         GhostAvatar newAvatar = new GhostAvatar(id, s, t, pos);
-        Matrix4f initialScale = (new Matrix4f()).scaling(0.25f);
-        newAvatar.setLocalScale(initialScale);
+        AnimatedShape ks = game.getGhostKatanaShape();
+        TextureImage kt = game.getGhostKatanaTexture();
+        GhostWeapon newKatana = new GhostWeapon(id, ks, kt, newAvatar);
+        newAvatar.addWeapon(newKatana);
+
+        game.getAnimationController().addTarget(newAvatar);
         ghostAvatars.add(newAvatar);
     }
 
@@ -58,6 +63,29 @@ public class GhostManager {
         GhostAvatar ghostAvatar = findAvatar(ghostID);
         if (ghostAvatar != null) {
             ghostAvatar.setPosition(pos);
+        } else {
+            System.out.println("Can't find ghost!!");
+        }
+    }
+
+    public void updateGhostAvatarAnimation(UUID ghostID, String animation) {
+        GhostAvatar ghostAvatar = findAvatar(ghostID);
+        if (ghostAvatar != null) {
+            if (animation.equals("IDLE")) {
+                ghostAvatar.idle();
+            } else {
+                System.out.println("updating ghost avatar animation: " + animation);
+                ghostAvatar.handleAnimationSwitch(animation, 1f);
+            }
+        } else {
+            System.out.println("Can't find ghost!!");
+        }
+    }
+
+    public void updateGhostAvatarYaw(UUID ghostID, float rotation) {
+        GhostAvatar ghostAvatar = findAvatar(ghostID);
+        if (ghostAvatar != null) {
+            ghostAvatar.yaw(game.getFrameTime(), rotation);
         } else {
             System.out.println("Can't find ghost!!");
         }

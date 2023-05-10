@@ -75,6 +75,18 @@ public class ProtocolClient extends GameConnectionClient {
 
                 ghostManager.updateGhostAvatar(ghostID, ghostPosition);
             }
+
+            if (msgTokens[0].compareTo("animation") == 0) {
+                UUID ghostID = UUID.fromString(msgTokens[1]);
+                String animation = msgTokens[2];
+                ghostManager.updateGhostAvatarAnimation(ghostID, animation);
+            }
+
+            if (msgTokens[0].compareTo("yaw") == 0) {
+                UUID ghostID = UUID.fromString(msgTokens[1]);
+                float rotation = Float.parseFloat(msgTokens[2]);
+                ghostManager.updateGhostAvatarYaw(ghostID, rotation);
+            }
         }
     }
 
@@ -118,6 +130,26 @@ public class ProtocolClient extends GameConnectionClient {
             message += "," + pos.y();
             message += "," + pos.z();
 
+            sendPacket(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendAnimationMessage(String animation) {
+        try {
+            String message = new String("animation," + id.toString());
+            message += "," + animation;
+            sendPacket(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendYawMessage(float rotation) {
+        try {
+            String message = new String("yaw," + id.toString());
+            message += "," + rotation;
             sendPacket(message);
         } catch (IOException e) {
             e.printStackTrace();

@@ -119,7 +119,8 @@ public class AnimatedGameObject extends GameObject {
 	}
 
 	public void updateAnimation() {
-		getAnimationShape().updateAnimation();
+		if (getAnimationShape().isAnimated())
+			getAnimationShape().updateAnimation();
 	}
 
 	public SoundManager getSoundManager() {
