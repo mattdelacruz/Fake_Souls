@@ -24,69 +24,74 @@ public class ProtocolClient extends GameConnectionClient {
 
     @Override
     protected void processPacket(Object msg) {
-        String strMessage = (String) msg;
-        String[] msgTokens = strMessage.split(",");
+        if (msg != null) {
+            String strMessage = (String) msg;
+            System.out.println("str message: " + strMessage);
+            String[] msgTokens = strMessage.split(",");
 
-        if (msgTokens.length > 0) {
-            if (msgTokens[0].compareTo("join") == 0) {
-                if (msgTokens[1].compareTo("success") == 0) {
-                    System.out.println("connection is a success");
-                    game.setIsConnected(true);
-                    sendCreateMessage(game.getPlayer().getLocalLocation());
+            if (msgTokens.length > 0) {
+                if (msgTokens[0].compareTo("join") == 0) {
+                    if (msgTokens[1].compareTo("success") == 0) {
+                        System.out.println("connection is a success");
+                        game.setIsConnected(true);
+                        sendCreateMessage(game.getPlayer().getLocalLocation());
+                    }
+                    if (msgTokens[1].compareTo("failure") == 0) {
+                        System.out.println("connection is a failure");
+                        game.setIsConnected(false);
+                    }
                 }
-                if (msgTokens[1].compareTo("failure") == 0) {
-                    System.out.println("connection is a failure");
-                    game.setIsConnected(false);
+
+                if (msgTokens[0].compareTo("bye") == 0) {
+                    UUID ghostID = UUID.fromString(msgTokens[1]);
+                    ghostManager.removeGhostAvatar(ghostID);
+                }
+
+                if ((msgTokens[0].compareTo("dsfr") == 0) || (msgTokens[0].compareTo("create") == 0)) {
+                    UUID ghostID = UUID.fromString(msgTokens[1]);
+                    Vector3f ghostPosition = new Vector3f(
+                            Float.parseFloat(msgTokens[2]),
+                            Float.parseFloat(msgTokens[3]),
+                            Float.parseFloat(msgTokens[4]));
+
+                    try {
+                        ghostManager.createGhostAvatar(ghostID, ghostPosition);
+                    } catch (IOException e) {
+                        System.out.println("error creating ghost avatar");
+                    }
+                }
+                if (msgTokens[0].compareTo("wsds") == 0) {
+                    UUID ghostID = UUID.fromString(msgTokens[1]);
+                    sendDetailsForMessage(ghostID, game.getPlayer().getLocalLocation());
+
+                }
+                if (msgTokens[0].compareTo("move") == 0) {
+
+                    UUID ghostID = UUID.fromString(msgTokens[1]);
+
+                    // Parse out the position into a Vector3f
+                    Vector3f ghostPosition = new Vector3f(
+                            Float.parseFloat(msgTokens[2]),
+                            Float.parseFloat(msgTokens[3]),
+                            Float.parseFloat(msgTokens[4]));
+
+                    ghostManager.updateGhostAvatar(ghostID, ghostPosition);
+                }
+
+                if (msgTokens[0].compareTo("animation") == 0) {
+                    UUID ghostID = UUID.fromString(msgTokens[1]);
+                    String animation = msgTokens[2];
+                    ghostManager.updateGhostAvatarAnimation(ghostID, animation);
+                }
+
+                if (msgTokens[0].compareTo("yaw") == 0) {
+                    UUID ghostID = UUID.fromString(msgTokens[1]);
+                    float rotation = Float.parseFloat(msgTokens[2]);
+                    ghostManager.updateGhostAvatarYaw(ghostID, rotation);
                 }
             }
-
-            if (msgTokens[0].compareTo("bye") == 0) {
-                UUID ghostID = UUID.fromString(msgTokens[1]);
-                ghostManager.removeGhostAvatar(ghostID);
-            }
-
-            if ((msgTokens[0].compareTo("dsfr") == 0) || (msgTokens[0].compareTo("create") == 0)) {
-                UUID ghostID = UUID.fromString(msgTokens[1]);
-                Vector3f ghostPosition = new Vector3f(
-                        Float.parseFloat(msgTokens[2]),
-                        Float.parseFloat(msgTokens[3]),
-                        Float.parseFloat(msgTokens[4]));
-
-                try {
-                    ghostManager.createGhostAvatar(ghostID, ghostPosition);
-                } catch (IOException e) {
-                    System.out.println("error creating ghost avatar");
-                }
-            }
-            if (msgTokens[0].compareTo("wsds") == 0) {
-                UUID ghostID = UUID.fromString(msgTokens[1]);
-                sendDetailsForMessage(ghostID, game.getPlayer().getLocalLocation());
-
-            }
-            if (msgTokens[0].compareTo("move") == 0) {
-
-                UUID ghostID = UUID.fromString(msgTokens[1]);
-
-                // Parse out the position into a Vector3f
-                Vector3f ghostPosition = new Vector3f(
-                        Float.parseFloat(msgTokens[2]),
-                        Float.parseFloat(msgTokens[3]),
-                        Float.parseFloat(msgTokens[4]));
-
-                ghostManager.updateGhostAvatar(ghostID, ghostPosition);
-            }
-
-            if (msgTokens[0].compareTo("animation") == 0) {
-                UUID ghostID = UUID.fromString(msgTokens[1]);
-                String animation = msgTokens[2];
-                ghostManager.updateGhostAvatarAnimation(ghostID, animation);
-            }
-
-            if (msgTokens[0].compareTo("yaw") == 0) {
-                UUID ghostID = UUID.fromString(msgTokens[1]);
-                float rotation = Float.parseFloat(msgTokens[2]);
-                ghostManager.updateGhostAvatarYaw(ghostID, rotation);
-            }
+        } else {
+            System.err.println("received null packet, ignoring...");
         }
     }
 

@@ -12,6 +12,7 @@ import a3.MyGame;
 import tage.ObjShape;
 import tage.TextureImage;
 import tage.VariableFrameRateGame;
+import tage.physics.PhysicsObject;
 import tage.shapes.AnimatedShape;
 
 public class GhostManager {
@@ -34,6 +35,12 @@ public class GhostManager {
 
     public void createGhostAvatar(UUID id, Vector3f pos) throws IOException {
         System.out.println("adding ghost with ID --> " + id);
+        float mass = 1f;
+        double[] tempTransform;
+        float[] vals = new float[16];
+        Matrix4f translation;
+        PhysicsObject ghostBody;
+
         AnimatedShape s = game.getGhostShape();
         TextureImage t = game.getGhostTexture();
         GhostAvatar newAvatar = new GhostAvatar(id, s, t, pos);
@@ -42,7 +49,14 @@ public class GhostManager {
         GhostWeapon newKatana = new GhostWeapon(id, ks, kt, newAvatar);
         newAvatar.addWeapon(newKatana);
 
+        translation = newAvatar.getLocalTranslation();
+        tempTransform = game.toDoubleArray(translation.get(vals));
+
+        ghostBody = game.getPhysicsManager().addCapsuleObject(mass, tempTransform, 1f, 5f);
+        newAvatar.setPhysicsObject(ghostBody);
+
         game.getAnimationController().addTarget(newAvatar);
+        game.addToPlayerQuadTree(newAvatar);
         ghostAvatars.add(newAvatar);
     }
 
@@ -62,7 +76,7 @@ public class GhostManager {
     public void updateGhostAvatar(UUID ghostID, Vector3f pos) {
         GhostAvatar ghostAvatar = findAvatar(ghostID);
         if (ghostAvatar != null) {
-            ghostAvatar.setPosition(pos);
+            ghostAvatar.move(pos, game.getFrameTime());
         } else {
             System.out.println("Can't find ghost!!");
         }

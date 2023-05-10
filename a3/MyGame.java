@@ -946,6 +946,11 @@ public class MyGame extends VariableFrameRateGame {
 		}
 	}
 
+	public void addToPlayerQuadTree(ActiveEntityObject obj) {
+		playerQuadTree
+				.insert(new QuadTreeNode(new QuadTreePoint(obj.getLocalLocation().z, obj.getLocalLocation().x), obj));
+	}
+
 	private void buildTargetCamera() {
 		targetCamera = new TargetCamera(getPlayer());
 		targetCamera.setLocation((Vector3f) scriptManager.getValue("INITIAL_CAMERA_POS"));
@@ -983,7 +988,7 @@ public class MyGame extends VariableFrameRateGame {
 		return null;
 	}
 
-	private float[] toFloatArray(double[] arr) {
+	public float[] toFloatArray(double[] arr) {
 		if (arr == null)
 			return null;
 		int n = arr.length;
@@ -994,7 +999,7 @@ public class MyGame extends VariableFrameRateGame {
 		return ret;
 	}
 
-	private double[] toDoubleArray(float[] arr) {
+	public double[] toDoubleArray(float[] arr) {
 		if (arr == null) {
 			return null;
 		}
@@ -1088,5 +1093,9 @@ public class MyGame extends VariableFrameRateGame {
 
 	public AnimationController getAnimationController() {
 		return animationController;
+	}
+
+	public PhysicsManager getPhysicsManager() {
+		return physicsManager;
 	}
 }
