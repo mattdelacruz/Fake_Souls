@@ -32,4 +32,9 @@ public class EnemyNormalStance implements EnemyStanceState {
         return false;
     }
 
+    @Override
+    public boolean isFlinched() {
+        return false;
+    }
+
 }

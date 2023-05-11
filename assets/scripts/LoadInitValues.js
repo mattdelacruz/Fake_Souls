@@ -5,6 +5,7 @@ var JavaPackages = new JavaImporter(
 
 with (JavaPackages) {
 
+
 	//----------------------------------------------------------------
     var WINDOW_WIDTH = 600;
 	var WINDOW_HEIGHT = 600;
@@ -12,6 +13,7 @@ with (JavaPackages) {
 	var PLAY_AREA_SIZE = 300;
 	var PLAYER_HEIGHT_SPEED = 0.5;
 	var INITIAL_CAMERA_POS = new Vector3f(0, 0, 5);
+	var INITIAL_HUD_CAMERA_POS = new Vector3f(0, 10000, 0);
 	var SKYBOX_NAME = "fluffyClouds";
 	var PLAYER_TEXTURE = "player-texture.png";
 	var GHOST_TEXTURE = "neptune.jpg";
@@ -53,6 +55,7 @@ with (JavaPackages) {
 	var ENEMY_RUN_RKA = "enemy-animations/knight-enemy-run.rka";
 	var ENEMY_IDLE_RKA = "enemy-animations/knight-enemy-idle.rka";
 	var ENEMY_ATTACK_RKA = "enemy-animations/knight-enemy-attack.rka";
+	var ENEMY_FLINCH_RKA = "enemy-animations/knight-enemy-flinch.rka";
 	var ENEMY_DEATH_RKA = "enemy-animations/knight-enemy-death.rka";
 	//----------------------------------------------------------------
 	// Spear animation file paths
@@ -62,7 +65,9 @@ with (JavaPackages) {
 	var SPEAR_IDLE_RKA = "enemy-animations/weapon-animations/longinus-idle.rka";
 	var SPEAR_RUN_RKA = "enemy-animations/weapon-animations/longinus-run.rka";
 	var SPEAR_ATTACK_RKA = "enemy-animations/weapon-animations/longinus-attack.rka";
+	var SPEAR_FLINCH_RKA = "enemy-animations/weapon-animations/longinus-flinch.rka";
 	var SPEAR_DEATH_RKA = "enemy-animations/weapon-animations/longinus-death.rka";
+
 	//----------------------------------------------------------------
 	// Music file paths
 	//----------------------------------------------------------------

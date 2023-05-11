@@ -6,11 +6,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import tage.ActiveEntityObject;
-import tage.AnimatedGameObject;
 import tage.GameObject;
-import tage.ObjShape;
 import tage.TextureImage;
-import tage.physics.PhysicsObject;
 import tage.shapes.AnimatedShape;
 
 public class GhostAvatar extends ActiveEntityObject {

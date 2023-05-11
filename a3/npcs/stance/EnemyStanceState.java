@@ -4,4 +4,6 @@ import tage.ActiveEntityStanceState;
 
 public interface EnemyStanceState extends ActiveEntityStanceState {
     public boolean isHunting();
+
+    public boolean isFlinched();
 }

@@ -1,6 +1,7 @@
 package a3;
 
 import tage.*;
+import tage.audio.AudioResourceType;
 import tage.audio.SoundType;
 import tage.input.InputManager;
 import tage.networking.IGameConnection.ProtocolType;
@@ -38,6 +39,10 @@ import a3.player.PlayerWeapon;
 import a3.quadtree.*;
 
 public class MyGame extends VariableFrameRateGame {
+	private static final float HUD_VIEWPORT_BOTTOM = 0f;
+	private static final float HUD_VIEWPORT_LEFT = 0.95f;
+	private static final float HUD_VIEWPORT_HEIGHT = .05f;
+	private static final String HUD_VIEWPORT_NAME = "HUD";
 	private static final String SCRIPT_INIT_PATH = "assets/scripts/LoadInitValues.js";
 	private static Engine engine;
 	private static MyGame game;
@@ -124,10 +129,9 @@ public class MyGame extends VariableFrameRateGame {
 	public static void main(String[] args) {
 		if (args.length != 0) {
 			System.out.println("setting up network...");
-			game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
-		} else {
-			game = new MyGame();
 		}
+		game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+
 		engine = new Engine(getGameInstance());
 		scriptManager = new ScriptManager();
 		scriptManager.loadScript(SCRIPT_INIT_PATH);
@@ -162,7 +166,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void loadShapes() {
-		terrS = new TerrainPlane(150);
+		terrS = new TerrainPlane(100);
 		initializePlayerAnimations();
 		initializeGhostAnimations();
 		initializeEnemyAnimations();
@@ -181,9 +185,9 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void loadSkyBoxes() {
-		engine.getSceneGraph().setSkyBoxEnabled(true);
-		engine.getSceneGraph().setActiveSkyBoxTexture(
-				engine.getSceneGraph().loadCubeMap((String) scriptManager.getValue("SKYBOX_NAME")));
+		getEngineInstance().getSceneGraph().setSkyBoxEnabled(true);
+		getEngineInstance().getSceneGraph().setActiveSkyBoxTexture(
+				getEngineInstance().getSceneGraph().loadCubeMap((String) scriptManager.getValue("SKYBOX_NAME")));
 	}
 
 	@Override
@@ -205,11 +209,19 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	@Override
+	public void createViewports() {
+		super.createViewports();
+		getEngine().getRenderSystem().addViewport(HUD_VIEWPORT_NAME, HUD_VIEWPORT_BOTTOM, HUD_VIEWPORT_LEFT,
+				getEngine().getRenderSystem().getWidth(), HUD_VIEWPORT_HEIGHT);
+	}
+
+	@Override
 	public void initializeLights() {
 		Light light = new Light();
-		Light.setGlobalAmbient(0.5f, 0.5f, 0.5f);
+		System.out.println(light);
+		Light.setGlobalAmbient(.25f, .25f, .25f);
 		light.setLocation(new Vector3f(5.0f, 0.0f, 2.0f));
-		(engine.getSceneGraph()).addLight(light);
+		(getEngineInstance().getSceneGraph()).addLight(light);
 	}
 
 	@Override
@@ -219,7 +231,7 @@ public class MyGame extends VariableFrameRateGame {
 		lastHeightLoc = 0;
 		elapsTime = 0.0;
 
-		(engine.getRenderSystem()).setWindowDimensions(
+		(getEngineInstance().getRenderSystem()).setWindowDimensions(
 				(int) scriptManager.getValue("WINDOW_WIDTH"),
 				(int) scriptManager.getValue("WINDOW_HEIGHT"));
 
@@ -239,7 +251,8 @@ public class MyGame extends VariableFrameRateGame {
 		int backgroundMusicRange = (int) scriptManager.getValue("PLAY_AREA_SIZE");
 		soundManager.addSound(
 				"BACKGROUND_MUSIC", (String) scriptManager.getValue("BACKGROUND_MUSIC"), 50, true,
-				(float) backgroundMusicRange, 0, 0, new Vector3f(0, 0, 0), SoundType.SOUND_MUSIC);
+				(float) backgroundMusicRange, 0, 0, new Vector3f(0, 0, 0), SoundType.SOUND_MUSIC,
+				AudioResourceType.AUDIO_STREAM);
 
 		soundManager.playSound("BACKGROUND_MUSIC");
 	}
@@ -348,6 +361,8 @@ public class MyGame extends VariableFrameRateGame {
 				(String) scriptManager.getValue("ENEMY_IDLE_RKA"));
 		enemyShape.loadAnimation("ATTACK",
 				(String) scriptManager.getValue("ENEMY_ATTACK_RKA"));
+		enemyShape.loadAnimation("FLINCH",
+				(String) scriptManager.getValue("ENEMY_FLINCH_RKA"));
 		enemyShape.loadAnimation("DEATH",
 				(String) scriptManager.getValue("ENEMY_DEATH_RKA"));
 
@@ -360,6 +375,8 @@ public class MyGame extends VariableFrameRateGame {
 				(String) scriptManager.getValue("SPEAR_RUN_RKA"));
 		spearShape.loadAnimation("ATTACK",
 				(String) scriptManager.getValue("SPEAR_ATTACK_RKA"));
+		spearShape.loadAnimation("FLINCH",
+				(String) scriptManager.getValue("SPEAR_FLINCH_RKA"));
 		spearShape.loadAnimation("DEATH",
 				(String) scriptManager.getValue("SPEAR_DEATH_RKA"));
 	}
@@ -370,7 +387,7 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void initializeControls() {
-		inputManager = engine.getInputManager();
+		inputManager = getEngineInstance().getInputManager();
 		playerControlMaps = new PlayerControlMap(inputManager);
 	}
 
@@ -709,20 +726,18 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void handlePlayerHit(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
 		// obj1 is player weapon, obj2 is enemy
-		if (isEnemyHitByPlayerWeapon(obj1, obj2)) {
-			if (isAttackAnimationMidpoint(player.getWeapon())) {
-				updateEnemyHealthHUD(enemy);
-				isEnemyHit = true;
-				soundManager.stopSound("KATANA_WHIFF");
-				soundManager.playSound("KATANA_HIT");
-				damagedEnemy = enemy;
-				hudTimer = 0;
-				enemyMap.get(obj2.getUID()).reduceHealth(player.getWeapon().getDamage());
-				player.getWeapon().resetFrameCount();
-			}
-			player.getWeapon().addFrameCount();
+		if (isEnemyHitByPlayerWeapon(obj1, obj2) &&
+				isAttackAnimationMidpoint(player.getWeapon())) {
+			updateEnemyHealthHUD(enemy);
+			isEnemyHit = true;
+			soundManager.stopSound("KATANA_WHIFF");
+			soundManager.playSound("KATANA_HIT");
+			damagedEnemy = enemy;
+			hudTimer = 0;
+			enemyMap.get(obj2.getUID()).reduceHealth(player.getWeapon().getDamage());
+			player.getWeapon().resetFrameCount();
 		}
-
+		player.getWeapon().addFrameCount();
 	}
 
 	private boolean isEnemyHitByPlayerWeapon(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
@@ -737,8 +752,7 @@ public class MyGame extends VariableFrameRateGame {
 			Vector3f enemyToPlayer = player.getLocalLocation().sub(enemy.getLocalLocation());
 			Vector3f pushBackVector = enemyToPlayer.normalize().mul((float) pushBackDistance);
 			player.setLocalLocation(player.getLocalLocation().add(pushBackVector));
-
-			// targetCamera.updateCameraLocation(getFrameTime());
+			targetCamera.updateCameraLocation(getFrameTime());
 		}
 	}
 
@@ -759,7 +773,7 @@ public class MyGame extends VariableFrameRateGame {
 					updateGameObjectwithPhysicsObject(player, player.getPhysicsObject());
 					if (player.getStanceState().isGuarding()) {
 						player.reduceHealth(enemy.getWeapon().getDamage() / 2);
-
+						enemy.flinch();
 					} else {
 						player.reduceHealth(enemy.getWeapon().getDamage());
 					}
@@ -897,9 +911,9 @@ public class MyGame extends VariableFrameRateGame {
 				hasMovedSouth = true;
 			}
 			if (!player.isLocked()) {
-				getControls().moveNorth(-getFrameTime());
+				getControls().moveSouth(-getFrameTime());
 			} else {
-				getControls().moveNorth(-getFrameTime());
+				getControls().moveSouth(-getFrameTime());
 			}
 		} else if (movingWest) {
 			if (!hasMovedWest) {
@@ -981,7 +995,7 @@ public class MyGame extends VariableFrameRateGame {
 	private void buildTargetCamera() {
 		targetCamera = new TargetCamera(getPlayer());
 		targetCamera.setLocation((Vector3f) scriptManager.getValue("INITIAL_CAMERA_POS"));
-		engine.getRenderSystem().getViewport("MAIN").setCamera(targetCamera);
+		getEngineInstance().getRenderSystem().getViewport("MAIN").setCamera(targetCamera);
 		targetCamera.setLookAtTarget(player.getLocalLocation());
 		targetCamera.setLocation(targetCamera.getLocation().mul(new Vector3f(1, 1, -1)));
 		targetCamera.updateCameraAngles(frameTime);
@@ -989,8 +1003,8 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void buildHUDCamera() {
 		HUDCamera = new HUDCamera(getEngineInstance());
-		HUDCamera.setLocation((Vector3f) scriptManager.getValue("INITIAL_CAMERA_POS"));
-		HUDViewport = getEngineInstance().getRenderSystem().getViewport("HUD");
+		HUDCamera.setLocation((Vector3f) scriptManager.getValue("INITIAL_HUD_CAMERA_POS"));
+		HUDViewport = getEngineInstance().getRenderSystem().getViewport(HUDCamera.getViewportName());
 	}
 
 	public static MyGame getGameInstance() {

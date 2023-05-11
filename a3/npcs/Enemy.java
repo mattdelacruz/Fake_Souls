@@ -13,6 +13,7 @@ import a3.npcs.movement.EnemyMovementState;
 import a3.npcs.movement.EnemyRunMovementState;
 import a3.npcs.stance.EnemyAttackStance;
 import a3.npcs.stance.EnemyDeadStance;
+import a3.npcs.stance.EnemyFlinchStance;
 import a3.npcs.stance.EnemyHuntStance;
 import a3.npcs.stance.EnemyNormalStance;
 import a3.npcs.stance.EnemyStanceState;
@@ -35,12 +36,13 @@ public class Enemy extends ActiveEntityObject {
     private GameObject target;
     private EnemyWeapon weapon;
     private long thinkStartTime, tickStartTime;
-    private long lastThinkUpdateTime;
+    private long lastThinkUpdateTime, lastTickUpdateTime;
     private EnemyMovementState movementState;
     private EnemyRunMovementState runMovement = new EnemyRunMovementState();
     private EnemyStanceState stanceState;
     private EnemyAttackStance attackStance = new EnemyAttackStance();
     private EnemyNormalStance normalStance = new EnemyNormalStance();
+    private EnemyFlinchStance flinchStance = new EnemyFlinchStance();
     private boolean step1isPlayed = false;
     private boolean step2isPlayed = false;
     private boolean isAttacking = false;
@@ -97,6 +99,16 @@ public class Enemy extends ActiveEntityObject {
         elapsedThinkMilliSecs = 0f;
     }
 
+    public void flinch() {
+        if (getAnimationShape().getAnimation("ATTACK").equals(getAnimationShape().getCurrentAnimation())
+                && getAnimationShape().isAnimPlaying()) {
+            getAnimationShape().stopAnimation();
+        }
+
+        setStanceState(flinchStance);
+        handleAnimationSwitch(getStanceState().getAnimation(), 2f);
+    }
+
     @Override
     public void move(Vector3f vec, float frameTime) {
         super.move(vec, (frameTime * getMovementState().getSpeed()));
@@ -116,21 +128,29 @@ public class Enemy extends ActiveEntityObject {
     }
 
     public void updateBehavior() {
+        long currentTime = System.nanoTime();
+        float elapsedThinkMilliSecs = (currentTime - lastThinkUpdateTime) /
+                (1000000.0f);
+        float elapsedTickMilliSecs = (currentTime - lastTickUpdateTime) / (1000000.0f);
         if (!getStanceState().isDead()) {
+
             isAttacking = checkIfAttacking();
+
             if (getStanceState().isHunting()) {
                 move(getLocalForwardVector(), MyGame.getGameInstance().getFrameTime());
             }
-            long currentTime = System.nanoTime();
-            elapsedThinkMilliSecs = (currentTime - lastThinkUpdateTime) /
-                    (1000000.0f);
 
             if (elapsedThinkMilliSecs >= 1500f) {
+                if (getStanceState().isFlinched()) {
+                    lastTickUpdateTime = currentTime;
+                    setStanceState(normalStance);
+                }
+
                 if (getStanceState().isAttacking()) {
                     attack();
                 }
                 lastThinkUpdateTime = currentTime;
-                // ebt.update(elapsedThinkMilliSecs);
+                ebt.update(elapsedThinkMilliSecs);
             }
         }
     }

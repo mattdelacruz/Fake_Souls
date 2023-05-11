@@ -1,6 +1,6 @@
 package a3.player.movement;
 
-public class PlayerGuardMovement implements PlayerMovementState {
+public class PlayerGuardMovement implements PlayerMovement {
 
     @Override
     public float getSpeed() {

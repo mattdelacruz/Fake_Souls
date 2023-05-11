@@ -119,6 +119,35 @@ public class Player extends ActiveEntityObject {
         }
     }
 
+    public void moveSouth(Vector3f vec, float frameTime) {
+        if (stanceState == normalStance) {
+            canMove = true;
+        }
+
+        if (stanceState == guardStance) {
+            movementState = guardMovement;
+        }
+        if (canMove) {
+            super.move(vec, (frameTime * getStanceState().getMoveValue() * (getMovementState().getSpeed() * .5f)));
+            // if (!step1isPlayed &&
+            // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
+            // MyGame.getGameInstance().getSoundManager().playSound("STEP1");
+            // step2isPlayed = false;
+            // step1isPlayed = true;
+            // } else if (!step2isPlayed &&
+            // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
+            // MyGame.getGameInstance().getSoundManager().playSound("STEP2");
+            // step1isPlayed = false;
+            // step2isPlayed = true;
+            // }
+            handleAnimationSwitch("BACKWARDS_RUN", 1f);
+            if (MyGame.getGameInstance().getProtocolClient() != null) {
+                MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
+                MyGame.getGameInstance().getProtocolClient().sendAnimationMessage("BACKWARDS_RUN");
+            }
+        }
+    }
+
     public void moveEast(Vector3f vec, float frameTime) {
         if (stanceState == normalStance) {
             canMove = true;

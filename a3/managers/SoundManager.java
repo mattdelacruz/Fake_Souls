@@ -27,6 +27,19 @@ public class SoundManager {
     }
 
     public void addSound(String soundName, String soundPath, int volume, boolean toLoop, float maxDistance,
+            float minDistance, float rollOff, Vector3f soundLocation, SoundType type, AudioResourceType resourceType) {
+        AudioResource resource = audioManager.createAudioResource(soundPath, resourceType);
+
+        Sound sound = new Sound(resource, type, volume, toLoop);
+        sound.initialize(audioManager);
+        sound.setMaxDistance(maxDistance);
+        sound.setMinDistance(minDistance);
+        sound.setRollOff(rollOff);
+        sound.setLocation(soundLocation);
+        soundMap.put(soundName, sound);
+    }
+
+    public void addSound(String soundName, String soundPath, int volume, boolean toLoop, float maxDistance,
             float minDistance, float rollOff, Vector3f soundLocation, SoundType type) {
         AudioResource resource = audioManager.createAudioResource(soundPath, AudioResourceType.AUDIO_SAMPLE);
 
