@@ -166,7 +166,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void loadShapes() {
-		terrS = new TerrainPlane(100);
+		terrS = new TerrainPlane(150);
 		initializePlayerAnimations();
 		initializeGhostAnimations();
 		initializeEnemyAnimations();
@@ -218,7 +218,6 @@ public class MyGame extends VariableFrameRateGame {
 	@Override
 	public void initializeLights() {
 		Light light = new Light();
-		System.out.println(light);
 		Light.setGlobalAmbient(.25f, .25f, .25f);
 		light.setLocation(new Vector3f(5.0f, 0.0f, 2.0f));
 		(getEngineInstance().getSceneGraph()).addLight(light);
@@ -614,7 +613,6 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void handlePlayerHUD() {
 		updatePlayerHealthHUD();
-		// updatePlayerStaminaHUD();
 	}
 
 	private void updatePlayerHealthHUD() {

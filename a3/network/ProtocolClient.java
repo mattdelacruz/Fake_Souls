@@ -25,7 +25,6 @@ public class ProtocolClient extends GameConnectionClient {
     @Override
     protected void processPacket(Object msg) {
         String strMessage = (String) msg;
-        System.out.println("str message: " + strMessage);
         String[] msgTokens = strMessage.split(",");
 
         if (msgTokens.length > 0) {

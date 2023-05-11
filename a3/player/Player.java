@@ -223,9 +223,6 @@ public class Player extends ActiveEntityObject {
 
         if (!getAnimationShape().isAnimPlaying()) {
             setStanceState(normalStance);
-            if (MyGame.getGameInstance().getProtocolClient() != null) {
-                MyGame.getGameInstance().getProtocolClient().sendAnimationMessage(getStanceState().getAnimation());
-            }
         }
     }
 

@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Concrete implementation of the client side for a game connection protocol.
@@ -163,10 +164,23 @@ public class GameConnectionClient extends AbstractGameConnectionClient {
 			packetsToProcess.addAll(packetsReceived);
 			packetsReceived.clear();
 		}
+		Iterator<Object> iter = packetsToProcess.iterator();
 
-		for (Object packet : packetsToProcess) {
-			processPacket(packet);
+		while (iter.hasNext()) {
+			Object packet = iter.next();
+			if (packet == null) {
+				System.out.println("found a null packet, discarding...");
+				iter.remove();
+			} else {
+				processPacket(packet);
+			}
 		}
+		// for (Object packet : packetsToProcess) {
+		// if (packet == null) {
+
+		// }
+		// processPacket(packet);
+		// }
 
 		packetsToProcess.clear();
 	}

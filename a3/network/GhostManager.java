@@ -76,7 +76,7 @@ public class GhostManager {
     public void updateGhostAvatar(UUID ghostID, Vector3f pos) {
         GhostAvatar ghostAvatar = findAvatar(ghostID);
         if (ghostAvatar != null) {
-            ghostAvatar.move(pos, game.getFrameTime());
+            ghostAvatar.setPosition(pos);
         } else {
             System.out.println("Can't find ghost!!");
         }
@@ -88,7 +88,6 @@ public class GhostManager {
             if (animation.equals("IDLE")) {
                 ghostAvatar.idle();
             } else {
-                System.out.println("updating ghost avatar animation: " + animation);
                 ghostAvatar.handleAnimationSwitch(animation, 1f);
             }
         } else {
