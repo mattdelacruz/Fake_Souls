@@ -4,9 +4,7 @@ var JavaPackages = new JavaImporter(
 );
 
 with (JavaPackages) {
-    var light = new Light();
-    Light.setGlobalAmbient(0.5, 0.5, 0.5);
-	light.setLocation(new Vector3f(5.0, 0.0, 2.0));
+
 	//----------------------------------------------------------------
     var WINDOW_WIDTH = 600;
 	var WINDOW_HEIGHT = 600;
@@ -28,20 +26,24 @@ with (JavaPackages) {
 	var PLAYER_RKM = "player-animations/player.rkm";
 	var PLAYER_RKS = "player-animations/player.rks";
 	var PLAYER_RUN_RKA = "player-animations/player-run.rka";
+	var PLAYER_BACKWARDS_RUN_RKA = "player-animations/player-backwards-run.rka";
 	var PLAYER_IDLE_RKA = "player-animations/player-idle.rka";
 	var PLAYER_ATTACK_1_RKA = "player-animations/player-attack-1.rka";
 	var PLAYER_GUARD_RKA = "player-animations/player-guard.rka";
+	var PLAYER_GUARD_WALK_RKA = "player-animations/player-guard-walk.rka";
 	var PLAYER_STRAFE_RKA = "player-animations/player-strafe.rka";
-
+	var PLAYER_GUARD_STRAFE_RKA = "player-animations/player-guard-strafe.rka";
 	//----------------------------------------------------------------
 	// Katana animation file paths
 	//----------------------------------------------------------------
 	var KATANA_RKM = "player-animations/weapon-animations/katana.rkm";
 	var KATANA_RKS = "player-animations/weapon-animations/katana.rks";
 	var KATANA_RUN_RKA = "player-animations/weapon-animations/katana-run.rka";
+	var KATANA_BACKWARDS_RUN_RKA = "player-animations/weapon-animations/katana-backwards-run.rka";
 	var KATANA_IDLE_RKA = "player-animations/weapon-animations/katana-idle.rka";
 	var KATANA_ATTACK_1_RKA = "player-animations/weapon-animations/katana-attack-1.rka";
 	var KATANA_GUARD_RKA = "player-animations/weapon-animations/katana-guard.rka";
+	var KATANA_GUARD_WALK_RKA = "player-animations/weapon-animations/katana-guard-walk.rka";
 	var KATANA_STRAFE_RKA = "player-animations/weapon-animations/katana-strafe.rka";
 	//----------------------------------------------------------------	
 	// Enemy animation file paths

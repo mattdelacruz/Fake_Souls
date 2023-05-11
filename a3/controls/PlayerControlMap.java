@@ -44,9 +44,6 @@ public class PlayerControlMap {
 		inputManager.associateActionWithAllKeyboards(
 				Component.Identifier.Key.O, keyboardAction,
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-		inputManager.associateActionWithAllKeyboards(
-				Component.Identifier.Key.LSHIFT, keyboardAction,
-				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
 	}
 
 	private void initializeMouseControls() {
@@ -58,7 +55,7 @@ public class PlayerControlMap {
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 		inputManager.associateActionWithAllMice(
 				Component.Identifier.Button.RIGHT, mouseAction,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
 		inputManager.associateActionWithAllMice(
 				Component.Identifier.Axis.X, mouseAction,
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);

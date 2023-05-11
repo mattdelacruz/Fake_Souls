@@ -19,14 +19,6 @@ public class KeyboardActions extends AbstractInputAction {
                     MyGame.getGameInstance().getPlayer().unGuard();
                     return;
                 }
-            case "LEFT SHIFT":
-                if (evt.getValue() == 1.0f) {
-                    MyGame.getGameInstance().getPlayer().sprint();
-                    return;
-                } else {
-                    MyGame.getGameInstance().getPlayer().run();
-                    return;
-                }
         }
     }
 }

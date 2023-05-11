@@ -1,6 +1,6 @@
 package a3.player.stances;
 
-public class PlayerNormalStanceState implements PlayerStanceState {
+public class PlayerNormalStance implements PlayerStanceState {
 
     @Override
     public float getMoveValue() {

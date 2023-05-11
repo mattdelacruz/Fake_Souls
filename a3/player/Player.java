@@ -8,13 +8,13 @@ import org.joml.Vector3f;
 import a3.MyGame;
 import a3.managers.ScriptManager;
 import a3.managers.SoundManager;
-import a3.player.movement.PlayerMovementState;
-import a3.player.movement.PlayerRunMovementState;
-import a3.player.movement.PlayerSprintMovementState;
-import a3.player.stances.PlayerAttackStanceState;
+import a3.player.movement.PlayerGuardMovement;
+import a3.player.movement.PlayerMovement;
+import a3.player.movement.PlayerRunMovement;
+import a3.player.stances.PlayerAttackStance;
 import a3.player.stances.PlayerDeadStance;
-import a3.player.stances.PlayerGuardStanceState;
-import a3.player.stances.PlayerNormalStanceState;
+import a3.player.stances.PlayerGuardStance;
+import a3.player.stances.PlayerNormalStance;
 import a3.player.stances.PlayerStanceState;
 import tage.ActiveEntityObject;
 import tage.AnimatedGameObject;
@@ -33,12 +33,12 @@ public class Player extends ActiveEntityObject {
     private boolean canMove = true;
     private boolean isContact = false;
     private PlayerStanceState stanceState;
-    private PlayerMovementState movementState;
-    private PlayerAttackStanceState attackStance = new PlayerAttackStanceState();
-    private PlayerGuardStanceState guardStance = new PlayerGuardStanceState();
-    private PlayerNormalStanceState normalStance = new PlayerNormalStanceState();
-    private PlayerRunMovementState runMovement = new PlayerRunMovementState();
-    private PlayerSprintMovementState sprintMovement = new PlayerSprintMovementState();
+    private PlayerMovement movementState;
+    private PlayerAttackStance attackStance = new PlayerAttackStance();
+    private PlayerGuardStance guardStance = new PlayerGuardStance();
+    private PlayerNormalStance normalStance = new PlayerNormalStance();
+    private PlayerRunMovement runMovement = new PlayerRunMovement();
+    private PlayerGuardMovement guardMovement = new PlayerGuardMovement();
 
     private Vector3f validLocation;
     /*
@@ -94,7 +94,11 @@ public class Player extends ActiveEntityObject {
         if (stanceState == normalStance) {
             canMove = true;
         }
-        if (canMove && !getStanceState().isGuarding()) {
+
+        if (stanceState == guardStance) {
+            movementState = guardMovement;
+        }
+        if (canMove) {
             super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
             // if (!step1isPlayed &&
             // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
@@ -119,7 +123,11 @@ public class Player extends ActiveEntityObject {
         if (stanceState == normalStance) {
             canMove = true;
         }
-        if (canMove && !getStanceState().isGuarding()) {
+
+        if (stanceState == guardStance) {
+            movementState = guardMovement;
+        }
+        if (canMove) {
             super.move(
                     vec, (frameTime * (getStanceState().getMoveValue() / 1.5f) * getMovementState().getSpeed()));
             // if (!step1isPlayed &&
@@ -133,10 +141,18 @@ public class Player extends ActiveEntityObject {
             // step1isPlayed = false;
             // step2isPlayed = true;
             // }
-            handleAnimationSwitch("STRAFE", 1f);
-            if (MyGame.getGameInstance().getProtocolClient() != null) {
-                MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
-                MyGame.getGameInstance().getProtocolClient().sendAnimationMessage("STRAFE");
+            if (getStanceState().isGuarding()) {
+                handleAnimationSwitch("GUARD_STRAFE", 1f);
+                if (MyGame.getGameInstance().getProtocolClient() != null) {
+                    MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
+                    MyGame.getGameInstance().getProtocolClient().sendAnimationMessage("GUARD_STRAFE");
+                }
+            } else {
+                handleAnimationSwitch("STRAFE", 1f);
+                if (MyGame.getGameInstance().getProtocolClient() != null) {
+                    MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
+                    MyGame.getGameInstance().getProtocolClient().sendAnimationMessage("STRAFE");
+                }
             }
         }
     }
@@ -144,9 +160,6 @@ public class Player extends ActiveEntityObject {
     /* to be called by keyboard/gamepad events only */
     public void attack() {
         setLastValidLocation(getLocalLocation());
-        if (getMovementState().isSprinting()) {
-            setMovementState(runMovement);
-        }
 
         if (isContact) {
             // play bloody sound
@@ -189,11 +202,7 @@ public class Player extends ActiveEntityObject {
 
     /* to be called by keyboard/gamepad events only */
     public void guard() {
-
         // play guard animation, play some sound
-        if (getMovementState().isSprinting()) {
-            setMovementState(runMovement);
-        }
         setStanceState(guardStance);
         // setMovementState(guardMovement);
         handleAnimationSwitch(getStanceState().getAnimation(), 1f);
@@ -205,11 +214,7 @@ public class Player extends ActiveEntityObject {
     /* to be called by keyboard/gamepad events only */
     public void unGuard() {
         setStanceState(normalStance);
-    }
-
-    /* to be called by keyboard/gamepad events only */
-    public void sprint() {
-        setMovementState(sprintMovement);
+        setMovementState(runMovement);
     }
 
     /* to be called by keyboard/gamepad events only */
@@ -253,11 +258,11 @@ public class Player extends ActiveEntityObject {
         this.stanceState = stanceState;
     }
 
-    public void setMovementState(PlayerMovementState moveState) {
+    public void setMovementState(PlayerMovement moveState) {
         this.movementState = moveState;
     }
 
-    public PlayerMovementState getMovementState() {
+    public PlayerMovement getMovementState() {
         return this.movementState;
     }
 

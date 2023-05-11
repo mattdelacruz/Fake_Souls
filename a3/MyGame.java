@@ -206,7 +206,10 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void initializeLights() {
-		(engine.getSceneGraph()).addLight((Light) scriptManager.getValue("light"));
+		Light light = new Light();
+		Light.setGlobalAmbient(0.5f, 0.5f, 0.5f);
+		light.setLocation(new Vector3f(5.0f, 0.0f, 2.0f));
+		(engine.getSceneGraph()).addLight(light);
 	}
 
 	@Override
@@ -248,6 +251,8 @@ public class MyGame extends VariableFrameRateGame {
 		playerShape.loadAnimation(
 				"RUN", (String) scriptManager.getValue("PLAYER_RUN_RKA"));
 		playerShape.loadAnimation(
+				"BACKWARDS_RUN", (String) scriptManager.getValue("PLAYER_BACKWARDS_RUN_RKA"));
+		playerShape.loadAnimation(
 				"STRAFE", (String) scriptManager.getValue("PLAYER_STRAFE_RKA"));
 		playerShape.loadAnimation(
 				"IDLE", (String) scriptManager.getValue("PLAYER_IDLE_RKA"));
@@ -255,12 +260,18 @@ public class MyGame extends VariableFrameRateGame {
 				"ATTACK1", (String) scriptManager.getValue("PLAYER_ATTACK_1_RKA"));
 		playerShape.loadAnimation(
 				"GUARD", (String) scriptManager.getValue("PLAYER_GUARD_RKA"));
+		playerShape.loadAnimation(
+				"GUARD_WALK", (String) scriptManager.getValue("PLAYER_GUARD_WALK_RKA"));
+		playerShape.loadAnimation(
+				"GUARD_STRAFE", (String) scriptManager.getValue("PLAYER_GUARD_STRAFE_RKA"));
 
 		katanaShape = new AnimatedShape(
 				(String) scriptManager.getValue("KATANA_RKM"),
 				(String) scriptManager.getValue("KATANA_RKS"));
 		katanaShape.loadAnimation(
 				"RUN", (String) scriptManager.getValue("KATANA_RUN_RKA"));
+		katanaShape.loadAnimation(
+				"BACKWARDS_RUN", (String) scriptManager.getValue("KATANA_BACKWARDS_RUN_RKA"));
 		katanaShape.loadAnimation(
 				"STRAFE", (String) scriptManager.getValue("KATANA_STRAFE_RKA"));
 		katanaShape.loadAnimation(
@@ -272,6 +283,11 @@ public class MyGame extends VariableFrameRateGame {
 		katanaShape.loadAnimation(
 				"GUARD",
 				(String) scriptManager.getValue("KATANA_GUARD_RKA"));
+		katanaShape.loadAnimation(
+				"GUARD_WALK", (String) scriptManager.getValue("KATANA_GUARD_WALK_RKA"));
+		katanaShape.loadAnimation(
+				"GUARD_STRAFE", (String) scriptManager.getValue("KATANA_GUARD_WALK_RKA"));
+
 	}
 
 	private void initializeGhostAnimations() {
@@ -281,6 +297,8 @@ public class MyGame extends VariableFrameRateGame {
 		ghostShape.loadAnimation(
 				"RUN", (String) scriptManager.getValue("PLAYER_RUN_RKA"));
 		ghostShape.loadAnimation(
+				"BACKWARDS_RUN", (String) scriptManager.getValue("PLAYER_BACKWARDS_RUN_RKA"));
+		ghostShape.loadAnimation(
 				"STRAFE", (String) scriptManager.getValue("PLAYER_STRAFE_RKA"));
 		ghostShape.loadAnimation(
 				"IDLE", (String) scriptManager.getValue("PLAYER_IDLE_RKA"));
@@ -288,12 +306,18 @@ public class MyGame extends VariableFrameRateGame {
 				"ATTACK1", (String) scriptManager.getValue("PLAYER_ATTACK_1_RKA"));
 		ghostShape.loadAnimation(
 				"GUARD", (String) scriptManager.getValue("PLAYER_GUARD_RKA"));
+		ghostShape.loadAnimation(
+				"GUARD_WALK", (String) scriptManager.getValue("PLAYER_GUARD_WALK_RKA"));
+		ghostShape.loadAnimation(
+				"GUARD_STRAFE", (String) scriptManager.getValue("PLAYER_GUARD_STRAFE_RKA"));
 
 		ghostKatanaShape = new AnimatedShape(
 				(String) scriptManager.getValue("KATANA_RKM"),
 				(String) scriptManager.getValue("KATANA_RKS"));
 		ghostKatanaShape.loadAnimation(
 				"RUN", (String) scriptManager.getValue("KATANA_RUN_RKA"));
+		ghostKatanaShape.loadAnimation(
+				"BACKWARDS_RUN", (String) scriptManager.getValue("KATANA_BACKWARDS_RUN_RKA"));
 		ghostKatanaShape.loadAnimation(
 				"STRAFE", (String) scriptManager.getValue("KATANA_STRAFE_RKA"));
 		ghostKatanaShape.loadAnimation(
@@ -305,6 +329,11 @@ public class MyGame extends VariableFrameRateGame {
 		ghostKatanaShape.loadAnimation(
 				"GUARD",
 				(String) scriptManager.getValue("KATANA_GUARD_RKA"));
+		ghostKatanaShape.loadAnimation(
+				"GUARD_WALK", (String) scriptManager.getValue("KATANA_GUARD_WALK_RKA"));
+		ghostKatanaShape.loadAnimation(
+				"GUARD_STRAFE", (String) scriptManager.getValue("KATANA_GUARD_WALK_RKA"));
+
 	}
 
 	private void initializeEnemyAnimations() {
@@ -478,7 +507,6 @@ public class MyGame extends VariableFrameRateGame {
 
 		if (currHeightLoc > 1.2f) {
 			player.setLocalLocation(player.getLastValidLocation());
-			targetCamera.updateCameraLocation(frameTime);
 			return;
 		}
 		double playerHeightSpeed = (double) scriptManager.getValue("PLAYER_HEIGHT_SPEED");
@@ -489,7 +517,6 @@ public class MyGame extends VariableFrameRateGame {
 		player.setLocalLocation(newLocation);
 		player.setLastValidLocation(newLocation);
 		lastHeightLoc = newHeight;
-		targetCamera.updateCameraLocation(frameTime);
 	}
 
 	private void updateFrameTime() {
@@ -711,7 +738,7 @@ public class MyGame extends VariableFrameRateGame {
 			Vector3f pushBackVector = enemyToPlayer.normalize().mul((float) pushBackDistance);
 			player.setLocalLocation(player.getLocalLocation().add(pushBackVector));
 
-			targetCamera.updateCameraLocation(getFrameTime());
+			// targetCamera.updateCameraLocation(getFrameTime());
 		}
 	}
 
