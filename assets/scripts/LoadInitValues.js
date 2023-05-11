@@ -18,7 +18,7 @@ with (JavaPackages) {
 	var PLAYER_TEXTURE = "player-texture.png";
 	var GHOST_TEXTURE = "neptune.jpg";
 	var ENEMY_TEXTURE = "knight-texture.png";
-	var TERRAIN_MAP = "terrain-map.png";
+	var TERRAIN_MAP = "terrain-map2.png";
 	var TERRAIN_TEXTURE = "moon-craters.jpg";
 	var KATANA_TEXTURE = "katana-texture.png";
 	var SPEAR_TEXTURE = "longinus-texture.png";

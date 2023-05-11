@@ -166,7 +166,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void loadShapes() {
-		terrS = new TerrainPlane(150);
+		terrS = new TerrainPlane(100);
 		initializePlayerAnimations();
 		initializeGhostAnimations();
 		initializeEnemyAnimations();
