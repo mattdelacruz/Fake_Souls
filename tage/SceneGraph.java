@@ -86,12 +86,17 @@ public class SceneGraph
 
 	/** removes the specified GameObject from the scenegraph. */
 	public void removeGameObject(GameObject go)
-	{	if (go.hasChildren())
-		{	System.out.println("attempted deletion of game object with children");
+	{	if (go.hasChildren()) {
+			while (go.getChildrenIterator().hasNext()) {
+				GameObject child = (GameObject) go.getChildrenIterator().next();
+				removeGameObject(child);
+			}
 		}
 		else
-		{	if (go.getParent() != null) (go.getParent()).removeChild(go);
+		{	
+			if (go.getParent() != null) (go.getParent()).removeChild(go);
 			if (gameObjects.contains(go)) gameObjects.remove(go);
+			return;
 		}
 	}
 

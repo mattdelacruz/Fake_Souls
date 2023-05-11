@@ -272,7 +272,7 @@ public class GameObject {
 		children.remove(g);
 	}
 
-	protected Iterator getChildrenIterator() {
+	public Iterator getChildrenIterator() {
 		return children.iterator();
 	}
 

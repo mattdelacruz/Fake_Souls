@@ -124,9 +124,9 @@ public class GameServerUDP extends GameConnectionServer<UUID> {
 
     private void sendByeMessages(UUID clientID) {
         try {
-            String message = new String("Goodbye!" + clientID.toString());
+            String message = new String("bye," + clientID.toString());
 
-            sendPacket(message, clientID);
+            forwardPacketToAll(message, clientID);
         } catch (IOException e) {
             e.printStackTrace();
         }

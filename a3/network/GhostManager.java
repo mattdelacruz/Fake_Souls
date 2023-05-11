@@ -26,6 +26,7 @@ public class GhostManager {
     public void removeGhostAvatar(UUID ghostID) {
         GhostAvatar ghostAvatar = findAvatar(ghostID);
         if (ghostAvatar != null) {
+            ghostAvatar.getRenderStates().disableRendering();
             MyGame.getEngine().getSceneGraph().removeGameObject(ghostAvatar);
             ghostAvatars.remove(ghostAvatar);
         } else {
@@ -79,6 +80,7 @@ public class GhostManager {
             ghostAvatar.setPosition(pos);
         } else {
             System.out.println("Can't find ghost!!");
+            
         }
     }
 

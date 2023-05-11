@@ -11,6 +11,7 @@ import tage.physics.PhysicsObject;
 import tage.physics.JBullet.*;
 import tage.shapes.*;
 
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -392,6 +393,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void update() {
+		// System.out.printf("x: %.2f, y: %.2f, z: %.2f\n", player.getLocalLocation().x(), player.getLocalLocation().y(), player.getLocalLocation().z());
 		updateHUD();
 		updateSoundManager();
 		updateFrameTime();
@@ -416,7 +418,7 @@ public class MyGame extends VariableFrameRateGame {
 	private void updatePlayer() {
 		checkObjectMovement(player);
 		if (player.isMoving()) {
-			updatePlayerTerrainLocation();
+			//updatePlayerTerrainLocation();
 		}
 		updatePhysicsObjectLocation(
 				player.getPhysicsObject(), player.getWorldTranslation());
@@ -751,6 +753,10 @@ public class MyGame extends VariableFrameRateGame {
 			Vector3f pushBackVector = enemyToPlayer.normalize().mul((float) pushBackDistance);
 			player.setLocalLocation(player.getLocalLocation().add(pushBackVector));
 			targetCamera.updateCameraLocation(getFrameTime());
+
+			if (getProtocolClient() != null) {
+				getProtocolClient().sendMoveMessage(player.getWorldLocation());
+			}
 		}
 	}
 
@@ -1005,6 +1011,20 @@ public class MyGame extends VariableFrameRateGame {
 		HUDViewport = getEngineInstance().getRenderSystem().getViewport(HUDCamera.getViewportName());
 	}
 
+	@Override
+	public void keyPressed(KeyEvent e) {
+		switch (e.getKeyCode()) {
+			case KeyEvent.VK_ESCAPE:
+				if (MyGame.getGameInstance().getProtocolClient() != null && MyGame.	getGameInstance().isClientConnected()) {
+					getProtocolClient().sendByeMessage();
+				}
+				break;
+		}
+		super.keyPressed(e);
+	}
+
+
+
 	public static MyGame getGameInstance() {
 		return game;
 	}
@@ -1078,7 +1098,7 @@ public class MyGame extends VariableFrameRateGame {
 		isClientConnected = b;
 	}
 
-	public boolean isConnected() {
+	public boolean isClientConnected() {
 		return isClientConnected;
 	}
 

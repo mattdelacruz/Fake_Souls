@@ -8,3 +8,5 @@
 -add HUDCamera class in TAGE
 -add java.util.Iterator package in GameConnectionClient class
 -change processPackets in GameConnectionClient class to handle null packets by iterating through an Iterator to discard null packets
+-changed visibility of getChildrenIterator in GameObject class from protected to public
+-change removeGameObject() function in SceneGraph to recursively remove all children associated with the parent GameObject

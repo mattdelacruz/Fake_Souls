@@ -41,6 +41,7 @@ public class ProtocolClient extends GameConnectionClient {
             }
 
             if (msgTokens[0].compareTo("bye") == 0) {
+                System.out.println("Goodbye!");
                 UUID ghostID = UUID.fromString(msgTokens[1]);
                 ghostManager.removeGhostAvatar(ghostID);
             }
@@ -117,6 +118,15 @@ public class ProtocolClient extends GameConnectionClient {
         try {
             String message = new String("create," + id.toString());
             message += "," + pos.x + "," + pos.y + "," + pos.z;
+            sendPacket(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendByeMessage() {
+        try {
+            String message = new String("bye," + id.toString());
             sendPacket(message);
         } catch (IOException e) {
             e.printStackTrace();
