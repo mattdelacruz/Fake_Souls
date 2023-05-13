@@ -63,10 +63,7 @@ public class Player extends ActiveEntityObject {
         super(p, s, t, 100);
         initializeSounds();
         setLocalScale(new Matrix4f().scaling(.2f));
-        setLocalLocation(
-                new Vector3f((int) getScriptManager().getValue("xPlayerPos"),
-                        (int) getScriptManager().getValue("yPlayerPos"),
-                        (int) getScriptManager().getValue("zPlayerPos")));
+        setLocalLocation((Vector3f) getScriptManager().getValue("PLAYER_START_POS"));
         setStanceState(normalStance);
         setMovementState(runMovement);
         // initializeSounds();

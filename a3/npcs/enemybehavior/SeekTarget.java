@@ -15,9 +15,10 @@ import tage.ai.behaviortrees.BTCondition;
 public class SeekTarget extends BTCondition {
     QuadTree pqt;
     Vector3f pos;
-    GameObject target, hunter;
+    Enemy hunter;
+    GameObject target;
 
-    public SeekTarget(QuadTree playerQuadTree, GameObject hunter, Vector3f pos) {
+    public SeekTarget(QuadTree playerQuadTree, Enemy hunter, Vector3f pos) {
         super(false);
         pqt = playerQuadTree;
         this.hunter = hunter;
@@ -29,12 +30,15 @@ public class SeekTarget extends BTCondition {
         QuadTreePoint currPos = new QuadTreePoint(pos.z(),
                 pos.x());
         QuadTreeNode prey;
-        prey = pqt.findNearby(currPos, -1, null);
+        if (this.hunter.isActive()) {
+            prey = pqt.findNearby(currPos, -1, null);
 
-        if (prey != null) {
-            target = (GameObject) prey.getData();
-            ((Enemy) hunter).setTarget(target);
-            return true;
+            if (prey != null) {
+                target = (GameObject) prey.getData();
+                ((Enemy) hunter).setTarget(target);
+                return true;
+            }
+            return false;
         }
         return false;
     }

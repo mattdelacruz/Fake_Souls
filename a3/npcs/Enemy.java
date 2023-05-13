@@ -46,29 +46,29 @@ public class Enemy extends ActiveEntityObject {
     private boolean step1isPlayed = false;
     private boolean step2isPlayed = false;
     private boolean isAttacking = false;
-    private float elapsedThinkMilliSecs;
+    private boolean isActive = false;
+    private float elapsedThinkMilliSecs = 0;
+    private float elapsedTickMilliSecs = 0;
+    private int id;
 
     public Enemy(GameObject p, ObjShape s, TextureImage t, QuadTree playerQuadTree, int id) {
         super(p, s, t, 100);
-        float posX = (float) 50f;
-        float posZ = (float) 124f + (5 * id);
-        pqt = playerQuadTree;
-
-        setLocalScale((new Matrix4f()).scaling(0.5f));
-        setLocalTranslation(new Matrix4f().translation(posX, 0.5f, posZ));
-        setupBehaviorTree();
-        initializeSounds();
-        movementState = runMovement;
-        stanceState = normalStance;
-        tickStartTime = System.nanoTime();
-        lastThinkUpdateTime = thinkStartTime;
+        this.pqt = playerQuadTree;
+        this.id = id;
+        this.setLocalScale((new Matrix4f()).scaling(0.5f));
+        this.setupBehaviorTree();
+        this.initializeSounds();
+        this.movementState = runMovement;
+        this.stanceState = normalStance;
+        this.tickStartTime = System.nanoTime();
+        this.lastThinkUpdateTime = thinkStartTime;
     }
 
     private void initializeSounds() {
-        getSoundManager().addSound(
+        this.getSoundManager().addSound(
                 "STEP1", (String) getScriptManager().getValue("STEP1"), 20, false, (float) 20f, 0, 5.0f,
                 getLocalLocation(), SoundType.SOUND_EFFECT);
-        getSoundManager().addSound(
+        this.getSoundManager().addSound(
                 "STEP2", (String) getScriptManager().getValue("STEP1"), 20, false, (float) 20f, 0, 5.0f,
                 getLocalLocation(), SoundType.SOUND_EFFECT);
     }
@@ -76,43 +76,43 @@ public class Enemy extends ActiveEntityObject {
     @Override
     public void updateAnimation() {
         super.updateAnimation();
-        weapon.updateAnimation();
+        this.weapon.updateAnimation();
     }
 
     @Override
     public void handleAnimationSwitch(String animation, float speed) {
         super.handleAnimationSwitch(animation, speed);
-        if (weapon.getAnimationShape().getAnimation(animation) != null) {
-            weapon.handleAnimationSwitch(animation, speed);
+        if (this.weapon.getAnimationShape().getAnimation(animation) != null) {
+            this.weapon.handleAnimationSwitch(animation, speed);
         }
     }
 
     @Override
     public void idle() {
         super.idle();
-        weapon.idle();
+        this.weapon.idle();
     }
 
     public void attack() {
-        setStanceState(attackStance);
-        handleAnimationSwitch(getStanceState().getAnimation(), .5f);
+        this.setStanceState(attackStance);
+        this.handleAnimationSwitch(getStanceState().getAnimation(), .5f);
         elapsedThinkMilliSecs = 0f;
     }
 
     public void flinch() {
-        if (getAnimationShape().getAnimation("ATTACK").equals(getAnimationShape().getCurrentAnimation())
-                && getAnimationShape().isAnimPlaying()) {
-            getAnimationShape().stopAnimation();
+        if (this.getAnimationShape().getAnimation("ATTACK").equals(this.getAnimationShape().getCurrentAnimation())
+                && this.getAnimationShape().isAnimPlaying()) {
+            this.getAnimationShape().stopAnimation();
         }
 
-        setStanceState(flinchStance);
-        handleAnimationSwitch(getStanceState().getAnimation(), 2f);
+        this.setStanceState(flinchStance);
+        this.handleAnimationSwitch(getStanceState().getAnimation(), 2f);
     }
 
     @Override
     public void move(Vector3f vec, float frameTime) {
-        super.move(vec, (frameTime * getMovementState().getSpeed()));
-        handleAnimationSwitch(getMovementState().getAnimation(), 1f);
+        super.move(vec, (frameTime * this.getMovementState().getSpeed()));
+        this.handleAnimationSwitch(this.getMovementState().getAnimation(), 1f);
         if (!step1isPlayed && !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
             MyGame.getGameInstance().getSoundManager().playSound("STEP1");
             step2isPlayed = false;
@@ -122,42 +122,54 @@ public class Enemy extends ActiveEntityObject {
             step1isPlayed = false;
             step2isPlayed = true;
         }
-        if (MyGame.getGameInstance().getProtocolClient() != null) {
-            MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
-        }
     }
 
     public void updateBehavior() {
         long currentTime = System.nanoTime();
-        float elapsedThinkMilliSecs = (currentTime - lastThinkUpdateTime) /
-                (1000000.0f);
-        float elapsedTickMilliSecs = (currentTime - lastTickUpdateTime) / (1000000.0f);
-        if (!getStanceState().isDead()) {
+        elapsedThinkMilliSecs += ((currentTime - this.lastThinkUpdateTime) /
+                (1000000.0f));
+        elapsedTickMilliSecs += (currentTime - this.lastTickUpdateTime) / (1000000.0f);
+        updateAnimation();
+        if (!this.getStanceState().isDead()) {
+            handleTick(currentTime);
+            handleThink(currentTime);
+            Thread.yield();
+            isActive = false;
+        }
+    }
 
-            isAttacking = checkIfAttacking();
+    private void handleTick(long currentTime) {
+        if (this.elapsedTickMilliSecs >= 300f) {
+            this.isAttacking = this.checkIfAttacking();
 
-            if (getStanceState().isHunting()) {
-                move(getLocalForwardVector(), MyGame.getGameInstance().getFrameTime());
+            if (this.getStanceState().isHunting()) {
+                this.move(this.getLocalForwardVector(), MyGame.getGameInstance().getFrameTime());
             }
+            this.lastTickUpdateTime = currentTime;
+            this.lastTickUpdateTime = 0;
+        }
+    }
 
-            if (elapsedThinkMilliSecs >= 1500f) {
-                if (getStanceState().isFlinched()) {
-                    lastTickUpdateTime = currentTime;
-                    setStanceState(normalStance);
-                }
-
-                if (getStanceState().isAttacking()) {
-                    attack();
-                }
-                lastThinkUpdateTime = currentTime;
-                ebt.update(elapsedThinkMilliSecs);
+    private void handleThink(long currentTime) {
+        if (this.elapsedThinkMilliSecs >= 1500f) {
+            if (this.getStanceState().isFlinched()) {
+                this.lastTickUpdateTime = currentTime;
+                this.setStanceState(normalStance);
             }
+            if (this.getStanceState().isAttacking()) {
+                this.attack();
+            }
+            this.lastThinkUpdateTime = currentTime;
+            this.elapsedThinkMilliSecs = 0;
+            //System.out.println("ebt update of enemy " + getID());
+            isActive = true;
+            ebt.update(elapsedThinkMilliSecs);
         }
     }
 
     private boolean checkIfAttacking() {
-        return (getAnimationShape().isAnimPlaying() &&
-                getAnimationShape().getCurrentAnimation().equals(getAnimationShape().getAnimation("ATTACK")));
+        return (this.getAnimationShape().isAnimPlaying() &&
+        this.getAnimationShape().getCurrentAnimation().equals(this.getAnimationShape().getAnimation("ATTACK")));
     }
 
     private void setupBehaviorTree() {
@@ -184,11 +196,11 @@ public class Enemy extends ActiveEntityObject {
     }
 
     public EnemyStanceState getStanceState() {
-        return stanceState;
+        return this.stanceState;
     }
 
     public void setStanceState(EnemyStanceState s) {
-        stanceState = s;
+        this.stanceState = s;
     }
 
     public void addWeapon(EnemyWeapon weapon) {
@@ -205,9 +217,8 @@ public class Enemy extends ActiveEntityObject {
 
     public boolean checkIfDead() {
         if (getHealth() <= 0) {
-            setStanceState(new EnemyDeadStance());
-            handleAnimationSwitch(getStanceState().getAnimation(), 1f);
-            MyGame.getGameInstance().getEnemyController().removeTarget(this);
+            this.setStanceState(new EnemyDeadStance());
+            this.handleAnimationSwitch(getStanceState().getAnimation(), 1f);
             return true;
         }
         return false;
@@ -217,7 +228,15 @@ public class Enemy extends ActiveEntityObject {
 
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public int getID() {
+        return this.id;
+    }
+
     public boolean isAttacking() {
-        return isAttacking;
+        return this.isAttacking;
     }
 }
