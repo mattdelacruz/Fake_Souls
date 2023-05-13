@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -89,6 +90,8 @@ public class MyGame extends VariableFrameRateGame {
 	private boolean hasMovedEast = false;
 	private boolean hasMovedSouth = false;
 	private boolean isEnemyHit = false;
+	private boolean isInvaded = false;
+	private boolean onArena = false;
 
 	private ObjShape terrS;
 	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx, katanaTx, spearTx;
@@ -396,7 +399,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void update() {
-		if (isClientConnected()) {
+		if (isInvaded && !onArena) {
 			protocolClient.sendHealthMessage(player.getHealth());
 			switchToInvasionArena();
 		}
@@ -419,11 +422,13 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void switchToInvasionArena() {
-		// if host, pos 1
-		// if invader, pos 2
-
-		// player.setLocalLocation(null);
-
+		float randX = (float) ThreadLocalRandom.current().nextDouble(-208.51, -94.56);
+		float randZ = (float) ThreadLocalRandom.current().nextDouble(-281.73, -155.55);
+		getPlayer().setLocalLocation(new Vector3f(randX, 300f, randZ));
+		updatePhysicsObjectLocation(getPlayer().getPhysicsObject(), getPlayer().getLocalTranslation());
+		protocolClient.sendMoveMessage(getPlayer().getLocalLocation());
+		getTargetCamera().updateCameraLocation(getFrameTime());
+		onArena = true;
 	}
 
 	private void updateSoundManager() {
@@ -432,6 +437,12 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void updatePlayer() {
+		if (player.getHealth() <= 0) {
+			System.out.println("You're dead");
+			protocolClient.sendByeMessage();
+			System.exit(0);
+		}
+
 		checkObjectMovement(player);
 		if (player.isMoving()) {
 			// updatePlayerTerrainLocation();
@@ -450,8 +461,6 @@ public class MyGame extends VariableFrameRateGame {
 		enemyIterator = enemyList.iterator();
 		while (enemyIterator.hasNext()) {
 			Enemy enemy = enemyIterator.next();
-			enemy.getRenderStates().enableRendering();
-			enemy.getWeapon().getRenderStates().enableRendering();
 			// System.out.printf(
 			// "enemy " + enemy.getID() + "x: %.2f y: %.2f z: %.2f\n weapon x: %.2f, y:
 			// %.2f, z: %.2f\n", enemy.getLocalLocation().x(), enemy.getLocalLocation().y(),
@@ -550,8 +559,7 @@ public class MyGame extends VariableFrameRateGame {
 			// on the arena platform
 			return;
 		}
-
-		if (currHeightLoc > 1.2f) {
+		if (currHeightLoc > .6f) {
 			player.setLocalLocation(player.getLastValidLocation());
 			return;
 		}
@@ -672,7 +680,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void updateHealthHUD(String text, int health) {
 		String dispStr2 = new String(text + health);
-		System.out.println("health: " + health);
+		// System.out.println("health: " + health);
 		HUDViewportX = (int) ((HUDViewport.getRelativeLeft() * getEngineInstance().getRenderSystem().getWidth())) + 150;
 		HUDViewportY = (int) ((HUDViewport.getRelativeBottom()
 				* getEngineInstance().getRenderSystem().getHeight()) - (HUDViewport.getActualHeight()) / 2);
@@ -783,7 +791,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void updateEnemyDamage(ActiveEntityObject obj, int health) {
 		updateHealthHUD((String) getScriptManager().getValue("ENEMY_HEALTH_TEXT"), health);
-		System.out.println("health: " + health);
+		// System.out.println("health: " + health);
 		isEnemyHit = true;
 		soundManager.stopSound("KATANA_WHIFF");
 		soundManager.playSound("KATANA_HIT");
@@ -1116,7 +1124,6 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void buildTargetCamera() {
 		targetCamera = new TargetCamera(getPlayer());
-		targetCamera.setLocation((Vector3f) scriptManager.getValue("INITIAL_CAMERA_POS"));
 		getEngineInstance().getRenderSystem().getViewport("MAIN").setCamera(targetCamera);
 		targetCamera.setLookAtTarget(player.getLocalLocation());
 		targetCamera.setLocation(targetCamera.getLocation().mul(new Vector3f(1, 1, -1)));
@@ -1273,5 +1280,13 @@ public class MyGame extends VariableFrameRateGame {
 
 	public ArrayList<Enemy> getEnemyList() {
 		return enemyList;
+	}
+
+	public void setIsInvaded(boolean b) {
+		isInvaded = b;
+	}
+
+	public boolean isInvaded() {
+		return isInvaded;
 	}
 }

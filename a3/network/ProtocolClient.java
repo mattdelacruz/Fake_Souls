@@ -45,6 +45,7 @@ public class ProtocolClient extends GameConnectionClient {
                 System.out.println("Goodbye!");
                 UUID ghostID = UUID.fromString(msgTokens[1]);
                 ghostManager.removeGhostAvatar(ghostID);
+                game.setIsInvaded(false);
             }
 
             if ((msgTokens[0].compareTo("dsfr") == 0) || (msgTokens[0].compareTo("create") == 0)) {
@@ -59,6 +60,7 @@ public class ProtocolClient extends GameConnectionClient {
                     System.out.println("Creating ghost avatar");
                     ghostManager.createGhostAvatar(ghostID, ghostPosition);
                     ghostManager.setOwner(ghostID, game.getPlayer());
+                    game.setIsInvaded(true);
                 } catch (IOException e) {
                     System.out.println("error creating ghost avatar");
                 }

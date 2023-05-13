@@ -9,22 +9,18 @@ with (JavaPackages) {
 	var WINDOW_HEIGHT = 600;
 	var ENEMY_AMOUNT = 3;
 	var PLAY_AREA_SIZE = 300;
-	var PLAYER_HEIGHT_SPEED = 0.5;
 	var INITIAL_CAMERA_POS = new Vector3f(0, 0, 5);
 	var INITIAL_HUD_CAMERA_POS = new Vector3f(0, 10000, 0);
 	var SKYBOX_NAME = "fluffyClouds";
-	var PLAYER_TEXTURE = "player-texture.png";
 	var GHOST_TEXTURE = "neptune.jpg";
-	var ENEMY_TEXTURE = "knight-texture.png";
 	var TERRAIN_MAP = "terrain-map3.png";
 	var TERRAIN_TEXTURE = "moon-craters.jpg";
-	var KATANA_TEXTURE = "katana-texture.png";
-	var SPEAR_TEXTURE = "longinus-texture.png";
 	//----------------------------------------------------------------
 	// Player animation file paths
 	//----------------------------------------------------------------
 	var PLAYER_RKM = "player-animations/player.rkm";
 	var PLAYER_RKS = "player-animations/player.rks";
+	var PLAYER_TEXTURE = "player-texture.png";
 	var PLAYER_RUN_RKA = "player-animations/player-run.rka";
 	var PLAYER_BACKWARDS_RUN_RKA = "player-animations/player-backwards-run.rka";
 	var PLAYER_IDLE_RKA = "player-animations/player-idle.rka";
@@ -34,12 +30,14 @@ with (JavaPackages) {
 	var PLAYER_STRAFE_RKA = "player-animations/player-strafe.rka";
 	var PLAYER_GUARD_STRAFE_RKA = "player-animations/player-guard-strafe.rka";
 	var PLAYER_HEALTH_TEXT = "Health: ";
+	var PLAYER_HEIGHT_SPEED = 0.5;
 	var PLAYER_START_POS = new Vector3f(-179.82, 0, 142.13);
 	//----------------------------------------------------------------
 	// Katana animation file paths
 	//----------------------------------------------------------------
 	var KATANA_RKM = "player-animations/weapon-animations/katana.rkm";
 	var KATANA_RKS = "player-animations/weapon-animations/katana.rks";
+	var KATANA_TEXTURE = "katana-texture.png";
 	var KATANA_RUN_RKA = "player-animations/weapon-animations/katana-run.rka";
 	var KATANA_BACKWARDS_RUN_RKA = "player-animations/weapon-animations/katana-backwards-run.rka";
 	var KATANA_IDLE_RKA = "player-animations/weapon-animations/katana-idle.rka";
@@ -52,6 +50,7 @@ with (JavaPackages) {
 	//----------------------------------------------------------------
 	var ENEMY_RKM = "enemy-animations/knight-enemy.rkm";
 	var ENEMY_RKS = "enemy-animations/knight-enemy.rks";
+	var ENEMY_TEXTURE = "knight-texture.png";
 	var ENEMY_RUN_RKA = "enemy-animations/knight-enemy-run.rka";
 	var ENEMY_IDLE_RKA = "enemy-animations/knight-enemy-idle.rka";
 	var ENEMY_ATTACK_RKA = "enemy-animations/knight-enemy-attack.rka";
@@ -72,6 +71,7 @@ with (JavaPackages) {
 	//----------------------------------------------------------------
 	var SPEAR_RKM = "enemy-animations/weapon-animations/longinus.rkm";
 	var SPEAR_RKS = "enemy-animations/weapon-animations/longinus.rks";
+	var SPEAR_TEXTURE = "longinus-texture.png";
 	var SPEAR_IDLE_RKA = "enemy-animations/weapon-animations/longinus-idle.rka";
 	var SPEAR_RUN_RKA = "enemy-animations/weapon-animations/longinus-run.rka";
 	var SPEAR_ATTACK_RKA = "enemy-animations/weapon-animations/longinus-attack.rka";
