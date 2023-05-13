@@ -33,6 +33,7 @@ with (JavaPackages) {
 	var PLAYER_GUARD_WALK_RKA = "player-animations/player-guard-walk.rka";
 	var PLAYER_STRAFE_RKA = "player-animations/player-strafe.rka";
 	var PLAYER_GUARD_STRAFE_RKA = "player-animations/player-guard-strafe.rka";
+	var PLAYER_HEALTH_TEXT = "Health: ";
 	var PLAYER_START_POS = new Vector3f(-179.82, 0, 142.13);
 	//----------------------------------------------------------------
 	// Katana animation file paths
@@ -56,6 +57,7 @@ with (JavaPackages) {
 	var ENEMY_ATTACK_RKA = "enemy-animations/knight-enemy-attack.rka";
 	var ENEMY_FLINCH_RKA = "enemy-animations/knight-enemy-flinch.rka";
 	var ENEMY_DEATH_RKA = "enemy-animations/knight-enemy-death.rka";
+	var ENEMY_HEALTH_TEXT = "Enemy health: ";
 	var ENEMY_POS_1 = new Vector3f(-178.73, 0, 123.24);
 	var ENEMY_POS_2 = new Vector3f(-186.23, 0, 58.06);
 	var ENEMY_POS_3 = new Vector3f(-167.36, 0, 58.06);

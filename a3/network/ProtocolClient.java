@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.joml.Vector3f;
 
 import a3.MyGame;
+import a3.player.Player;
 import tage.networking.client.GameConnectionClient;
 
 public class ProtocolClient extends GameConnectionClient {
@@ -32,7 +33,7 @@ public class ProtocolClient extends GameConnectionClient {
                 if (msgTokens[1].compareTo("success") == 0) {
                     System.out.println("connection is a success");
                     game.setIsConnected(true);
-                    sendCreateMessage(game.getPlayer().getLocalLocation());
+                    sendCreateMessage(game.getPlayer().getLocalLocation().add(new Vector3f(20, 0, 0)));
                 }
                 if (msgTokens[1].compareTo("failure") == 0) {
                     System.out.println("connection is a failure");
@@ -54,16 +55,25 @@ public class ProtocolClient extends GameConnectionClient {
                         Float.parseFloat(msgTokens[4]));
 
                 try {
+                    // ghostID is from the other client
+                    System.out.println("Creating ghost avatar");
                     ghostManager.createGhostAvatar(ghostID, ghostPosition);
+                    ghostManager.setOwner(ghostID, game.getPlayer());
                 } catch (IOException e) {
                     System.out.println("error creating ghost avatar");
                 }
             }
+
             if (msgTokens[0].compareTo("wsds") == 0) {
                 UUID ghostID = UUID.fromString(msgTokens[1]);
                 sendDetailsForMessage(ghostID, game.getPlayer().getLocalLocation());
-
             }
+
+            if (msgTokens[0].compareTo("owner") == 0) {
+                UUID ghostID = UUID.fromString(msgTokens[1]);
+                sendSetOwnerMessage(ghostID, game.getPlayer());
+            }
+
             if (msgTokens[0].compareTo("move") == 0) {
 
                 UUID ghostID = UUID.fromString(msgTokens[1]);
@@ -88,6 +98,25 @@ public class ProtocolClient extends GameConnectionClient {
                 float rotation = Float.parseFloat(msgTokens[2]);
                 ghostManager.updateGhostAvatarYaw(ghostID, rotation);
             }
+
+            if (msgTokens[0].compareTo("attack") == 0) {
+                UUID ghostID = UUID.fromString(msgTokens[1]);
+                boolean isAttack = Boolean.parseBoolean(msgTokens[2]);
+                ghostManager.updateGhostAvatarAttack(ghostID, isAttack);
+            }
+
+            if (msgTokens[0].compareTo("damage") == 0) {
+                UUID ghostID = UUID.fromString(msgTokens[1]);
+                int damage = Integer.parseInt(msgTokens[2]);
+                ghostManager.updateGhostAvatarDamage(ghostID, damage);
+            }
+
+            if (msgTokens[0].compareTo("health") == 0) {
+                UUID ghostID = UUID.fromString(msgTokens[1]);
+                int health = Integer.parseInt(msgTokens[2]);
+                ghostManager.updateGhostAvatarHealth(ghostID, health);
+            }
+
         }
     }
 
@@ -104,6 +133,16 @@ public class ProtocolClient extends GameConnectionClient {
         }
     }
 
+    private void sendSetOwnerMessage(UUID remoteID, Player player) {
+        try {
+            String message = new String("setOwner," + remoteID.toString() + "," + id.toString());
+
+            sendPacket(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void sendJoinMessage() {
         try {
             sendPacket(new String("join," + id.toString()));
@@ -113,8 +152,6 @@ public class ProtocolClient extends GameConnectionClient {
     }
 
     private void sendCreateMessage(Vector3f pos) {
-        // changed Vector3 to Vector3f, Vector3 is on the doc
-        //
         try {
             String message = new String("create," + id.toString());
             message += "," + pos.x + "," + pos.y + "," + pos.z;
@@ -151,6 +188,7 @@ public class ProtocolClient extends GameConnectionClient {
             String message = new String("animation," + id.toString());
             message += "," + animation;
             sendPacket(message);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -166,7 +204,38 @@ public class ProtocolClient extends GameConnectionClient {
         }
     }
 
+    public void sendAttackMessage(boolean attack) {
+        try {
+            String message = new String("attack," + id.toString());
+            message += "," + attack;
+            sendPacket(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public UUID getID() {
         return id;
     }
+
+    public void sendDamageMessage(int damage) {
+        try {
+            String message = new String("damage," + id.toString());
+            message += "," + damage;
+            sendPacket(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendHealthMessage(int health) {
+        try {
+            String message = new String("health," + id.toString());
+            message += "," + health;
+            sendPacket(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

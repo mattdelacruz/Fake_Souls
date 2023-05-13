@@ -32,6 +32,7 @@ import a3.managers.ScriptManager;
 import a3.managers.SoundManager;
 import a3.network.GhostAvatar;
 import a3.network.GhostManager;
+import a3.network.GhostWeapon;
 import a3.network.ProtocolClient;
 import a3.npcs.Enemy;
 import a3.npcs.EnemyWeapon;
@@ -95,7 +96,7 @@ public class MyGame extends VariableFrameRateGame {
 	private EnemyController enemyController;
 	private AnimationController animationController;
 	private Viewport HUDViewport;
-	private Enemy damagedEnemy;
+	private ActiveEntityObject damagedEnemy;
 
 	private ArrayList<Enemy> enemyList = new ArrayList<Enemy>();
 	private ArrayList<Player> playerList = new ArrayList<Player>();
@@ -168,7 +169,7 @@ public class MyGame extends VariableFrameRateGame {
 		terrS = new TerrainPlane(100);
 		initializePlayerAnimations();
 		initializeGhostAnimations();
-		//initializeEnemyAnimations();
+		// initializeEnemyAnimations();
 	}
 
 	@Override
@@ -396,9 +397,12 @@ public class MyGame extends VariableFrameRateGame {
 	@Override
 	public void update() {
 		if (isClientConnected()) {
+			protocolClient.sendHealthMessage(player.getHealth());
 			switchToInvasionArena();
 		}
-		// System.out.printf("x: %.2f, y: %.2f, z: %.2f\n", player.getLocalLocation().x(), player.getLocalLocation().y(), player.getLocalLocation().z());
+		// System.out.printf("x: %.2f, y: %.2f, z: %.2f\n",
+		// player.getLocalLocation().x(), player.getLocalLocation().y(),
+		// player.getLocalLocation().z());
 		updateHUD();
 		updateSoundManager();
 		updateFrameTime();
@@ -415,10 +419,10 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void switchToInvasionArena() {
-		//if host, pos 1
-		//if invader, pos 2
+		// if host, pos 1
+		// if invader, pos 2
 
-		//player.setLocalLocation(null);
+		// player.setLocalLocation(null);
 
 	}
 
@@ -430,8 +434,8 @@ public class MyGame extends VariableFrameRateGame {
 	private void updatePlayer() {
 		checkObjectMovement(player);
 		if (player.isMoving()) {
-			//updatePlayerTerrainLocation();
-			//targetCamera.updateCameraLocation(frameTime);
+			// updatePlayerTerrainLocation();
+			// targetCamera.updateCameraLocation(frameTime);
 		}
 		updatePhysicsObjectLocation(
 				player.getPhysicsObject(), player.getWorldTranslation());
@@ -442,13 +446,6 @@ public class MyGame extends VariableFrameRateGame {
 				katana.getPhysicsObject(), katana.getWorldTranslation());
 	}
 
-	private void updateLonginus() {
-		for (Enemy enemy : enemyList) {
-			updatePhysicsObjectLocation(
-				enemy.getWeapon().getPhysicsObject(), enemy.getWeapon().getWorldTranslation());
-		}
-	}
-
 	private void updateEnemies() {
 		enemyIterator = enemyList.iterator();
 		while (enemyIterator.hasNext()) {
@@ -456,13 +453,18 @@ public class MyGame extends VariableFrameRateGame {
 			enemy.getRenderStates().enableRendering();
 			enemy.getWeapon().getRenderStates().enableRendering();
 			// System.out.printf(
-			// 	"enemy " + enemy.getID() + "x: %.2f y: %.2f z: %.2f\n weapon x: %.2f, y: %.2f, z: %.2f\n", enemy.getLocalLocation().x(), enemy.getLocalLocation().y(), enemy.getLocalLocation().z(), enemy.getWeapon().getWorldLocation().x(), enemy.getWeapon().getWorldLocation().y(), enemy.getWeapon().getWorldLocation().z()
-			// 	);
+			// "enemy " + enemy.getID() + "x: %.2f y: %.2f z: %.2f\n weapon x: %.2f, y:
+			// %.2f, z: %.2f\n", enemy.getLocalLocation().x(), enemy.getLocalLocation().y(),
+			// enemy.getLocalLocation().z(), enemy.getWeapon().getWorldLocation().x(),
+			// enemy.getWeapon().getWorldLocation().y(),
+			// enemy.getWeapon().getWorldLocation().z()
+			// );
 
 			checkObjectMovement(enemy);
 			enemy.setPhysicsObject(updatePhysicsObjectLocation(enemy.getPhysicsObject(),
 					enemy.getLocalTranslation()));
-			enemy.getWeapon().setPhysicsObject(updatePhysicsObjectLocation(enemy.getWeapon().getPhysicsObject(), enemy.getWeapon().getWorldTranslation()));
+			enemy.getWeapon().setPhysicsObject(updatePhysicsObjectLocation(enemy.getWeapon().getPhysicsObject(),
+					enemy.getWeapon().getWorldTranslation()));
 			if (enemy.checkIfDead()) {
 				enemyQuadTree.remove(new QuadTreePoint(enemy.getLocalLocation().z(), enemy.getLocalLocation().x()));
 				enemyIterator.remove();
@@ -545,7 +547,7 @@ public class MyGame extends VariableFrameRateGame {
 		Vector3f currLoc = player.getLocalLocation();
 		currHeightLoc = terrain.getHeight(currLoc.x, currLoc.z);
 		if (currHeightLoc == 300) {
-			//on the arena platform
+			// on the arena platform
 			return;
 		}
 
@@ -658,7 +660,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void handleEnemyHUD() {
 		if (isEnemyHit && damagedEnemy != null) {
-			updateEnemyHealthHUD(damagedEnemy);
+			updateHealthHUD((String) scriptManager.getValue("ENEMY_HEALTH_TEXT"), damagedEnemy.getHealth());
 		}
 
 		if (hudTimer >= 2500) {
@@ -668,9 +670,9 @@ public class MyGame extends VariableFrameRateGame {
 		}
 	}
 
-	private void updateEnemyHealthHUD(ActiveEntityObject obj) {
-		String dispStr2 = "Enemy Health: " + obj.getHealth();
-
+	private void updateHealthHUD(String text, int health) {
+		String dispStr2 = new String(text + health);
+		System.out.println("health: " + health);
 		HUDViewportX = (int) ((HUDViewport.getRelativeLeft() * getEngineInstance().getRenderSystem().getWidth())) + 150;
 		HUDViewportY = (int) ((HUDViewport.getRelativeBottom()
 				* getEngineInstance().getRenderSystem().getHeight()) - (HUDViewport.getActualHeight()) / 2);
@@ -745,12 +747,13 @@ public class MyGame extends VariableFrameRateGame {
 			for (int j = 0; j < manifold.getNumContacts(); j++) {
 				contactPoint = manifold.getContactPoint(j);
 				if (contactPoint.getDistance() < 0f) {
-					if (enemyMap.get(obj2.getUID()) != null) {
+					if (enemyMap.get(obj2.getUID()) != null || ghostManager.getGhostFromMap(obj2.getUID()) != null) {
 						handlePlayerHit(obj1, obj2);
 						handlePlayerCollision(obj1, obj2);
 					}
 
-					if (enemyWeaponMap.get(obj2.getUID()) != null) {
+					if (enemyWeaponMap.get(obj2.getUID()) != null ||
+							ghostManager.getGhostWeaponFromMap(obj2.getUID()) != null) {
 						handleEnemyHit(obj1, obj2);
 					}
 				}
@@ -761,47 +764,103 @@ public class MyGame extends VariableFrameRateGame {
 	private void handlePlayerHit(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
 		// obj1 is player weapon, obj2 is enemy
 		if (isEnemyHitByPlayerWeapon(obj1, obj2) &&
-				isAttackAnimationMidpoint(player.getWeapon())) {
-			updateEnemyHealthHUD(enemyMap.get(obj2.getUID()));
-			isEnemyHit = true;
-			soundManager.stopSound("KATANA_WHIFF");
-			soundManager.playSound("KATANA_HIT");
-			damagedEnemy = enemyMap.get(obj2.getUID());
-			hudTimer = 0;
-			enemyMap.get(obj2.getUID()).reduceHealth(player.getWeapon().getDamage());
-			player.getWeapon().resetFrameCount();
+				isAttackAnimationMidpoint(player.getWeapon()) &&
+				enemyMap.get(obj2.getUID()) != null) {
+			updateEnemyDamage(enemyMap.get(obj2.getUID()), enemyMap.get(obj2.getUID()).getHealth());
+		} else if (isGhostHitByPlayerWeapon(obj1, obj2) &&
+				isAttackAnimationMidpoint(player.getWeapon()) &&
+				ghostManager.getGhostFromMap(obj2.getUID()) != null) {
+			System.out.println("ghost is hit!");
+			updateEnemyDamage(ghostManager.getGhostFromMap(obj2.getUID()),
+					ghostManager.getGhostFromMap(obj2.getUID()).getOwner().getHealth());
+			if (protocolClient != null) {
+				protocolClient.sendDamageMessage(player.getWeapon().getDamage());
+
+			}
 		}
 		player.getWeapon().addFrameCount();
 	}
 
+	private void updateEnemyDamage(ActiveEntityObject obj, int health) {
+		updateHealthHUD((String) getScriptManager().getValue("ENEMY_HEALTH_TEXT"), health);
+		System.out.println("health: " + health);
+		isEnemyHit = true;
+		soundManager.stopSound("KATANA_WHIFF");
+		soundManager.playSound("KATANA_HIT");
+		damagedEnemy = obj;
+		hudTimer = 0;
+		player.getWeapon().resetFrameCount();
+	}
+
+	private boolean isGhostHitByPlayerWeapon(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
+		if (ghostManager.getGhostFromMap(obj2.getUID()) == null) {
+			return false;
+		}
+		return obj2 == ghostManager.getGhostFromMap(obj2.getUID()).getPhysicsObject() &&
+				obj1.getUID() == player.getWeapon().getPhysicsObject().getUID()
+				&& player.getStanceState().isAttacking();
+	}
+
 	private boolean isEnemyHitByPlayerWeapon(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
+		if (enemyMap.get(obj2.getUID()) == null) {
+			return false;
+		}
 		return obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
 				obj1.getUID() == player.getWeapon().getPhysicsObject().getUID()
 				&& player.getStanceState().isAttacking();
 	}
 
 	private void handlePlayerCollision(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
-		if (isPlayerCollidedWithEnemy(obj1, obj2)) {
-			float pushBackDistance = 0.1f;
+		float pushBackDistance = 0.1f;
+		if (isPlayerCollidedWithEnemy(obj1, obj2) &&
+				enemyMap.get(obj2.getUID()) != null) {
 			Vector3f enemyToPlayer = player.getLocalLocation().sub(enemyMap.get(obj2.getUID()).getLocalLocation());
-			Vector3f pushBackVector = enemyToPlayer.normalize().mul((float) pushBackDistance);
-			player.setLocalLocation(player.getLocalLocation().add(pushBackVector));
-			targetCamera.updateCameraLocation(getFrameTime());
+			pushBackPlayer(enemyToPlayer, pushBackDistance);
 
 			if (getProtocolClient() != null) {
+				getProtocolClient().sendMoveMessage(player.getWorldLocation());
+			}
+		} else if (isPlayerCollidedWithGhost(obj1, obj2) && ghostManager.getGhostFromMap(obj2.getUID()) != null) {
+			Vector3f ghostToPlayer = player.getLocalLocation()
+					.sub(ghostManager.getGhostFromMap(obj2.getUID()).getLocalLocation());
+			// pushBackPlayer(ghostToPlayer, pushBackDistance);
+			if (getProtocolClient() != null) {
+				// System.out.println(
+				// "collided with ghost UID: " +
+				// ghostManager.getGhostFromMap(obj2.getUID()).getID() + " my pos: "
+				// + player.getLocalLocation().x() + " "
+				// + player.getLocalLocation().y() + " " + player.getLocalLocation().z());
 				getProtocolClient().sendMoveMessage(player.getWorldLocation());
 			}
 		}
 	}
 
+	private void pushBackPlayer(Vector3f enemyToPlayer, float pushBackDistance) {
+		Vector3f pushBackVector = enemyToPlayer.normalize().mul((float) pushBackDistance);
+		player.setLocalLocation(player.getWorldLocation().add(pushBackVector));
+		targetCamera.updateCameraLocation(getFrameTime());
+	}
+
 	private boolean isPlayerCollidedWithEnemy(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
+		if (enemyMap.get(obj2.getUID()) == null) {
+			return false;
+		}
 		return obj2 == enemyMap.get(obj2.getUID()).getPhysicsObject() &&
+				obj1.getUID() == player.getPhysicsObject().getUID();
+	}
+
+	private boolean isPlayerCollidedWithGhost(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
+		if (ghostManager.getGhostFromMap(obj2.getUID()) == null) {
+			return false;
+		}
+		return obj2 == ghostManager.getGhostFromMap(obj2.getUID()).getPhysicsObject() &&
 				obj1.getUID() == player.getPhysicsObject().getUID();
 	}
 
 	private void handleEnemyHit(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
 		// obj1 == player, obj2 == enemyWeapon
-		if (isPlayerHitByEnemyWeapon(obj1, obj2)) {
+		if (isPlayerHitByEnemyWeapon(obj1, obj2) &&
+				enemyMap.get(obj2.getUID()) != null) {
 			Enemy enemy = enemyWeaponMap.get(obj2.getUID()).getOwner();
 			Vector3f enemyToPlayer = player.getLocalLocation().sub(enemy.getLocalLocation()).normalize();
 			float angle = enemy.getLocalForwardVector().angle(enemyToPlayer);
@@ -819,10 +878,35 @@ public class MyGame extends VariableFrameRateGame {
 				}
 				enemy.addFrameCount();
 			}
+		} else if (isPlayerHitByGhostWeapon(obj1, obj2) && ghostManager.getGhostFromMap(obj2.getUID()) != null) {
+			GhostAvatar ghost = ghostManager.getGhostWeaponFromMap(obj2.getUID()).getOwner();
+			if (isAttackAnimationMidpoint(ghost)) {
+				updateGameObjectwithPhysicsObject(player, player.getPhysicsObject());
+
+				if (player.getStanceState().isGuarding()) {
+					player.reduceHealth(ghost.getWeapon().getDamage() / 2);
+				} else {
+					player.reduceHealth(ghost.getWeapon().getDamage());
+				}
+				ghost.resetFrameCount();
+			}
+			ghost.addFrameCount();
 		}
 	}
 
+	private boolean isPlayerHitByGhostWeapon(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
+		if (enemyMap.get(obj2.getUID()) == null) {
+			return false;
+		}
+		return obj1.getUID() == player.getPhysicsObject().getUID()
+				&& obj2 == ghostManager.getGhostWeaponFromMap(obj2.getUID()).getPhysicsObject()
+				&& ghostManager.getGhostWeaponFromMap(obj2.getUID()).getOwner().isAttacking();
+	}
+
 	private boolean isPlayerHitByEnemyWeapon(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
+		if (enemyMap.get(obj2.getUID()) == null) {
+			return false;
+		}
 		return obj1.getUID() == player.getPhysicsObject().getUID()
 				&& obj2 == enemyWeaponMap.get(obj2.getUID()).getPhysicsObject()
 				&& enemyWeaponMap.get(obj2.getUID()).getOwner().isAttacking();
@@ -1049,15 +1133,14 @@ public class MyGame extends VariableFrameRateGame {
 	public void keyPressed(KeyEvent e) {
 		switch (e.getKeyCode()) {
 			case KeyEvent.VK_ESCAPE:
-				if (MyGame.getGameInstance().getProtocolClient() != null && MyGame.	getGameInstance().isClientConnected()) {
+				if (MyGame.getGameInstance().getProtocolClient() != null
+						&& MyGame.getGameInstance().isClientConnected()) {
 					getProtocolClient().sendByeMessage();
 				}
 				break;
 		}
 		super.keyPressed(e);
 	}
-
-
 
 	public static MyGame getGameInstance() {
 		return game;

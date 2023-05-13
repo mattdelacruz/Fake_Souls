@@ -161,15 +161,14 @@ public class Enemy extends ActiveEntityObject {
             }
             this.lastThinkUpdateTime = currentTime;
             this.elapsedThinkMilliSecs = 0;
-            //System.out.println("ebt update of enemy " + getID());
             isActive = true;
-            ebt.update(elapsedThinkMilliSecs);
+            // ebt.update(elapsedThinkMilliSecs);
         }
     }
 
     private boolean checkIfAttacking() {
         return (this.getAnimationShape().isAnimPlaying() &&
-        this.getAnimationShape().getCurrentAnimation().equals(this.getAnimationShape().getAnimation("ATTACK")));
+                this.getAnimationShape().getCurrentAnimation().equals(this.getAnimationShape().getAnimation("ATTACK")));
     }
 
     private void setupBehaviorTree() {

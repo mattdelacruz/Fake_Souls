@@ -10,6 +10,8 @@ import tage.shapes.AnimatedShape;
 
 public class GhostWeapon extends AnimatedGameObject {
     private UUID id;
+    private GhostAvatar owner;
+    private int damage = 10;
 
     public GhostWeapon(UUID id, AnimatedShape ks, TextureImage kt, GhostAvatar newAvatar) {
         super(newAvatar, ks, kt);
@@ -20,4 +22,15 @@ public class GhostWeapon extends AnimatedGameObject {
         return this.id;
     }
 
+    public void setOwner(GhostAvatar owner) {
+        this.owner = owner;
+    }
+
+    public GhostAvatar getOwner() {
+        return this.owner;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
 }

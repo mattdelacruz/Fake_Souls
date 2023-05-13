@@ -52,7 +52,6 @@ public class GameServerUDP extends GameConnectionServer<UUID> {
                 UUID remoteID = UUID.fromString(msgTokens[2]);
                 String[] pos = { msgTokens[3], msgTokens[4], msgTokens[5] };
                 sendDetailsForMessage(clientID, remoteID, pos);
-
             }
             // case where server receives a MOVE message
             if (msgTokens[0].compareTo("move") == 0) {
@@ -75,6 +74,48 @@ public class GameServerUDP extends GameConnectionServer<UUID> {
                 sendYawMessage(clientID, rotation);
             }
 
+            if (msgTokens[0].compareTo("attack") == 0) {
+                UUID clientID = UUID.fromString(msgTokens[1]);
+                String isAttack = msgTokens[2];
+                sendAttackMessage(clientID, isAttack);
+            }
+
+            if (msgTokens[0].compareTo("damage") == 0) {
+                UUID clientID = UUID.fromString(msgTokens[1]);
+                String damage = msgTokens[2];
+                sendDamageMessage(clientID, damage);
+            }
+
+            if (msgTokens[0].compareTo("health") == 0) {
+                UUID clientID = UUID.fromString(msgTokens[1]);
+                String health = msgTokens[2];
+                sendHealthMessage(clientID, health);
+            }
+
+            if (msgTokens[0].compareTo("owner") == 0) {
+                UUID clientID = UUID.fromString(msgTokens[1]);
+                sendOwnerMessage(clientID);
+            }
+        }
+    }
+
+    private void sendDamageMessage(UUID clientID, String damage) {
+        try {
+            String message = new String("damage," + clientID.toString());
+            message += "," + damage;
+            forwardPacketToAll(message, clientID);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendHealthMessage(UUID clientID, String health) {
+        try {
+            String message = new String("health," + clientID.toString());
+            message += "," + health;
+            forwardPacketToAll(message, clientID);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -141,6 +182,15 @@ public class GameServerUDP extends GameConnectionServer<UUID> {
         }
     }
 
+    private void sendOwnerMessage(UUID clientID) {
+        try {
+            String message = new String("owner," + clientID.toString());
+            forwardPacketToAll(message, clientID);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void sendCreateMessages(UUID clientID, String[] pos) {
         try {
             String message = new String("create," + clientID.toString());
@@ -162,6 +212,16 @@ public class GameServerUDP extends GameConnectionServer<UUID> {
                 message += "failure";
             }
             sendPacket(message, clientID);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendAttackMessage(UUID clientID, String isAttack) {
+        try {
+            String message = new String("attack," + clientID.toString());
+            message += "," + isAttack;
+            forwardPacketToAll(message, clientID);
         } catch (IOException e) {
             e.printStackTrace();
         }
