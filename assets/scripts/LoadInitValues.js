@@ -4,12 +4,10 @@ var JavaPackages = new JavaImporter(
 );
 
 with (JavaPackages) {
-
-
 	//----------------------------------------------------------------
     var WINDOW_WIDTH = 600;
 	var WINDOW_HEIGHT = 600;
-	var ENEMY_AMOUNT = 1;
+	var ENEMY_AMOUNT = 3;
 	var PLAY_AREA_SIZE = 300;
 	var PLAYER_HEIGHT_SPEED = 0.5;
 	var INITIAL_CAMERA_POS = new Vector3f(0, 0, 5);
@@ -18,7 +16,7 @@ with (JavaPackages) {
 	var PLAYER_TEXTURE = "player-texture.png";
 	var GHOST_TEXTURE = "neptune.jpg";
 	var ENEMY_TEXTURE = "knight-texture.png";
-	var TERRAIN_MAP = "terrain-map.jpg";
+	var TERRAIN_MAP = "terrain-map3.png";
 	var TERRAIN_TEXTURE = "moon-craters.jpg";
 	var KATANA_TEXTURE = "katana-texture.png";
 	var SPEAR_TEXTURE = "longinus-texture.png";
@@ -35,6 +33,7 @@ with (JavaPackages) {
 	var PLAYER_GUARD_WALK_RKA = "player-animations/player-guard-walk.rka";
 	var PLAYER_STRAFE_RKA = "player-animations/player-strafe.rka";
 	var PLAYER_GUARD_STRAFE_RKA = "player-animations/player-guard-strafe.rka";
+	var PLAYER_START_POS = new Vector3f(-179.82, 0, 142.13);
 	//----------------------------------------------------------------
 	// Katana animation file paths
 	//----------------------------------------------------------------
@@ -57,6 +56,15 @@ with (JavaPackages) {
 	var ENEMY_ATTACK_RKA = "enemy-animations/knight-enemy-attack.rka";
 	var ENEMY_FLINCH_RKA = "enemy-animations/knight-enemy-flinch.rka";
 	var ENEMY_DEATH_RKA = "enemy-animations/knight-enemy-death.rka";
+	var ENEMY_POS_1 = new Vector3f(-178.73, 0, 123.24);
+	var ENEMY_POS_2 = new Vector3f(-186.23, 0, 58.06);
+	var ENEMY_POS_3 = new Vector3f(-167.36, 0, 58.06);
+	var ENEMY_POS_4 = new Vector3f(-124.89, 0, -18.37);
+	var ENEMY_POS_5 = new Vector3f(-104.39, 0, -70.70);
+	var ENEMY_POS_6 = new Vector3f(-49.43, 0, -70.70);
+	var ENEMY_POS_7 = new Vector3f(84.80, 0, -107.03);
+	var ENEMY_POS_8 = new Vector3f(176.93, 0, -33.66);
+	var BOSS_POS = new Vector3f(161.97, 0, -33.66);
 	//----------------------------------------------------------------
 	// Spear animation file paths
 	//----------------------------------------------------------------
@@ -80,7 +88,5 @@ with (JavaPackages) {
 	var STEP2 = "assets/sounds/step2.wav";
 }
 
-var xPlayerPos = 70;
-var yPlayerPos = 0;
-var zPlayerPos = 124;
+
 var pushBackDistance = 0.1;

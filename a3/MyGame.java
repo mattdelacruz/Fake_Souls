@@ -73,11 +73,9 @@ public class MyGame extends VariableFrameRateGame {
 	int hudTimer = 0;
 
 	private GameObject terrain;
-	private Enemy enemy;
 	private Player player;
 	private GhostAvatar ghost;
 	private PlayerWeapon katana;
-	private EnemyWeapon longinus;
 	private ProtocolType serverProtocol;
 	private ProtocolClient protocolClient;
 	private boolean isClientConnected = false;
@@ -93,7 +91,7 @@ public class MyGame extends VariableFrameRateGame {
 
 	private ObjShape terrS;
 	private TextureImage playerTx, enemyTx, terrMap, ghostTx, terrTx, katanaTx, spearTx;
-	private AnimatedShape playerShape, ghostShape, katanaShape, ghostKatanaShape, enemyShape, spearShape;
+	private AnimatedShape playerShape, ghostShape, katanaShape, ghostKatanaShape;
 	private EnemyController enemyController;
 	private AnimationController animationController;
 	private Viewport HUDViewport;
@@ -170,7 +168,7 @@ public class MyGame extends VariableFrameRateGame {
 		terrS = new TerrainPlane(100);
 		initializePlayerAnimations();
 		initializeGhostAnimations();
-		initializeEnemyAnimations();
+		//initializeEnemyAnimations();
 	}
 
 	@Override
@@ -349,8 +347,8 @@ public class MyGame extends VariableFrameRateGame {
 
 	}
 
-	private void initializeEnemyAnimations() {
-		enemyShape = new AnimatedShape(
+	private AnimatedShape initializeEnemyAnimations() {
+		AnimatedShape enemyShape = new AnimatedShape(
 				(String) scriptManager.getValue("ENEMY_RKM"),
 				(String) scriptManager.getValue("ENEMY_RKS"));
 		enemyShape.loadAnimation(
@@ -365,8 +363,11 @@ public class MyGame extends VariableFrameRateGame {
 				(String) scriptManager.getValue("ENEMY_FLINCH_RKA"));
 		enemyShape.loadAnimation("DEATH",
 				(String) scriptManager.getValue("ENEMY_DEATH_RKA"));
+		return enemyShape;
+	}
 
-		spearShape = new AnimatedShape(
+	private AnimatedShape initializeEnemyWeaponAnimations() {
+		AnimatedShape spearShape = new AnimatedShape(
 				(String) scriptManager.getValue("SPEAR_RKM"),
 				(String) scriptManager.getValue("SPEAR_RKS"));
 		spearShape.loadAnimation("IDLE",
@@ -379,6 +380,7 @@ public class MyGame extends VariableFrameRateGame {
 				(String) scriptManager.getValue("SPEAR_FLINCH_RKA"));
 		spearShape.loadAnimation("DEATH",
 				(String) scriptManager.getValue("SPEAR_DEATH_RKA"));
+		return spearShape;
 	}
 
 	private void initializeCameras() {
@@ -393,6 +395,9 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void update() {
+		if (isClientConnected()) {
+			switchToInvasionArena();
+		}
 		// System.out.printf("x: %.2f, y: %.2f, z: %.2f\n", player.getLocalLocation().x(), player.getLocalLocation().y(), player.getLocalLocation().z());
 		updateHUD();
 		updateSoundManager();
@@ -400,7 +405,6 @@ public class MyGame extends VariableFrameRateGame {
 		updateMovementControls();
 		updatePlayer();
 		updateKatana();
-		updateLonginus();
 		updateEnemies();
 		checkForCollisions();
 		updateTargeting();
@@ -408,6 +412,14 @@ public class MyGame extends VariableFrameRateGame {
 		inputManager.update((float) elapsTime);
 		physicsManager.update((float) elapsTime);
 		processNetworking((float) elapsTime);
+	}
+
+	private void switchToInvasionArena() {
+		//if host, pos 1
+		//if invader, pos 2
+
+		//player.setLocalLocation(null);
+
 	}
 
 	private void updateSoundManager() {
@@ -419,6 +431,7 @@ public class MyGame extends VariableFrameRateGame {
 		checkObjectMovement(player);
 		if (player.isMoving()) {
 			//updatePlayerTerrainLocation();
+			//targetCamera.updateCameraLocation(frameTime);
 		}
 		updatePhysicsObjectLocation(
 				player.getPhysicsObject(), player.getWorldTranslation());
@@ -430,20 +443,29 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void updateLonginus() {
-		updatePhysicsObjectLocation(
-				longinus.getPhysicsObject(), longinus.getWorldTranslation());
+		for (Enemy enemy : enemyList) {
+			updatePhysicsObjectLocation(
+				enemy.getWeapon().getPhysicsObject(), enemy.getWeapon().getWorldTranslation());
+		}
 	}
 
 	private void updateEnemies() {
 		enemyIterator = enemyList.iterator();
 		while (enemyIterator.hasNext()) {
 			Enemy enemy = enemyIterator.next();
+			enemy.getRenderStates().enableRendering();
+			enemy.getWeapon().getRenderStates().enableRendering();
+			// System.out.printf(
+			// 	"enemy " + enemy.getID() + "x: %.2f y: %.2f z: %.2f\n weapon x: %.2f, y: %.2f, z: %.2f\n", enemy.getLocalLocation().x(), enemy.getLocalLocation().y(), enemy.getLocalLocation().z(), enemy.getWeapon().getWorldLocation().x(), enemy.getWeapon().getWorldLocation().y(), enemy.getWeapon().getWorldLocation().z()
+			// 	);
+
 			checkObjectMovement(enemy);
 			enemy.setPhysicsObject(updatePhysicsObjectLocation(enemy.getPhysicsObject(),
 					enemy.getLocalTranslation()));
+			enemy.getWeapon().setPhysicsObject(updatePhysicsObjectLocation(enemy.getWeapon().getPhysicsObject(), enemy.getWeapon().getWorldTranslation()));
 			if (enemy.checkIfDead()) {
-				enemyIterator.remove();
 				enemyQuadTree.remove(new QuadTreePoint(enemy.getLocalLocation().z(), enemy.getLocalLocation().x()));
+				enemyIterator.remove();
 			}
 		}
 	}
@@ -522,11 +544,16 @@ public class MyGame extends VariableFrameRateGame {
 	private void updatePlayerTerrainLocation() {
 		Vector3f currLoc = player.getLocalLocation();
 		currHeightLoc = terrain.getHeight(currLoc.x, currLoc.z);
+		if (currHeightLoc == 300) {
+			//on the arena platform
+			return;
+		}
 
 		if (currHeightLoc > 1.2f) {
 			player.setLocalLocation(player.getLastValidLocation());
 			return;
 		}
+
 		double playerHeightSpeed = (double) scriptManager.getValue("PLAYER_HEIGHT_SPEED");
 		float alpha = frameTime * (float) playerHeightSpeed;
 		float newHeight = lerp(lastHeightLoc, currHeightLoc, alpha);
@@ -659,15 +686,21 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void buildEnemy() {
-		float mass = 20f;
-		float[] size;
-		double[] tempTransform;
-		Matrix4f translation;
-		PhysicsObject enemyBody, spearBody;
 		int enemyCount = (int) scriptManager.getValue("ENEMY_AMOUNT");
-		for (int i = 0; i < enemyCount; i++) {
-			enemy = new Enemy(GameObject.root(), enemyShape, enemyTx, playerQuadTree, i);
-			longinus = new EnemyWeapon(enemy, spearShape, spearTx);
+		for (int i = 1; i <= enemyCount; i++) {
+			float mass = 20f;
+			float[] size;
+			double[] tempTransform;
+			Matrix4f translation;
+			PhysicsObject enemyBody, spearBody;
+			String enemyPosName = new String("ENEMY_POS_" + i);
+			Vector3f enemyPos = (Vector3f) scriptManager.getValue(enemyPosName);
+			AnimatedShape enemyShape = initializeEnemyAnimations();
+			AnimatedShape spearShape = initializeEnemyWeaponAnimations();
+
+			Enemy enemy = new Enemy(GameObject.root(), enemyShape, enemyTx, playerQuadTree, i);
+			enemy.setLocalTranslation(new Matrix4f().setTranslation(enemyPos));
+			EnemyWeapon longinus = new EnemyWeapon(enemy, spearShape, spearTx);
 			enemy.addWeapon(longinus);
 			longinus.propagateTranslation(true);
 
@@ -675,20 +708,21 @@ public class MyGame extends VariableFrameRateGame {
 			tempTransform = toDoubleArray(translation.get(vals));
 
 			enemyBody = physicsManager.addCapsuleObject(mass, tempTransform, 1f, 5);
-			enemyMap.put(enemyBody.getUID(), enemy);
 			enemy.setPhysicsObject(enemyBody);
 
 			size = new float[] { 5f, 1f, 5f };
-			translation = longinus.getLocalTranslation();
+			translation = longinus.getWorldTranslation();
 			tempTransform = toDoubleArray(translation.get(vals));
 			spearBody = physicsManager.addBoxObject(mass, tempTransform, size);
 			longinus.setPhysicsObject(spearBody);
 			longinus.setOwner(enemy);
 
 			enemyWeaponMap.put(spearBody.getUID(), longinus);
+			enemyMap.put(enemyBody.getUID(), enemy);
 			enemyList.add(enemy);
 			enemyController.addTarget(enemy);
-			animationController.addTarget(enemy);
+			enemy.getRenderStates().enableRendering();
+			longinus.getRenderStates().enableRendering();
 		}
 	}
 
@@ -728,11 +762,11 @@ public class MyGame extends VariableFrameRateGame {
 		// obj1 is player weapon, obj2 is enemy
 		if (isEnemyHitByPlayerWeapon(obj1, obj2) &&
 				isAttackAnimationMidpoint(player.getWeapon())) {
-			updateEnemyHealthHUD(enemy);
+			updateEnemyHealthHUD(enemyMap.get(obj2.getUID()));
 			isEnemyHit = true;
 			soundManager.stopSound("KATANA_WHIFF");
 			soundManager.playSound("KATANA_HIT");
-			damagedEnemy = enemy;
+			damagedEnemy = enemyMap.get(obj2.getUID());
 			hudTimer = 0;
 			enemyMap.get(obj2.getUID()).reduceHealth(player.getWeapon().getDamage());
 			player.getWeapon().resetFrameCount();
@@ -749,7 +783,7 @@ public class MyGame extends VariableFrameRateGame {
 	private void handlePlayerCollision(JBulletPhysicsObject obj1, JBulletPhysicsObject obj2) {
 		if (isPlayerCollidedWithEnemy(obj1, obj2)) {
 			float pushBackDistance = 0.1f;
-			Vector3f enemyToPlayer = player.getLocalLocation().sub(enemy.getLocalLocation());
+			Vector3f enemyToPlayer = player.getLocalLocation().sub(enemyMap.get(obj2.getUID()).getLocalLocation());
 			Vector3f pushBackVector = enemyToPlayer.normalize().mul((float) pushBackDistance);
 			player.setLocalLocation(player.getLocalLocation().add(pushBackVector));
 			targetCamera.updateCameraLocation(getFrameTime());
@@ -1090,10 +1124,6 @@ public class MyGame extends VariableFrameRateGame {
 		return player;
 	}
 
-	public Enemy getEnemy() {
-		return enemy;
-	}
-
 	public void setIsConnected(boolean b) {
 		isClientConnected = b;
 	}
@@ -1156,5 +1186,9 @@ public class MyGame extends VariableFrameRateGame {
 
 	public PhysicsManager getPhysicsManager() {
 		return physicsManager;
+	}
+
+	public ArrayList<Enemy> getEnemyList() {
+		return enemyList;
 	}
 }

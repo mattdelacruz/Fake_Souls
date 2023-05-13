@@ -6,6 +6,7 @@ import a3.MyGame;
 import a3.managers.ScriptManager;
 import a3.managers.SoundManager;
 import tage.shapes.AnimatedShape;
+import tage.shapes.AnimatedShape.EndType;
 
 public class AnimatedGameObject extends GameObject {
 	private AnimatedShape animatedShape;
@@ -119,8 +120,9 @@ public class AnimatedGameObject extends GameObject {
 	}
 
 	public void updateAnimation() {
-		if (getAnimationShape().isAnimated())
+		if (getAnimationShape().isAnimated()) {
 			getAnimationShape().updateAnimation();
+		}
 	}
 
 	public SoundManager getSoundManager() {
