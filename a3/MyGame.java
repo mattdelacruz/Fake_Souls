@@ -1126,7 +1126,6 @@ public class MyGame extends VariableFrameRateGame {
 		targetCamera = new TargetCamera(getPlayer());
 		getEngineInstance().getRenderSystem().getViewport("MAIN").setCamera(targetCamera);
 		targetCamera.setLookAtTarget(player.getLocalLocation());
-		targetCamera.setLocation(targetCamera.getLocation().mul(new Vector3f(1, 1, -1)));
 		targetCamera.updateCameraAngles(frameTime);
 	}
 

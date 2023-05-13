@@ -7,7 +7,7 @@ with (JavaPackages) {
 	//----------------------------------------------------------------
     var WINDOW_WIDTH = 600;
 	var WINDOW_HEIGHT = 600;
-	var ENEMY_AMOUNT = 3;
+	var ENEMY_AMOUNT = 8;
 	var PLAY_AREA_SIZE = 300;
 	var INITIAL_CAMERA_POS = new Vector3f(0, 0, 5);
 	var INITIAL_HUD_CAMERA_POS = new Vector3f(0, 10000, 0);

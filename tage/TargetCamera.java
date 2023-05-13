@@ -14,7 +14,6 @@ public class TargetCamera extends CameraOrbit3D {
     public TargetCamera(Player o) {
         super(o);
         origin = o;
-        setLocation(o.getLocalLocation().add(new Vector3f(0, 5, 0)));
     }
 
     public void targetTo() {
