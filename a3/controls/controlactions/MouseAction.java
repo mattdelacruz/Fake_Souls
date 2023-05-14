@@ -7,13 +7,22 @@ import tage.input.action.AbstractInputAction;
 public class MouseAction extends AbstractInputAction {
     @Override
     public void performAction(float time, Event evt) {
+
         switch (evt.getComponent().getName().toUpperCase()) {
+
             case "X":
                 if (evt.getValue() > 0) {
-                    MyGame.getGameInstance().getControls().turnCameraLeft(MyGame.getGameInstance().getFrameTime());
+                    // MyGame.getGameInstance().getControls().turnCameraLeft(MyGame.getGameInstance().getFrameTime());
+                    MyGame.getGameInstance().getPlayer().addCurrentRotation(-1);
+                    MyGame.getGameInstance().getPlayer().yaw(MyGame.getGameInstance().getFrameTime(),
+                            MyGame.getGameInstance().getPlayer().getCurrentRotation());
 
                 } else {
-                    MyGame.getGameInstance().getControls().turnCameraRight(MyGame.getGameInstance().getFrameTime());
+                    // MyGame.getGameInstance().getControls().turnCameraRight(MyGame.getGameInstance().getFrameTime());
+                    MyGame.getGameInstance().getPlayer().addCurrentRotation(1);
+                    MyGame.getGameInstance().getPlayer().yaw(MyGame.getGameInstance().getFrameTime(),
+                            MyGame.getGameInstance().getPlayer().getCurrentRotation());
+
                 }
                 return;
             // guard

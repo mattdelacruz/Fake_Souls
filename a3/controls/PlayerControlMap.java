@@ -67,13 +67,13 @@ public class PlayerControlMap {
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
 		inputManager.associateActionWithAllKeyboards(
 				Component.Identifier.Key.A, moveHorizontalAction,
-				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
+				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		inputManager.associateActionWithAllKeyboards(
 				Component.Identifier.Key.S, moveVerticalAction,
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
 		inputManager.associateActionWithAllKeyboards(
 				Component.Identifier.Key.D, moveHorizontalAction,
-				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
+				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 	}
 
 	private void initializeGamepadControls() {

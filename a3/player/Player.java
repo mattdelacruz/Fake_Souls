@@ -39,6 +39,7 @@ public class Player extends ActiveEntityObject {
     private PlayerNormalStance normalStance = new PlayerNormalStance();
     private PlayerRunMovement runMovement = new PlayerRunMovement();
     private PlayerGuardMovement guardMovement = new PlayerGuardMovement();
+    private float currentRotation = 0;
 
     private Vector3f validLocation;
     /*
@@ -317,6 +318,14 @@ public class Player extends ActiveEntityObject {
 
     public void makeContact(boolean contact) {
         isContact = contact;
+    }
+
+    public float getCurrentRotation() {
+        return currentRotation;
+    }
+
+    public void addCurrentRotation(float r) {
+        currentRotation += r;
     }
 
 }

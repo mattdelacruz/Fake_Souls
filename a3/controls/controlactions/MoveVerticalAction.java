@@ -30,8 +30,8 @@ public class MoveVerticalAction extends AbstractInputAction {
             return;
         }
         if (evt.getValue() == 1.0) {
-            // MyGame.getGameInstance().getControls().moveSouth(MyGame.getGameInstance().getFrameTime());
-            // return;
+            MyGame.getGameInstance().getControls().moveSouth(-MyGame.getGameInstance().getFrameTime());
+            return;
         }
     }
 }

@@ -214,6 +214,7 @@ public class MyGame extends VariableFrameRateGame {
 	@Override
 	public void createViewports() {
 		super.createViewports();
+		System.out.println("creating hud...");
 		getEngine().getRenderSystem().addViewport(HUD_VIEWPORT_NAME, HUD_VIEWPORT_BOTTOM, HUD_VIEWPORT_LEFT,
 				getEngine().getRenderSystem().getWidth(), HUD_VIEWPORT_HEIGHT);
 	}
@@ -222,7 +223,7 @@ public class MyGame extends VariableFrameRateGame {
 	public void initializeLights() {
 		Light light = new Light();
 		Light.setGlobalAmbient(.25f, .25f, .25f);
-		light.setLocation(new Vector3f(5.0f, 0.0f, 2.0f));
+		// light.setLocation(new Vector3f(5.0f, 0.0f, 2.0f));
 		(getEngineInstance().getSceneGraph()).addLight(light);
 	}
 
@@ -656,7 +657,6 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void updatePlayerHealthHUD() {
 		String dispStr1 = "Health: " + player.getHealth();
-
 		HUDViewportX = (int) ((HUDViewport.getRelativeLeft() * getEngineInstance().getRenderSystem().getWidth()));
 		HUDViewportY = (int) (((HUDViewport.getRelativeBottom()
 				* getEngineInstance().getRenderSystem().getHeight()))
@@ -944,10 +944,10 @@ public class MyGame extends VariableFrameRateGame {
 		if (movingNorth && movingWest) {
 			if (!hasMovedNorthWest) {
 				if (!hasRotated) {
-					currentRotation += 45f;
-					player.yaw(getFrameTime(), currentRotation);
+					player.addCurrentRotation(45f);
+					player.yaw(getFrameTime(), player.getCurrentRotation());
 					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(currentRotation);
+						getProtocolClient().sendYawMessage(player.getCurrentRotation());
 					}
 					hasRotated = true;
 				}
@@ -964,10 +964,10 @@ public class MyGame extends VariableFrameRateGame {
 		} else if (movingNorth && movingEast) {
 			if (!hasMovedNorthEast) {
 				if (!hasRotated) {
-					currentRotation += -45f;
-					player.yaw(getFrameTime(), currentRotation);
+					player.addCurrentRotation(-45);
+					player.yaw(getFrameTime(), player.getCurrentRotation());
 					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(currentRotation);
+						getProtocolClient().sendYawMessage(player.getCurrentRotation());
 					}
 					hasRotated = true;
 				}
@@ -984,10 +984,10 @@ public class MyGame extends VariableFrameRateGame {
 		} else if (movingSouth && movingWest) {
 			if (!hasMovedSouthWest) {
 				if (!hasRotated) {
-					currentRotation += 135f;
-					player.yaw(getFrameTime(), currentRotation);
+					player.addCurrentRotation(135);
+					player.yaw(getFrameTime(), player.getCurrentRotation());
 					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(currentRotation);
+						getProtocolClient().sendYawMessage(player.getCurrentRotation());
 					}
 					hasRotated = true;
 				}
@@ -1003,10 +1003,10 @@ public class MyGame extends VariableFrameRateGame {
 		} else if (movingSouth && movingEast) {
 			if (!hasMovedSouthEast) {
 				if (!hasRotated) {
-					currentRotation += -135f;
-					player.yaw(getFrameTime(), currentRotation);
+					player.addCurrentRotation(-135);
+					player.yaw(getFrameTime(), player.getCurrentRotation());
 					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(currentRotation);
+						getProtocolClient().sendYawMessage(player.getCurrentRotation());
 					}
 					hasRotated = true;
 				}
@@ -1026,9 +1026,9 @@ public class MyGame extends VariableFrameRateGame {
 		} else if (movingSouth) {
 			if (!hasMovedSouth) {
 				if (!hasRotated) {
-					player.yaw(getFrameTime(), currentRotation);
+					player.yaw(getFrameTime(), player.getCurrentRotation());
 					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(currentRotation);
+						getProtocolClient().sendYawMessage(player.getCurrentRotation());
 					}
 					hasRotated = true;
 				}
@@ -1048,10 +1048,10 @@ public class MyGame extends VariableFrameRateGame {
 		} else if (movingWest) {
 			if (!hasMovedWest) {
 				if (!hasRotated) {
-					currentRotation += 90f;
-					player.yaw(getFrameTime(), currentRotation);
+					player.addCurrentRotation(90);
+					player.yaw(getFrameTime(), player.getCurrentRotation());
 					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(currentRotation);
+						getProtocolClient().sendYawMessage(player.getCurrentRotation());
 					}
 					hasRotated = true;
 				}
@@ -1072,10 +1072,10 @@ public class MyGame extends VariableFrameRateGame {
 		} else if (movingEast) {
 			if (!hasMovedEast) {
 				if (!hasRotated) {
-					currentRotation += -90f;
-					player.yaw(getFrameTime(), currentRotation);
+					player.addCurrentRotation(-90f);
+					player.yaw(getFrameTime(), player.getCurrentRotation());
 					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(currentRotation);
+						getProtocolClient().sendYawMessage(player.getCurrentRotation());
 					}
 					hasRotated = true;
 				}
@@ -1097,9 +1097,9 @@ public class MyGame extends VariableFrameRateGame {
 		hasRotated = false;
 
 		if (currentRotation >= 360f) {
-			currentRotation -= 360f;
+			player.addCurrentRotation(-360f);
 		} else if (currentRotation <= -360f) {
-			currentRotation += 360f;
+			player.addCurrentRotation(360f);
 		}
 	}
 
@@ -1287,5 +1287,9 @@ public class MyGame extends VariableFrameRateGame {
 
 	public boolean isInvaded() {
 		return isInvaded;
+	}
+
+	public float getCurrentRotation() {
+		return currentRotation;
 	}
 }
