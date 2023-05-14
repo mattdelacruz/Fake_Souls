@@ -1,13 +1,18 @@
 package tage;
 
+import a3.MyGame;
+import a3.managers.SoundManager;
+
 public class ActiveEntityObject extends AnimatedGameObject {
     private int health;
     private ActiveEntityStanceState stanceState;
     private ActiveEntityMovementState movementState;
+    private SoundManager soundManager;
 
     public ActiveEntityObject(GameObject p, ObjShape s, TextureImage t, int h) {
         super(p, s, t);
         health = h;
+        soundManager = MyGame.getGameInstance().getSoundManager();
     }
 
     public void setStanceState(ActiveEntityStanceState state) {
@@ -40,6 +45,10 @@ public class ActiveEntityObject extends AnimatedGameObject {
 
     public void setHealth(int h) {
         health = h;
+    }
+
+    public SoundManager getSoundManager() {
+        return soundManager;
     }
 
 }

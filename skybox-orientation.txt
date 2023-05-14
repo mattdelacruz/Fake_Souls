@@ -1,6 +1,0 @@
-bkg1_left2 = xn
-bkg_right1 = xp
-bkg_front = zp
-bkg_back = zn
-bkg_bottom = yn
-bkg_top = yp

@@ -5,15 +5,16 @@ var JavaPackages = new JavaImporter(
 
 with (JavaPackages) {
 	//----------------------------------------------------------------
-    var WINDOW_WIDTH = 600;
-	var WINDOW_HEIGHT = 600;
+    var WINDOW_WIDTH = 1920;
+	var WINDOW_HEIGHT = 1080;
 	var ENEMY_AMOUNT = 8;
 	var PLAY_AREA_SIZE = 300;
 	var INITIAL_CAMERA_POS = new Vector3f(0, 0, 5);
 	var INITIAL_HUD_CAMERA_POS = new Vector3f(0, 10000, 0);
-	var SKYBOX_NAME = "redNebula";
-	var TERRAIN_MAP = "terrain-map3.png";
+	var SKYBOX_NAME = "fluffyClouds";
+	var TERRAIN_MAP = "terrain-map.png";
 	var TERRAIN_TEXTURE = "moon-craters.jpg";
+	var GHOST_TEXTURE = "player-invader-texture.png";
 	//----------------------------------------------------------------
 	// Player animation file paths
 	//----------------------------------------------------------------
@@ -23,7 +24,7 @@ with (JavaPackages) {
 	var PLAYER_RUN_RKA = "player-animations/player-run.rka";
 	var PLAYER_BACKWARDS_RUN_RKA = "player-animations/player-backwards-run.rka";
 	var PLAYER_IDLE_RKA = "player-animations/player-idle.rka";
-	var PLAYER_ATTACK_1_RKA = "player-animations/player-attack-1.rka";
+	var PLAYER_ATTACK_1_RKA = "player-animations/player-attack.rka";
 	var PLAYER_GUARD_RKA = "player-animations/player-guard.rka";
 	var PLAYER_GUARD_WALK_RKA = "player-animations/player-guard-walk.rka";
 	var PLAYER_STRAFE_RKA = "player-animations/player-strafe.rka";
@@ -83,10 +84,7 @@ with (JavaPackages) {
 	var BACKGROUND_MUSIC = "assets/sounds/background-music.wav";
 	var KATANA_WHIFF_SOUND = "assets/sounds/katana-slash-whiff.wav";
 	var KATANA_HIT_SOUND = "assets/sounds/katana-slash-hit.wav";
-	var BOSS_MUSIC = "assets/sounds/"
-
-	var STEP1 = "assets/sounds/step1.wav";
-	var STEP2 = "assets/sounds/step2.wav";
+	var STEP = "assets/sounds/step.wav";
 }
 
 

@@ -28,8 +28,6 @@ public class Player extends ActiveEntityObject {
     private PlayerWeapon weapon;
     public int currFrame = 0;
     private boolean isLocked = false;
-    private boolean step1isPlayed = false;
-    private boolean step2isPlayed = false;
     private boolean canMove = true;
     private boolean isContact = false;
     private PlayerStanceState stanceState;
@@ -42,23 +40,6 @@ public class Player extends ActiveEntityObject {
     private float currentRotation = 0;
 
     private Vector3f validLocation;
-    /*
-     * player states --- if in the same state category, then it is mutually
-     * exclusive :
-     *
-     * stance states:
-     * guard - player goes into guard mode, cannot attack, speed is halved,
-     * damage taken is halved
-     * 
-     * normal - player is in a normal state, movement, damage taken, speed
-     * is normal
-     * 
-     * movement states:
-     * run - player is normally running, doesn't burn stamina
-     * 
-     * sprint - player moves 2x the normal run, burns stamina
-     * 
-     */
 
     public Player(GameObject p, ObjShape s, TextureImage t) {
         super(p, s, t, 100);
@@ -73,16 +54,13 @@ public class Player extends ActiveEntityObject {
     private void initializeSounds() {
         int backgroundMusicRange = (int) getScriptManager().getValue("PLAY_AREA_SIZE");
 
-        getSoundManager().addSound(
-                "STEP1", (String) getScriptManager().getValue("STEP1"), 5, false, (float) backgroundMusicRange, 0, 0,
+        this.getSoundManager().addSound(
+                "STEP", (String) getScriptManager().getValue("STEP"), 5, false, (float) backgroundMusicRange, 0, 0,
                 getLocalLocation(), SoundType.SOUND_EFFECT);
-        getSoundManager().addSound(
-                "STEP2", (String) getScriptManager().getValue("STEP1"), 5, false, (float) backgroundMusicRange, 0, 0,
-                getLocalLocation(), SoundType.SOUND_EFFECT);
-        getSoundManager().addSound(
+        this.getSoundManager().addSound(
                 "KATANA_WHIFF", (String) getScriptManager().getValue("KATANA_WHIFF_SOUND"), 10, false,
                 (float) backgroundMusicRange, 0, 0, getLocalLocation(), SoundType.SOUND_EFFECT);
-        getSoundManager().addSound(
+        this.getSoundManager().addSound(
                 "KATANA_HIT", (String) getScriptManager().getValue("KATANA_HIT_SOUND"), 10, false,
                 (float) backgroundMusicRange, 0, 0, getLocalLocation(), SoundType.SOUND_EFFECT);
 
@@ -98,16 +76,8 @@ public class Player extends ActiveEntityObject {
         }
         if (canMove) {
             super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
-            if (!step1isPlayed &&
-                    !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
-                MyGame.getGameInstance().getSoundManager().playSound("STEP1");
-                step2isPlayed = false;
-                step1isPlayed = true;
-            } else if (!step2isPlayed &&
-                    !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
-                MyGame.getGameInstance().getSoundManager().playSound("STEP2");
-                step1isPlayed = false;
-                step2isPlayed = true;
+            if (!this.getSoundManager().isPlaying("STEP")) {
+                this.getSoundManager().playSound("STEP");
             }
             handleAnimationSwitch(getMovementState().getAnimation(), 1f);
             if (MyGame.getGameInstance().getProtocolClient() != null) {
@@ -127,16 +97,8 @@ public class Player extends ActiveEntityObject {
         }
         if (canMove) {
             super.move(vec, (frameTime * getStanceState().getMoveValue() * (getMovementState().getSpeed() * .5f)));
-            if (!step1isPlayed &&
-                    !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
-                MyGame.getGameInstance().getSoundManager().playSound("STEP1");
-                step2isPlayed = false;
-                step1isPlayed = true;
-            } else if (!step2isPlayed &&
-                    !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
-                MyGame.getGameInstance().getSoundManager().playSound("STEP2");
-                step1isPlayed = false;
-                step2isPlayed = true;
+            if (!this.getSoundManager().isPlaying("STEP")) {
+                this.getSoundManager().playSound("STEP");
             }
             handleAnimationSwitch("BACKWARDS_RUN", 1f);
             if (MyGame.getGameInstance().getProtocolClient() != null) {
@@ -157,16 +119,8 @@ public class Player extends ActiveEntityObject {
         if (canMove) {
             super.move(
                     vec, (frameTime * (getStanceState().getMoveValue() / 1.5f) * getMovementState().getSpeed()));
-            if (!step1isPlayed &&
-                    !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
-                MyGame.getGameInstance().getSoundManager().playSound("STEP1");
-                step2isPlayed = false;
-                step1isPlayed = true;
-            } else if (!step2isPlayed &&
-                    !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
-                MyGame.getGameInstance().getSoundManager().playSound("STEP2");
-                step1isPlayed = false;
-                step2isPlayed = true;
+            if (!this.getSoundManager().isPlaying("STEP")) {
+                this.getSoundManager().playSound("STEP");
             }
             if (getStanceState().isGuarding()) {
                 handleAnimationSwitch("GUARD_STRAFE", 1f);
@@ -190,21 +144,21 @@ public class Player extends ActiveEntityObject {
 
         if (isContact) {
             // play bloody sound
-            if (getSoundManager().isPlaying("KATANA_WHIFF")) {
-                getSoundManager().stopSound("KATANA_WHIFF");
+            if (this.getSoundManager().isPlaying("KATANA_WHIFF")) {
+                this.getSoundManager().stopSound("KATANA_WHIFF");
             }
-            if (getSoundManager().isPlaying("KATANA_HIT")) {
-                getSoundManager().stopSound("KATANA_HIT");
+            if (this.getSoundManager().isPlaying("KATANA_HIT")) {
+                this.getSoundManager().stopSound("KATANA_HIT");
             }
-            getSoundManager().playSound("KATANA_HIT");
+            this.getSoundManager().playSound("KATANA_HIT");
         } else {
-            if (getSoundManager().isPlaying("KATANA_WHIFF")) {
-                getSoundManager().stopSound("KATANA_WHIFF");
+            if (this.getSoundManager().isPlaying("KATANA_WHIFF")) {
+                this.getSoundManager().stopSound("KATANA_WHIFF");
             }
-            if (getSoundManager().isPlaying("KATANA_HIT")) {
-                getSoundManager().stopSound("KATANA_HIT");
+            if (this.getSoundManager().isPlaying("KATANA_HIT")) {
+                this.getSoundManager().stopSound("KATANA_HIT");
             }
-            getSoundManager().playSound("KATANA_WHIFF");
+            this.getSoundManager().playSound("KATANA_WHIFF");
         }
 
         if (isMoving()) {
@@ -226,7 +180,6 @@ public class Player extends ActiveEntityObject {
 
     /* to be called by keyboard/gamepad events only */
     public void guard() {
-        // play guard animation, play some sound
         setStanceState(guardStance);
         handleAnimationSwitch(getStanceState().getAnimation(), 1f);
         if (MyGame.getGameInstance().getProtocolClient() != null) {

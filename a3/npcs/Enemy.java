@@ -43,8 +43,6 @@ public class Enemy extends ActiveEntityObject {
     private EnemyAttackStance attackStance = new EnemyAttackStance();
     private EnemyNormalStance normalStance = new EnemyNormalStance();
     private EnemyFlinchStance flinchStance = new EnemyFlinchStance();
-    private boolean step1isPlayed = false;
-    private boolean step2isPlayed = false;
     private boolean isAttacking = false;
     private boolean isActive = false;
     private float elapsedThinkMilliSecs = 0;
@@ -66,10 +64,7 @@ public class Enemy extends ActiveEntityObject {
 
     private void initializeSounds() {
         this.getSoundManager().addSound(
-                "STEP1", (String) getScriptManager().getValue("STEP1"), 20, false, (float) 20f, 0, 5.0f,
-                getLocalLocation(), SoundType.SOUND_EFFECT);
-        this.getSoundManager().addSound(
-                "STEP2", (String) getScriptManager().getValue("STEP1"), 20, false, (float) 20f, 0, 5.0f,
+                "STEP", (String) getScriptManager().getValue("STEP"), 20, false, (float) 20f, 0, 5.0f,
                 getLocalLocation(), SoundType.SOUND_EFFECT);
     }
 
@@ -113,14 +108,8 @@ public class Enemy extends ActiveEntityObject {
     public void move(Vector3f vec, float frameTime) {
         super.move(vec, (frameTime * this.getMovementState().getSpeed()));
         this.handleAnimationSwitch(this.getMovementState().getAnimation(), 1f);
-        if (!step1isPlayed && !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
-            MyGame.getGameInstance().getSoundManager().playSound("STEP1");
-            step2isPlayed = false;
-            step1isPlayed = true;
-        } else if (!step2isPlayed && !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
-            MyGame.getGameInstance().getSoundManager().playSound("STEP2");
-            step1isPlayed = false;
-            step2isPlayed = true;
+        if (this.getSoundManager().isPlaying("STEP")) {
+            this.getSoundManager().playSound("STEP");
         }
     }
 
@@ -238,4 +227,5 @@ public class Enemy extends ActiveEntityObject {
     public boolean isAttacking() {
         return this.isAttacking;
     }
+
 }

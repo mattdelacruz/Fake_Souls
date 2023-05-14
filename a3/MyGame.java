@@ -122,8 +122,11 @@ public class MyGame extends VariableFrameRateGame {
 	public static void main(String[] args) {
 		if (args.length != 0) {
 			System.out.println("setting up network...");
+			game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+
+		} else {
+			game = new MyGame();
 		}
-		game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 
 		engine = new Engine(getGameInstance());
 		scriptManager = new ScriptManager();
@@ -210,9 +213,9 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void initializeLights() {
-		// Light light = new Light();
-		// Light.setGlobalAmbient(.25f, .25f, .25f);
-		// (getEngineInstance().getSceneGraph()).addLight(light);
+		Light light = new Light();
+		Light.setGlobalAmbient(.25f, .25f, .25f);
+		(getEngineInstance().getSceneGraph()).addLight(light);
 	}
 
 	@Override
@@ -229,7 +232,9 @@ public class MyGame extends VariableFrameRateGame {
 		initializeControls();
 		updateFrameTime();
 		initializeCameras();
-		setupNetworking();
+		if (serverAddress != null) {
+			setupNetworking();
+		}
 		controls = new PlayerControls();
 	}
 
@@ -388,7 +393,6 @@ public class MyGame extends VariableFrameRateGame {
 			protocolClient.sendHealthMessage(player.getHealth());
 			switchToInvasionArena();
 		}
-
 		updateHUD();
 		updateSoundManager();
 		updateFrameTime();
@@ -398,7 +402,9 @@ public class MyGame extends VariableFrameRateGame {
 		checkForCollisions();
 		updateTargeting();
 
-		inputManager.update((float) elapsTime);
+		if (inputManager != null) {
+			inputManager.update((float) elapsTime);
+		}
 		physicsManager.update((float) elapsTime);
 		processNetworking((float) elapsTime);
 	}
@@ -414,36 +420,39 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void updateSoundManager() {
-		soundManager.setEarParameters(getTargetCamera(), player.getWorldLocation(), getTargetCamera().getN(),
-				new Vector3f(0, 1f, 0));
+		if (player != null) {
+		soundManager.setEarParameters(getTargetCamera(), player.getWorldLocation(), getTargetCamera().getN(), new Vector3f(0, 1f, 0));
+		}
 	}
 
 	private void updatePlayer() {
-		if (player.getHealth() <= 0) {
-			System.out.println("You're dead");
-			protocolClient.sendByeMessage();
-			System.exit(0);
-		}
+		if (player != null) {
+			if (player.getHealth() <= 0) {
+				System.out.println("You're dead");
+				protocolClient.sendByeMessage();
+				System.exit(0);
+			}
 
-		checkObjectMovement(player);
-		if (player.isMoving()) {
-			updatePlayerTerrainLocation();
-			targetCamera.updateCameraLocation(frameTime);
+			checkObjectMovement(player);
+			if (player.isMoving()) {
+				updatePlayerTerrainLocation();
+				targetCamera.updateCameraLocation(frameTime);
+			}
+			updatePhysicsObjectLocation(
+					player.getPhysicsObject(), player.getWorldTranslation());
 		}
-		updatePhysicsObjectLocation(
-				player.getPhysicsObject(), player.getWorldTranslation());
 	}
 
 	private void updateKatana() {
-		updatePhysicsObjectLocation(
-				katana.getPhysicsObject(), katana.getWorldTranslation());
+		if (katana != null) {
+			updatePhysicsObjectLocation(katana.getPhysicsObject(), katana.getWorldTranslation());
+		}
 	}
 
 	private void updateEnemies() {
 		enemyIterator = enemyList.iterator();
 		while (enemyIterator.hasNext()) {
 			Enemy enemy = enemyIterator.next();
-
 			checkObjectMovement(enemy);
 			enemy.setPhysicsObject(updatePhysicsObjectLocation(enemy.getPhysicsObject(),
 					enemy.getLocalTranslation()));
@@ -457,10 +466,12 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void updateTargeting() {
-		if (player.isLocked()) {
-			targetCamera.targetTo();
+		if (player != null) {
+			if (player.isLocked()) {
+				targetCamera.targetTo();
+			}
+			targetCamera.setLookAtTarget(player.getLocalLocation());
 		}
-		targetCamera.setLookAtTarget(player.getLocalLocation());
 	}
 
 	private PhysicsObject updatePhysicsObjectLocation(PhysicsObject po, Matrix4f localTranslation) {
@@ -497,6 +508,9 @@ public class MyGame extends VariableFrameRateGame {
 			obj.idle();
 		} else if (obj.getStanceState().isAttacking() && !obj.getAnimationShape().isAnimPlaying()) {
 			obj.idle();
+		}
+		if (obj.getSoundManager().isPlaying("STEP")) {
+			obj.getSoundManager().stopSound("STEP");
 		}
 	}
 
@@ -630,14 +644,14 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	private void updatePlayerHealthHUD() {
-		String dispStr1 = "Health: " + player.getHealth();
+		if (player != null) {
+		String dispStr1 = new String("Health: " + player.getHealth());
 		HUDViewportX = (int) ((HUDViewport.getRelativeLeft() * getEngineInstance().getRenderSystem().getWidth()));
-		HUDViewportY = (int) (((HUDViewport.getRelativeBottom()
-				* getEngineInstance().getRenderSystem().getHeight()))
-				- (HUDViewport.getActualHeight()) / 2);
+		HUDViewportY = (int) (((HUDViewport.getRelativeBottom() * getEngineInstance().getRenderSystem().getHeight())) - (HUDViewport.getActualHeight()) / 2);
 		Vector3f hpColor = new Vector3f(1, 0, 0);
 
 		getEngineInstance().getHUDmanager().setHUD1(dispStr1, hpColor, HUDViewportX, HUDViewportY);
+		}
 	}
 
 	private void handleEnemyHUD() {
@@ -1016,7 +1030,7 @@ public class MyGame extends VariableFrameRateGame {
 	}
 
 	public TextureImage getGhostTexture() {
-		return playerTx;
+		return ghostTx;
 	}
 
 	public TextureImage getGhostKatanaTexture() {

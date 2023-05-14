@@ -1,2 +1,0 @@
-netstat -ano | findstr :6010
-taskkill /PID [PID] /F
