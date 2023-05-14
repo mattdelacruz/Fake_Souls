@@ -162,7 +162,7 @@ public class Enemy extends ActiveEntityObject {
             this.lastThinkUpdateTime = currentTime;
             this.elapsedThinkMilliSecs = 0;
             isActive = true;
-            // ebt.update(elapsedThinkMilliSecs);
+            ebt.update(elapsedThinkMilliSecs);
         }
     }
 

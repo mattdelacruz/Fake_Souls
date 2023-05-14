@@ -11,8 +11,7 @@ with (JavaPackages) {
 	var PLAY_AREA_SIZE = 300;
 	var INITIAL_CAMERA_POS = new Vector3f(0, 0, 5);
 	var INITIAL_HUD_CAMERA_POS = new Vector3f(0, 10000, 0);
-	var SKYBOX_NAME = "fluffyClouds";
-	var GHOST_TEXTURE = "neptune.jpg";
+	var SKYBOX_NAME = "redNebula";
 	var TERRAIN_MAP = "terrain-map3.png";
 	var TERRAIN_TEXTURE = "moon-craters.jpg";
 	//----------------------------------------------------------------

@@ -69,26 +69,16 @@ public class MyGame extends VariableFrameRateGame {
 	private String serverAddress;
 
 	private float frameTime = 0;
-	// private float currentRotation = 0;
 	private float[] vals = new float[16];
 	int count = 0;
 	int hudTimer = 0;
 
 	private GameObject terrain;
 	private Player player;
-	// private GhostAvatar ghost;
 	private PlayerWeapon katana;
 	private ProtocolType serverProtocol;
 	private ProtocolClient protocolClient;
 	private boolean isClientConnected = false;
-	// private boolean hasRotated = false;
-	// private boolean hasMovedNorthWest = false;
-	// private boolean hasMovedNorthEast = false;
-	// private boolean hasMovedSouthWest = false;
-	// private boolean hasMovedSouthEast = false;
-	// private boolean hasMovedWest = false;
-	// private boolean hasMovedEast = false;
-	// private boolean hasMovedSouth = false;
 	private boolean isEnemyHit = false;
 	private boolean isInvaded = false;
 	private boolean onArena = false;
@@ -172,7 +162,6 @@ public class MyGame extends VariableFrameRateGame {
 		terrS = new TerrainPlane(100);
 		initializePlayerAnimations();
 		initializeGhostAnimations();
-		// initializeEnemyAnimations();
 	}
 
 	@Override
@@ -221,10 +210,9 @@ public class MyGame extends VariableFrameRateGame {
 
 	@Override
 	public void initializeLights() {
-		Light light = new Light();
-		Light.setGlobalAmbient(.25f, .25f, .25f);
-		// light.setLocation(new Vector3f(5.0f, 0.0f, 2.0f));
-		(getEngineInstance().getSceneGraph()).addLight(light);
+		// Light light = new Light();
+		// Light.setGlobalAmbient(.25f, .25f, .25f);
+		// (getEngineInstance().getSceneGraph()).addLight(light);
 	}
 
 	@Override
@@ -247,10 +235,6 @@ public class MyGame extends VariableFrameRateGame {
 
 	public void initializeAudio() {
 		soundManager = new SoundManager();
-		/*
-		 * String soundName, String soundPath, int volume, boolean toLoop, float
-		 * maxDistance, float minDistance, float rollOff, Vector3f soundLocation
-		 */
 		int backgroundMusicRange = (int) scriptManager.getValue("PLAY_AREA_SIZE");
 		soundManager.addSound(
 				"BACKGROUND_MUSIC", (String) scriptManager.getValue("BACKGROUND_MUSIC"), 50, true,
@@ -404,13 +388,10 @@ public class MyGame extends VariableFrameRateGame {
 			protocolClient.sendHealthMessage(player.getHealth());
 			switchToInvasionArena();
 		}
-		// System.out.printf("x: %.2f, y: %.2f, z: %.2f\n",
-		// player.getLocalLocation().x(), player.getLocalLocation().y(),
-		// player.getLocalLocation().z());
+
 		updateHUD();
 		updateSoundManager();
 		updateFrameTime();
-		// updateMovementControls();
 		updatePlayer();
 		updateKatana();
 		updateEnemies();
@@ -446,8 +427,8 @@ public class MyGame extends VariableFrameRateGame {
 
 		checkObjectMovement(player);
 		if (player.isMoving()) {
-			// updatePlayerTerrainLocation();
-			// targetCamera.updateCameraLocation(frameTime);
+			updatePlayerTerrainLocation();
+			targetCamera.updateCameraLocation(frameTime);
 		}
 		updatePhysicsObjectLocation(
 				player.getPhysicsObject(), player.getWorldTranslation());
@@ -462,13 +443,6 @@ public class MyGame extends VariableFrameRateGame {
 		enemyIterator = enemyList.iterator();
 		while (enemyIterator.hasNext()) {
 			Enemy enemy = enemyIterator.next();
-			// System.out.printf(
-			// "enemy " + enemy.getID() + "x: %.2f y: %.2f z: %.2f\n weapon x: %.2f, y:
-			// %.2f, z: %.2f\n", enemy.getLocalLocation().x(), enemy.getLocalLocation().y(),
-			// enemy.getLocalLocation().z(), enemy.getWeapon().getWorldLocation().x(),
-			// enemy.getWeapon().getWorldLocation().y(),
-			// enemy.getWeapon().getWorldLocation().z()
-			// );
 
 			checkObjectMovement(enemy);
 			enemy.setPhysicsObject(updatePhysicsObjectLocation(enemy.getPhysicsObject(),
@@ -680,7 +654,6 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void updateHealthHUD(String text, int health) {
 		String dispStr2 = new String(text + health);
-		// System.out.println("health: " + health);
 		HUDViewportX = (int) ((HUDViewport.getRelativeLeft() * getEngineInstance().getRenderSystem().getWidth())) + 150;
 		HUDViewportY = (int) ((HUDViewport.getRelativeBottom()
 				* getEngineInstance().getRenderSystem().getHeight()) - (HUDViewport.getActualHeight()) / 2);
@@ -791,7 +764,6 @@ public class MyGame extends VariableFrameRateGame {
 
 	private void updateEnemyDamage(ActiveEntityObject obj, int health) {
 		updateHealthHUD((String) getScriptManager().getValue("ENEMY_HEALTH_TEXT"), health);
-		// System.out.println("health: " + health);
 		isEnemyHit = true;
 		soundManager.stopSound("KATANA_WHIFF");
 		soundManager.playSound("KATANA_HIT");
@@ -829,15 +801,7 @@ public class MyGame extends VariableFrameRateGame {
 				getProtocolClient().sendMoveMessage(player.getWorldLocation());
 			}
 		} else if (isPlayerCollidedWithGhost(obj1, obj2) && ghostManager.getGhostFromMap(obj2.getUID()) != null) {
-			Vector3f ghostToPlayer = player.getLocalLocation()
-					.sub(ghostManager.getGhostFromMap(obj2.getUID()).getLocalLocation());
-			// pushBackPlayer(ghostToPlayer, pushBackDistance);
 			if (getProtocolClient() != null) {
-				// System.out.println(
-				// "collided with ghost UID: " +
-				// ghostManager.getGhostFromMap(obj2.getUID()).getID() + " my pos: "
-				// + player.getLocalLocation().x() + " "
-				// + player.getLocalLocation().y() + " " + player.getLocalLocation().z());
 				getProtocolClient().sendMoveMessage(player.getWorldLocation());
 			}
 		}
@@ -924,185 +888,6 @@ public class MyGame extends VariableFrameRateGame {
 		return obj.getFrameCount()
 				% (obj.getAnimationShape().getCurrentAnimation().getFrameCount() * 2) == 0;
 	}
-
-	// private void updateMovementControls() {
-	// boolean movingNorth = isKeyPressed("W");
-	// boolean movingWest = isKeyPressed("A");
-	// boolean movingSouth = isKeyPressed("S");
-	// boolean movingEast = isKeyPressed("D");
-
-	// if (movingNorth == false && movingWest == false && movingEast == false &&
-	// movingSouth == false) {
-	// hasMovedNorthWest = false;
-	// hasMovedSouthEast = false;
-	// hasMovedNorthEast = false;
-	// hasMovedSouthWest = false;
-	// hasMovedEast = false;
-	// hasMovedWest = false;
-	// hasMovedSouth = false;
-	// }
-
-	// if (movingNorth && movingWest) {
-	// if (!hasMovedNorthWest) {
-	// if (!hasRotated) {
-	// player.addCurrentRotation(45f);
-	// player.yaw(getFrameTime(), player.getCurrentRotation());
-	// if (getProtocolClient() != null) {
-	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
-	// }
-	// hasRotated = true;
-	// }
-	// hasMovedNorthWest = true;
-	// hasMovedSouthEast = false;
-	// hasMovedNorthEast = false;
-	// hasMovedSouthWest = false;
-	// hasMovedEast = false;
-	// hasMovedWest = false;
-	// hasMovedSouth = false;
-	// }
-	// getControls().moveNorth(getFrameTime());
-
-	// } else if (movingNorth && movingEast) {
-	// if (!hasMovedNorthEast) {
-	// if (!hasRotated) {
-	// player.addCurrentRotation(-45);
-	// player.yaw(getFrameTime(), player.getCurrentRotation());
-	// if (getProtocolClient() != null) {
-	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
-	// }
-	// hasRotated = true;
-	// }
-	// hasMovedNorthWest = false;
-	// hasMovedSouthEast = false;
-	// hasMovedNorthEast = true;
-	// hasMovedSouthWest = false;
-	// hasMovedEast = false;
-	// hasMovedWest = false;
-	// hasMovedSouth = false;
-	// }
-	// getControls().moveNorth(getFrameTime());
-
-	// } else if (movingSouth && movingWest) {
-	// if (!hasMovedSouthWest) {
-	// if (!hasRotated) {
-	// player.addCurrentRotation(135);
-	// player.yaw(getFrameTime(), player.getCurrentRotation());
-	// if (getProtocolClient() != null) {
-	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
-	// }
-	// hasRotated = true;
-	// }
-	// hasMovedNorthWest = false;
-	// hasMovedSouthEast = false;
-	// hasMovedNorthEast = false;
-	// hasMovedSouthWest = true;
-	// hasMovedEast = false;
-	// hasMovedWest = false;
-	// hasMovedSouth = false;
-	// }
-	// getControls().moveNorth(getFrameTime());
-	// } else if (movingSouth && movingEast) {
-	// if (!hasMovedSouthEast) {
-	// if (!hasRotated) {
-	// player.addCurrentRotation(-135);
-	// player.yaw(getFrameTime(), player.getCurrentRotation());
-	// if (getProtocolClient() != null) {
-	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
-	// }
-	// hasRotated = true;
-	// }
-	// hasMovedNorthWest = false;
-	// hasMovedSouthEast = true;
-	// hasMovedNorthEast = false;
-	// hasMovedSouthWest = false;
-	// hasMovedEast = false;
-	// hasMovedWest = false;
-	// hasMovedSouth = false;
-	// }
-	// getControls().moveNorth(getFrameTime());
-	// } else if (movingNorth) {
-	// hasMovedNorthWest = false;
-	// hasMovedNorthEast = false;
-	// getControls().moveNorth(getFrameTime());
-	// } else if (movingSouth) {
-	// if (!hasMovedSouth) {
-	// if (!hasRotated) {
-	// player.yaw(getFrameTime(), player.getCurrentRotation());
-	// if (getProtocolClient() != null) {
-	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
-	// }
-	// hasRotated = true;
-	// }
-	// hasMovedNorthWest = false;
-	// hasMovedSouthEast = false;
-	// hasMovedNorthEast = false;
-	// hasMovedSouthWest = false;
-	// hasMovedEast = false;
-	// hasMovedWest = false;
-	// hasMovedSouth = true;
-	// }
-	// if (!player.isLocked()) {
-	// getControls().moveSouth(-getFrameTime());
-	// } else {
-	// getControls().moveSouth(-getFrameTime());
-	// }
-	// } else if (movingWest) {
-	// if (!hasMovedWest) {
-	// if (!hasRotated) {
-	// player.addCurrentRotation(90);
-	// player.yaw(getFrameTime(), player.getCurrentRotation());
-	// if (getProtocolClient() != null) {
-	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
-	// }
-	// hasRotated = true;
-	// }
-	// hasMovedNorthWest = false;
-	// hasMovedSouthEast = false;
-	// hasMovedNorthEast = false;
-	// hasMovedSouthWest = false;
-	// hasMovedEast = false;
-	// hasMovedWest = true;
-	// hasMovedSouth = false;
-	// }
-	// if (!player.isLocked()) {
-	// getControls().moveNorth(getFrameTime());
-	// } else {
-	// getControls().moveEast(-getFrameTime());
-	// }
-
-	// } else if (movingEast) {
-	// if (!hasMovedEast) {
-	// if (!hasRotated) {
-	// player.addCurrentRotation(-90f);
-	// player.yaw(getFrameTime(), player.getCurrentRotation());
-	// if (getProtocolClient() != null) {
-	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
-	// }
-	// hasRotated = true;
-	// }
-	// hasMovedNorthWest = false;
-	// hasMovedSouthEast = false;
-	// hasMovedNorthEast = false;
-	// hasMovedSouthWest = false;
-	// hasMovedEast = true;
-	// hasMovedWest = false;
-	// hasMovedSouth = false;
-	// }
-	// if (!player.isLocked()) {
-	// getControls().moveNorth(getFrameTime());
-	// } else {
-	// getControls().moveEast(getFrameTime());
-	// }
-
-	// }
-	// hasRotated = false;
-
-	// if (currentRotation >= 360f) {
-	// player.addCurrentRotation(-360f);
-	// } else if (currentRotation <= -360f) {
-	// player.addCurrentRotation(360f);
-	// }
-	// }
 
 	private void buildEnemyQuadTree() {
 		for (Enemy e : enemyList) {

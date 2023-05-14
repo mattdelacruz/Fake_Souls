@@ -67,7 +67,7 @@ public class Player extends ActiveEntityObject {
         setLocalLocation((Vector3f) getScriptManager().getValue("PLAYER_START_POS"));
         setStanceState(normalStance);
         setMovementState(runMovement);
-        // initializeSounds();
+        initializeSounds();
     }
 
     private void initializeSounds() {
@@ -98,17 +98,17 @@ public class Player extends ActiveEntityObject {
         }
         if (canMove) {
             super.move(vec, (frameTime * getStanceState().getMoveValue() * getMovementState().getSpeed()));
-            // if (!step1isPlayed &&
-            // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
-            // MyGame.getGameInstance().getSoundManager().playSound("STEP1");
-            // step2isPlayed = false;
-            // step1isPlayed = true;
-            // } else if (!step2isPlayed &&
-            // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
-            // MyGame.getGameInstance().getSoundManager().playSound("STEP2");
-            // step1isPlayed = false;
-            // step2isPlayed = true;
-            // }
+            if (!step1isPlayed &&
+                    !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
+                MyGame.getGameInstance().getSoundManager().playSound("STEP1");
+                step2isPlayed = false;
+                step1isPlayed = true;
+            } else if (!step2isPlayed &&
+                    !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
+                MyGame.getGameInstance().getSoundManager().playSound("STEP2");
+                step1isPlayed = false;
+                step2isPlayed = true;
+            }
             handleAnimationSwitch(getMovementState().getAnimation(), 1f);
             if (MyGame.getGameInstance().getProtocolClient() != null) {
                 MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
@@ -127,17 +127,17 @@ public class Player extends ActiveEntityObject {
         }
         if (canMove) {
             super.move(vec, (frameTime * getStanceState().getMoveValue() * (getMovementState().getSpeed() * .5f)));
-            // if (!step1isPlayed &&
-            // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
-            // MyGame.getGameInstance().getSoundManager().playSound("STEP1");
-            // step2isPlayed = false;
-            // step1isPlayed = true;
-            // } else if (!step2isPlayed &&
-            // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
-            // MyGame.getGameInstance().getSoundManager().playSound("STEP2");
-            // step1isPlayed = false;
-            // step2isPlayed = true;
-            // }
+            if (!step1isPlayed &&
+                    !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
+                MyGame.getGameInstance().getSoundManager().playSound("STEP1");
+                step2isPlayed = false;
+                step1isPlayed = true;
+            } else if (!step2isPlayed &&
+                    !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
+                MyGame.getGameInstance().getSoundManager().playSound("STEP2");
+                step1isPlayed = false;
+                step2isPlayed = true;
+            }
             handleAnimationSwitch("BACKWARDS_RUN", 1f);
             if (MyGame.getGameInstance().getProtocolClient() != null) {
                 MyGame.getGameInstance().getProtocolClient().sendMoveMessage(getWorldLocation());
@@ -157,17 +157,17 @@ public class Player extends ActiveEntityObject {
         if (canMove) {
             super.move(
                     vec, (frameTime * (getStanceState().getMoveValue() / 1.5f) * getMovementState().getSpeed()));
-            // if (!step1isPlayed &&
-            // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
-            // MyGame.getGameInstance().getSoundManager().playSound("STEP1");
-            // step2isPlayed = false;
-            // step1isPlayed = true;
-            // } else if (!step2isPlayed &&
-            // !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
-            // MyGame.getGameInstance().getSoundManager().playSound("STEP2");
-            // step1isPlayed = false;
-            // step2isPlayed = true;
-            // }
+            if (!step1isPlayed &&
+                    !MyGame.getGameInstance().getSoundManager().isPlaying("STEP2")) {
+                MyGame.getGameInstance().getSoundManager().playSound("STEP1");
+                step2isPlayed = false;
+                step1isPlayed = true;
+            } else if (!step2isPlayed &&
+                    !MyGame.getGameInstance().getSoundManager().isPlaying("STEP1")) {
+                MyGame.getGameInstance().getSoundManager().playSound("STEP2");
+                step1isPlayed = false;
+                step2isPlayed = true;
+            }
             if (getStanceState().isGuarding()) {
                 handleAnimationSwitch("GUARD_STRAFE", 1f);
                 if (MyGame.getGameInstance().getProtocolClient() != null) {
@@ -228,7 +228,6 @@ public class Player extends ActiveEntityObject {
     public void guard() {
         // play guard animation, play some sound
         setStanceState(guardStance);
-        // setMovementState(guardMovement);
         handleAnimationSwitch(getStanceState().getAnimation(), 1f);
         if (MyGame.getGameInstance().getProtocolClient() != null) {
             MyGame.getGameInstance().getProtocolClient().sendAnimationMessage(getStanceState().getAnimation());

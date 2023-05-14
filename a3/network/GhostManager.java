@@ -183,5 +183,4 @@ public class GhostManager {
             System.out.println("Can't find ghost avatar to set owner to!!");
         }
     }
-
 }
