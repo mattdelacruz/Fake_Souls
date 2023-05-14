@@ -69,26 +69,26 @@ public class MyGame extends VariableFrameRateGame {
 	private String serverAddress;
 
 	private float frameTime = 0;
-	private float currentRotation = 0;
+	// private float currentRotation = 0;
 	private float[] vals = new float[16];
 	int count = 0;
 	int hudTimer = 0;
 
 	private GameObject terrain;
 	private Player player;
-	private GhostAvatar ghost;
+	// private GhostAvatar ghost;
 	private PlayerWeapon katana;
 	private ProtocolType serverProtocol;
 	private ProtocolClient protocolClient;
 	private boolean isClientConnected = false;
-	private boolean hasRotated = false;
-	private boolean hasMovedNorthWest = false;
-	private boolean hasMovedNorthEast = false;
-	private boolean hasMovedSouthWest = false;
-	private boolean hasMovedSouthEast = false;
-	private boolean hasMovedWest = false;
-	private boolean hasMovedEast = false;
-	private boolean hasMovedSouth = false;
+	// private boolean hasRotated = false;
+	// private boolean hasMovedNorthWest = false;
+	// private boolean hasMovedNorthEast = false;
+	// private boolean hasMovedSouthWest = false;
+	// private boolean hasMovedSouthEast = false;
+	// private boolean hasMovedWest = false;
+	// private boolean hasMovedEast = false;
+	// private boolean hasMovedSouth = false;
 	private boolean isEnemyHit = false;
 	private boolean isInvaded = false;
 	private boolean onArena = false;
@@ -410,7 +410,7 @@ public class MyGame extends VariableFrameRateGame {
 		updateHUD();
 		updateSoundManager();
 		updateFrameTime();
-		updateMovementControls();
+		// updateMovementControls();
 		updatePlayer();
 		updateKatana();
 		updateEnemies();
@@ -925,183 +925,184 @@ public class MyGame extends VariableFrameRateGame {
 				% (obj.getAnimationShape().getCurrentAnimation().getFrameCount() * 2) == 0;
 	}
 
-	private void updateMovementControls() {
-		boolean movingNorth = isKeyPressed("W");
-		boolean movingWest = isKeyPressed("A");
-		boolean movingSouth = isKeyPressed("S");
-		boolean movingEast = isKeyPressed("D");
+	// private void updateMovementControls() {
+	// boolean movingNorth = isKeyPressed("W");
+	// boolean movingWest = isKeyPressed("A");
+	// boolean movingSouth = isKeyPressed("S");
+	// boolean movingEast = isKeyPressed("D");
 
-		if (movingNorth == false && movingWest == false && movingEast == false && movingSouth == false) {
-			hasMovedNorthWest = false;
-			hasMovedSouthEast = false;
-			hasMovedNorthEast = false;
-			hasMovedSouthWest = false;
-			hasMovedEast = false;
-			hasMovedWest = false;
-			hasMovedSouth = false;
-		}
+	// if (movingNorth == false && movingWest == false && movingEast == false &&
+	// movingSouth == false) {
+	// hasMovedNorthWest = false;
+	// hasMovedSouthEast = false;
+	// hasMovedNorthEast = false;
+	// hasMovedSouthWest = false;
+	// hasMovedEast = false;
+	// hasMovedWest = false;
+	// hasMovedSouth = false;
+	// }
 
-		if (movingNorth && movingWest) {
-			if (!hasMovedNorthWest) {
-				if (!hasRotated) {
-					player.addCurrentRotation(45f);
-					player.yaw(getFrameTime(), player.getCurrentRotation());
-					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(player.getCurrentRotation());
-					}
-					hasRotated = true;
-				}
-				hasMovedNorthWest = true;
-				hasMovedSouthEast = false;
-				hasMovedNorthEast = false;
-				hasMovedSouthWest = false;
-				hasMovedEast = false;
-				hasMovedWest = false;
-				hasMovedSouth = false;
-			}
-			getControls().moveNorth(getFrameTime());
+	// if (movingNorth && movingWest) {
+	// if (!hasMovedNorthWest) {
+	// if (!hasRotated) {
+	// player.addCurrentRotation(45f);
+	// player.yaw(getFrameTime(), player.getCurrentRotation());
+	// if (getProtocolClient() != null) {
+	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
+	// }
+	// hasRotated = true;
+	// }
+	// hasMovedNorthWest = true;
+	// hasMovedSouthEast = false;
+	// hasMovedNorthEast = false;
+	// hasMovedSouthWest = false;
+	// hasMovedEast = false;
+	// hasMovedWest = false;
+	// hasMovedSouth = false;
+	// }
+	// getControls().moveNorth(getFrameTime());
 
-		} else if (movingNorth && movingEast) {
-			if (!hasMovedNorthEast) {
-				if (!hasRotated) {
-					player.addCurrentRotation(-45);
-					player.yaw(getFrameTime(), player.getCurrentRotation());
-					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(player.getCurrentRotation());
-					}
-					hasRotated = true;
-				}
-				hasMovedNorthWest = false;
-				hasMovedSouthEast = false;
-				hasMovedNorthEast = true;
-				hasMovedSouthWest = false;
-				hasMovedEast = false;
-				hasMovedWest = false;
-				hasMovedSouth = false;
-			}
-			getControls().moveNorth(getFrameTime());
+	// } else if (movingNorth && movingEast) {
+	// if (!hasMovedNorthEast) {
+	// if (!hasRotated) {
+	// player.addCurrentRotation(-45);
+	// player.yaw(getFrameTime(), player.getCurrentRotation());
+	// if (getProtocolClient() != null) {
+	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
+	// }
+	// hasRotated = true;
+	// }
+	// hasMovedNorthWest = false;
+	// hasMovedSouthEast = false;
+	// hasMovedNorthEast = true;
+	// hasMovedSouthWest = false;
+	// hasMovedEast = false;
+	// hasMovedWest = false;
+	// hasMovedSouth = false;
+	// }
+	// getControls().moveNorth(getFrameTime());
 
-		} else if (movingSouth && movingWest) {
-			if (!hasMovedSouthWest) {
-				if (!hasRotated) {
-					player.addCurrentRotation(135);
-					player.yaw(getFrameTime(), player.getCurrentRotation());
-					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(player.getCurrentRotation());
-					}
-					hasRotated = true;
-				}
-				hasMovedNorthWest = false;
-				hasMovedSouthEast = false;
-				hasMovedNorthEast = false;
-				hasMovedSouthWest = true;
-				hasMovedEast = false;
-				hasMovedWest = false;
-				hasMovedSouth = false;
-			}
-			getControls().moveNorth(getFrameTime());
-		} else if (movingSouth && movingEast) {
-			if (!hasMovedSouthEast) {
-				if (!hasRotated) {
-					player.addCurrentRotation(-135);
-					player.yaw(getFrameTime(), player.getCurrentRotation());
-					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(player.getCurrentRotation());
-					}
-					hasRotated = true;
-				}
-				hasMovedNorthWest = false;
-				hasMovedSouthEast = true;
-				hasMovedNorthEast = false;
-				hasMovedSouthWest = false;
-				hasMovedEast = false;
-				hasMovedWest = false;
-				hasMovedSouth = false;
-			}
-			getControls().moveNorth(getFrameTime());
-		} else if (movingNorth) {
-			hasMovedNorthWest = false;
-			hasMovedNorthEast = false;
-			getControls().moveNorth(getFrameTime());
-		} else if (movingSouth) {
-			if (!hasMovedSouth) {
-				if (!hasRotated) {
-					player.yaw(getFrameTime(), player.getCurrentRotation());
-					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(player.getCurrentRotation());
-					}
-					hasRotated = true;
-				}
-				hasMovedNorthWest = false;
-				hasMovedSouthEast = false;
-				hasMovedNorthEast = false;
-				hasMovedSouthWest = false;
-				hasMovedEast = false;
-				hasMovedWest = false;
-				hasMovedSouth = true;
-			}
-			if (!player.isLocked()) {
-				getControls().moveSouth(-getFrameTime());
-			} else {
-				getControls().moveSouth(-getFrameTime());
-			}
-		} else if (movingWest) {
-			if (!hasMovedWest) {
-				if (!hasRotated) {
-					player.addCurrentRotation(90);
-					player.yaw(getFrameTime(), player.getCurrentRotation());
-					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(player.getCurrentRotation());
-					}
-					hasRotated = true;
-				}
-				hasMovedNorthWest = false;
-				hasMovedSouthEast = false;
-				hasMovedNorthEast = false;
-				hasMovedSouthWest = false;
-				hasMovedEast = false;
-				hasMovedWest = true;
-				hasMovedSouth = false;
-			}
-			if (!player.isLocked()) {
-				getControls().moveNorth(getFrameTime());
-			} else {
-				getControls().moveEast(-getFrameTime());
-			}
+	// } else if (movingSouth && movingWest) {
+	// if (!hasMovedSouthWest) {
+	// if (!hasRotated) {
+	// player.addCurrentRotation(135);
+	// player.yaw(getFrameTime(), player.getCurrentRotation());
+	// if (getProtocolClient() != null) {
+	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
+	// }
+	// hasRotated = true;
+	// }
+	// hasMovedNorthWest = false;
+	// hasMovedSouthEast = false;
+	// hasMovedNorthEast = false;
+	// hasMovedSouthWest = true;
+	// hasMovedEast = false;
+	// hasMovedWest = false;
+	// hasMovedSouth = false;
+	// }
+	// getControls().moveNorth(getFrameTime());
+	// } else if (movingSouth && movingEast) {
+	// if (!hasMovedSouthEast) {
+	// if (!hasRotated) {
+	// player.addCurrentRotation(-135);
+	// player.yaw(getFrameTime(), player.getCurrentRotation());
+	// if (getProtocolClient() != null) {
+	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
+	// }
+	// hasRotated = true;
+	// }
+	// hasMovedNorthWest = false;
+	// hasMovedSouthEast = true;
+	// hasMovedNorthEast = false;
+	// hasMovedSouthWest = false;
+	// hasMovedEast = false;
+	// hasMovedWest = false;
+	// hasMovedSouth = false;
+	// }
+	// getControls().moveNorth(getFrameTime());
+	// } else if (movingNorth) {
+	// hasMovedNorthWest = false;
+	// hasMovedNorthEast = false;
+	// getControls().moveNorth(getFrameTime());
+	// } else if (movingSouth) {
+	// if (!hasMovedSouth) {
+	// if (!hasRotated) {
+	// player.yaw(getFrameTime(), player.getCurrentRotation());
+	// if (getProtocolClient() != null) {
+	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
+	// }
+	// hasRotated = true;
+	// }
+	// hasMovedNorthWest = false;
+	// hasMovedSouthEast = false;
+	// hasMovedNorthEast = false;
+	// hasMovedSouthWest = false;
+	// hasMovedEast = false;
+	// hasMovedWest = false;
+	// hasMovedSouth = true;
+	// }
+	// if (!player.isLocked()) {
+	// getControls().moveSouth(-getFrameTime());
+	// } else {
+	// getControls().moveSouth(-getFrameTime());
+	// }
+	// } else if (movingWest) {
+	// if (!hasMovedWest) {
+	// if (!hasRotated) {
+	// player.addCurrentRotation(90);
+	// player.yaw(getFrameTime(), player.getCurrentRotation());
+	// if (getProtocolClient() != null) {
+	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
+	// }
+	// hasRotated = true;
+	// }
+	// hasMovedNorthWest = false;
+	// hasMovedSouthEast = false;
+	// hasMovedNorthEast = false;
+	// hasMovedSouthWest = false;
+	// hasMovedEast = false;
+	// hasMovedWest = true;
+	// hasMovedSouth = false;
+	// }
+	// if (!player.isLocked()) {
+	// getControls().moveNorth(getFrameTime());
+	// } else {
+	// getControls().moveEast(-getFrameTime());
+	// }
 
-		} else if (movingEast) {
-			if (!hasMovedEast) {
-				if (!hasRotated) {
-					player.addCurrentRotation(-90f);
-					player.yaw(getFrameTime(), player.getCurrentRotation());
-					if (getProtocolClient() != null) {
-						getProtocolClient().sendYawMessage(player.getCurrentRotation());
-					}
-					hasRotated = true;
-				}
-				hasMovedNorthWest = false;
-				hasMovedSouthEast = false;
-				hasMovedNorthEast = false;
-				hasMovedSouthWest = false;
-				hasMovedEast = true;
-				hasMovedWest = false;
-				hasMovedSouth = false;
-			}
-			if (!player.isLocked()) {
-				getControls().moveNorth(getFrameTime());
-			} else {
-				getControls().moveEast(getFrameTime());
-			}
+	// } else if (movingEast) {
+	// if (!hasMovedEast) {
+	// if (!hasRotated) {
+	// player.addCurrentRotation(-90f);
+	// player.yaw(getFrameTime(), player.getCurrentRotation());
+	// if (getProtocolClient() != null) {
+	// getProtocolClient().sendYawMessage(player.getCurrentRotation());
+	// }
+	// hasRotated = true;
+	// }
+	// hasMovedNorthWest = false;
+	// hasMovedSouthEast = false;
+	// hasMovedNorthEast = false;
+	// hasMovedSouthWest = false;
+	// hasMovedEast = true;
+	// hasMovedWest = false;
+	// hasMovedSouth = false;
+	// }
+	// if (!player.isLocked()) {
+	// getControls().moveNorth(getFrameTime());
+	// } else {
+	// getControls().moveEast(getFrameTime());
+	// }
 
-		}
-		hasRotated = false;
+	// }
+	// hasRotated = false;
 
-		if (currentRotation >= 360f) {
-			player.addCurrentRotation(-360f);
-		} else if (currentRotation <= -360f) {
-			player.addCurrentRotation(360f);
-		}
-	}
+	// if (currentRotation >= 360f) {
+	// player.addCurrentRotation(-360f);
+	// } else if (currentRotation <= -360f) {
+	// player.addCurrentRotation(360f);
+	// }
+	// }
 
 	private void buildEnemyQuadTree() {
 		for (Enemy e : enemyList) {
@@ -1287,9 +1288,5 @@ public class MyGame extends VariableFrameRateGame {
 
 	public boolean isInvaded() {
 		return isInvaded;
-	}
-
-	public float getCurrentRotation() {
-		return currentRotation;
 	}
 }

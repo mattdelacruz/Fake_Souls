@@ -11,12 +11,6 @@ public class MoveHorizontalAction extends AbstractInputAction {
         String key = evt.getComponent().getIdentifier().getName();
         boolean isPressed = evt.getValue() == 1.0;
 
-        // if (isPressed) {
-        // MyGame.getGameInstance().addKeyToActiveKeys(key);
-        // } else {
-        // MyGame.getGameInstance().removeKeyFromActiveKeys(key);
-        // }
-
         switch (key) {
             case "A":
                 MyGame.getGameInstance().getControls().turnCameraRight(MyGame.getGameInstance().getFrameTime());
@@ -29,12 +23,16 @@ public class MoveHorizontalAction extends AbstractInputAction {
 
         // gamepad controls
         if (evt.getValue() == 1.0) {
-            MyGame.getGameInstance().getControls().moveEast(MyGame.getGameInstance().getFrameTime());
+            MyGame.getGameInstance().getPlayer().addCurrentRotation(-5);
+            MyGame.getGameInstance().getPlayer().yaw(MyGame.getGameInstance().getFrameTime(),
+                    MyGame.getGameInstance().getPlayer().getCurrentRotation());
             return;
         }
 
         if (evt.getValue() == -1.0) {
-            MyGame.getGameInstance().getControls().moveEast(-MyGame.getGameInstance().getFrameTime());
+            MyGame.getGameInstance().getPlayer().addCurrentRotation(5);
+            MyGame.getGameInstance().getPlayer().yaw(MyGame.getGameInstance().getFrameTime(),
+                    MyGame.getGameInstance().getPlayer().getCurrentRotation());
             return;
         }
     }

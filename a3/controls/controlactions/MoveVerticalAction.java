@@ -20,7 +20,10 @@ public class MoveVerticalAction extends AbstractInputAction {
 
         switch (key) {
             case "W":
+                MyGame.getGameInstance().getControls().moveNorth(MyGame.getGameInstance().getFrameTime());
+                return;
             case "S":
+                MyGame.getGameInstance().getControls().moveSouth(-MyGame.getGameInstance().getFrameTime());
                 return;
         }
 

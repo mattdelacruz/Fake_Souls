@@ -1,6 +1,7 @@
 package a3.controls;
 
 import tage.input.*;
+import a3.controls.controlactions.GamepadAction;
 //import a3.controls.controlactions.GameWorldAssetAction;
 import a3.controls.controlactions.KeyboardActions;
 import a3.controls.controlactions.MoveVerticalAction;
@@ -13,10 +14,8 @@ import net.java.games.input.*;
 public class PlayerControlMap {
 	private MoveVerticalAction moveVerticalAction;
 	private MoveHorizontalAction moveHorizontalAction;
-	// private RightStickYAction rightStickYAction;
-	// private OverheadAction overheadAction;
+	private GamepadAction gamepadAction;
 	private KeyboardActions keyboardAction;
-	// private GameWorldAssetAction gameWorldAssetAction;
 	private MouseAction mouseAction;
 	private InputManager inputManager;
 
@@ -26,6 +25,7 @@ public class PlayerControlMap {
 		moveHorizontalAction = new MoveHorizontalAction();
 		keyboardAction = new KeyboardActions();
 		mouseAction = new MouseAction();
+		gamepadAction = new GamepadAction();
 
 		// gamepad controls
 		initializeGamepadControls();
@@ -35,6 +35,7 @@ public class PlayerControlMap {
 		initializeKeyboardMovementControls();
 		// mouse controls
 		initializeMouseControls();
+
 	}
 
 	private void intializeKeyboardButtonControls() {
@@ -64,13 +65,13 @@ public class PlayerControlMap {
 	private void initializeKeyboardMovementControls() {
 		inputManager.associateActionWithAllKeyboards(
 				Component.Identifier.Key.W, moveVerticalAction,
-				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
+				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		inputManager.associateActionWithAllKeyboards(
 				Component.Identifier.Key.A, moveHorizontalAction,
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		inputManager.associateActionWithAllKeyboards(
 				Component.Identifier.Key.S, moveVerticalAction,
-				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
+				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		inputManager.associateActionWithAllKeyboards(
 				Component.Identifier.Key.D, moveHorizontalAction,
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
@@ -85,26 +86,26 @@ public class PlayerControlMap {
 		inputManager.associateActionWithAllGamepads(
 				Component.Identifier.Axis.Z, moveHorizontalAction,
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		// // up and down y axis on right stick
-		// inputManager.associateActionWithAllGamepads(
-		// Component.Identifier.Axis.RZ, rightStickYAction,
-		// InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		// inputManager.associateActionWithAllGamepads(
-		// Component.Identifier.Button._1, gameWorldAssetAction,
-		// InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-		// // d-pad on PS4 controller
-		// inputManager.associateActionWithAllGamepads(
-		// Component.Identifier.Axis.POV, overheadAction,
-		// InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		// target button
+		inputManager.associateActionWithAllGamepads(
+				Component.Identifier.Button._2, gamepadAction,
+				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+		// d-pad on PS4 controller
+		// camera controls
+		inputManager.associateActionWithAllGamepads(
+				Component.Identifier.Axis.POV, gamepadAction,
+				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 
-		// // left trigger on PS4 controller
-		// inputManager.associateActionWithAllGamepads(
-		// Component.Identifier.Button._6, overheadAction,
-		// InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		// // right trigger on PS4 controller
-		// inputManager.associateActionWithAllGamepads(
-		// Component.Identifier.Button._7, overheadAction,
-		// InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		// left trigger on PS4 controller
+		// guard
+		inputManager.associateActionWithAllGamepads(
+				Component.Identifier.Button._6, gamepadAction,
+				InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
+		// right trigger on PS4 controller
+		// attack
+		inputManager.associateActionWithAllGamepads(
+				Component.Identifier.Button._7, gamepadAction,
+				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		// }
 	}
 }
