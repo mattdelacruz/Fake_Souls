@@ -21,14 +21,14 @@
 	- ....\jinput\lib
 
 ## Setting up networking/Starting the game
--For playing the game on the network, in command line,
-	- .\compileServer.bat
-	- .\runServer.bat, leave this window running.
+- For playing the game on the network, in command line,
+	- `.\compileServer.bat`
+	- `.\runServer.bat,` leave this window running.
 	- Go to a different computer or a new terminal then
-	- .\compile.bat
-	- Edit .\run.bat to java -Dsun.java2d.d3d=false -Dsun.java2d.uiScale=1 a3.MyGame [Host's IP address] 6010 UDP 
-	- .\run.bat, the same instructions for each client.
-	- For playing off the network, skip the .\compileServer.bat and .\runServer.bat instructions.
+	- `.\compile.bat`
+	- Edit `.\run.bat` to `java -Dsun.java2d.d3d=false -Dsun.java2d.uiScale=1 a3.MyGame [Host's IP address] 6010 UDP`
+	- `.\run.bat` the same instructions for each client.
+	- For playing off the network, skip the `.\compileServer.bat` and `.\runServer.bat` instructions.
 
 ## Controls
 ### Keyboard controls:
@@ -56,3 +56,14 @@
 - The player must defeat the enemies and not have their health reduced to 0
 - The player must survive until the end
 - Watch out for invaders
+
+## Current issues
+- [] The game has a problem with the lighting depending on the graphics card the client is using.
+	- [] TAGE has a problem with running on AMD cards, not sure what to do here
+	- Problems with this include:
+		- [] The game not running at all due to a `NullPointerException` at `updateSSBO`
+		- [] The game running, but the lighting not being turned on leading to the game just showing black for the textures
+		- [] The game running, but the enemy entity models not being loaded or being incorrectly loaded in
+		- I encountered these issues by running this game on 4 different computers with different setups, not sure how to fix this.
+
+- [] Installation of the game should not require the installation of the .jar files mentioned above, they should already be provided when downloading this game
