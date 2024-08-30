@@ -1,5 +1,7 @@
 # CSC 165 Final Project---Fake Souls
  _This was a half-semester long project that demonstrates an understanding of game architecture by designing a game independently. The game mainly uses TAGE, a game engine written and designed by California State University-Sacramento's alumni and professors._
+
+[Screenshot of the game](/screenshot_20240830_105938.png)
 ## Key features
 - Application of various handmade animated models created in Blender.
 - The use of game engine features such as lighting, height maps, terrain maneveurability, and networking.
